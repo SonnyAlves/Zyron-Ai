@@ -1,8 +1,54 @@
-node_modules
-.vscode/.history
+# Dependencies
+node_modules/
+backend/.venv/
+
+# Environment variables
 .env
 *.env
+.env.local
+.env.*.local
+
+# IDE & Editor
+.vscode/.history
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+*.log
+
+# Python
 __pycache__/
-*.pyc
-backend/.venv
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+
+# Logs & temporary files
+logs/
+*.log
+backend.log
+frontend.log
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build & distribution
+frontend/dist/
+frontend/.vite-metadata.json
+backend/.pytest_cache/
+
+# Server status files
+logs/*.json
+logs/*.pid
+
+# IDE specific
+.vscode/settings.json.backup
