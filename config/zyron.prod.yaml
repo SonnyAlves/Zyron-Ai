@@ -1,0 +1,40 @@
+# Zyron AI - Production Configuration
+# STRICT mode - all variables must be set via environment
+
+environment: production
+debug: false
+
+backend:
+  port: 80
+  reload: false
+  workers: 4
+  log_level: "warning"
+  timeout: 600
+  cors_origins:
+    - "https://zyron.ai"
+    - "https://www.zyron.ai"
+
+database:
+  type: "postgresql"
+  host: "${DB_HOST}"  # MUST be set
+  port: 5432
+  name: "${DB_NAME}"  # MUST be set
+  user: "${DB_USER}"  # MUST be set
+  password: "${DB_PASSWORD}"  # MUST be set
+  ssl: true
+  pool_size: 20
+  pool_timeout: 60
+  echo_sql: false
+
+redis:
+  enabled: true
+  host: "${REDIS_HOST}"  # MUST be set
+  port: 6379
+  password: "${REDIS_PASSWORD}"  # OPTIONAL but recommended
+
+visual_brain:
+  enabled: true
+  gpu: true
+  workers: 4
+  model_cache: "/opt/models"
+  max_concurrent_requests: 2

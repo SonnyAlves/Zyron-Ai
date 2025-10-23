@@ -1,0 +1,33 @@
+# Zyron AI - Staging Configuration
+# Use PostgreSQL via Docker, production-like settings
+
+environment: staging
+debug: true
+
+backend:
+  port: 8000
+  reload: false
+  workers: 2
+  log_level: "info"
+  cors_origins:
+    - "http://staging.zyron.ai"
+    - "https://staging.zyron.ai"
+
+database:
+  type: "postgresql"
+  host: "${DB_HOST:-localhost}"
+  port: 5432
+  name: "${DB_NAME:-zyron_staging}"
+  user: "${DB_USER:-zyron}"
+  password: "${DB_PASSWORD}"
+  pool_size: 10
+  echo_sql: false
+
+redis:
+  enabled: true
+  host: "${REDIS_HOST:-localhost}"
+  port: 6379
+
+visual_brain:
+  enabled: false
+  gpu: false
