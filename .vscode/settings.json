@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.defaultFormatter": null,
+  "python.defaultInterpreterPath": "backend/.venv/bin/python",
+  "task.startup": "Dev: both servers"
+}
