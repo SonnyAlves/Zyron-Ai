@@ -68,7 +68,7 @@ services:
       interval: 2
     depends_on: []
     critical: true
-    enabled: false
+    enabled: true
     startup_timeout: 60
 
   redis:
@@ -90,7 +90,7 @@ services:
       interval: 1
     depends_on: []
     critical: false
-    enabled: false
+    enabled: true
     startup_timeout: 30
 
   visual-brain:
