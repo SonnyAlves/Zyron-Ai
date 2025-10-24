@@ -337,22 +337,25 @@ class Orchestrator:
         if not health_check_config:
             return True  # No health check defined, assume healthy
 
+        import asyncio
+
         start_time = time.time()
+        initial_grace = 5  # Give service time to start
 
         while time.time() - start_time < timeout:
-            result = self.health_checker.check_service(
-                service_name,
-                service_config
-            )
+            # Give service grace period on first check
+            if time.time() - start_time < initial_grace:
+                time.sleep(1)
+                continue
 
-            # Convert to sync (for now)
-            import asyncio
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            # Run async health check
+            async def _check():
+                return await self.health_checker.check_service(service_name, service_config)
+
             try:
-                result = loop.run_until_complete(
-                    self.health_checker.check_service(service_name, service_config)
-                )
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                result = loop.run_until_complete(_check())
             finally:
                 loop.close()
 

@@ -67,6 +67,9 @@ class HealthChecker:
                 message="No URL configured for HTTP health check"
             )
 
+        # Give service time to startup before first health check
+        await asyncio.sleep(2)
+
         for attempt in range(retries):
             start_time = time.time()
 
