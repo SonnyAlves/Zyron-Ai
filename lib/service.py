@@ -97,6 +97,7 @@ class ProcessService(Service):
         self.logger = logger
         self.directory = Path(config.get('directory', '.'))
         self.command = config.get('command', '')
+        self.log_file = None
 
     def start(self) -> bool:
         """Start the service process"""
@@ -109,12 +110,20 @@ class ProcessService(Service):
             if self.logger:
                 self.logger.info(f"Starting {self.name}: {self.command}")
 
+            # Create log file for this service
+            log_dir = Path("logs")
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_file = log_dir / f"{self.name}_process.log"
+
+            # Open the log file and keep it open for the process lifetime
+            self.log_file = open(log_file, 'a')
+
             self.process = subprocess.Popen(
                 self.command,
                 shell=True,
                 cwd=self.directory,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=self.log_file,
+                stderr=subprocess.STDOUT,
                 text=True
             )
             self.start_time = time.time()
@@ -152,6 +161,12 @@ class ProcessService(Service):
                 self.process.wait()
 
             self.process = None
+
+            # Close the log file if it's open
+            if self.log_file:
+                self.log_file.close()
+                self.log_file = None
+
             return True
 
         except Exception as e:
