@@ -113,10 +113,9 @@ class ProcessService(Service):
                 self.command,
                 shell=True,
                 cwd=self.directory,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True
             )
             self.start_time = time.time()
 
