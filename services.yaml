@@ -9,7 +9,7 @@ services:
     name: "Backend API"
     description: "FastAPI backend with Uvicorn"
     type: "process"
-    command: "uvicorn backend.server:app --reload --port 8000"
+    command: ".venv/bin/uvicorn server:app --reload --port 8000"
     directory: "backend"
     port: 8000
     health_check:
