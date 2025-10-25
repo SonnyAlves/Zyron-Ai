@@ -26,17 +26,7 @@
   position: relative;
 }
 
-/* Vertical divider between chat and graph */
-.main-layout[data-view-mode="split"]::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 28%;
-  width: 1px;
-  height: 100vh;
-  background: #E0E0E0;
-  z-index: 50;
-}
+/* Vertical divider removed - clean interface */
 
 /* View Modes */
 .main-layout[data-view-mode="chat"] .visual-brain-section {

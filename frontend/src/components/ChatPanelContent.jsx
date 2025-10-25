@@ -97,8 +97,11 @@ export default function ChatPanelContent({
       <div style={styles.chatPanel}>
         {/* 1. LOGO ZONE - TOP */}
         <div style={styles.logoContainer}>
-          <div style={styles.logoSquare}></div>
-          <span style={styles.logoText}>Zyron Ai</span>
+          <img
+            src="/logos/zyron-logo.svg"
+            alt="Zyron Ai"
+            style={styles.logoImage}
+          />
         </div>
 
         {/* 2. MESSAGES ZONE - MIDDLE (large white box) */}
@@ -160,25 +163,15 @@ const styles = {
 
   // 1. LOGO ZONE - TOP
   logoContainer: {
-    padding: '20px 16px',
+    padding: '16px 20px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
     background: '#FFFFFF',
   },
-  logoSquare: {
-    width: '32px',
+  logoImage: {
     height: '32px',
-    background: 'linear-gradient(135deg, #FF6B6B, #FF8E8E)',
-    borderRadius: '6px',
-    flexShrink: 0,
-  },
-  logoText: {
-    fontFamily: "'Inter', sans-serif",
-    fontSize: '16px',
-    fontWeight: '500',
-    color: '#1A1A1A',
-    letterSpacing: '-0.01em',
+    width: 'auto',
+    objectFit: 'contain',
   },
 
   // 2. MESSAGES ZONE - MIDDLE (large white box section)
