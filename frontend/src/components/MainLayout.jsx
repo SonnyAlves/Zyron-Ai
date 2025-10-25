@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import VisualBrain from './VisualBrain'
 import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
+import ConversationSidebar from './ConversationSidebar'
+import { useConversations } from '../hooks/useConversations'
 import './MainLayout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
@@ -12,7 +14,20 @@ export default function MainLayout() {
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
   const [viewMode, setViewMode] = useState('split')  // 'split', 'graph', 'chat'
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const visualBrainRef = useRef(null)
+
+  // Conversation management
+  const {
+    conversations,
+    currentConversationId,
+    createNewConversation,
+    updateConversation,
+    loadConversation,
+    deleteConversation,
+    getCurrentConversation,
+    isLoaded,
+  } = useConversations()
 
   const handleSendMessage = async (messageText) => {
     setMessage(messageText)
@@ -72,10 +87,23 @@ export default function MainLayout() {
     }
   }
 
-  const handleClearChat = () => {
+  const handleNewChat = () => {
+    createNewConversation()
     setMessage('')
     setResponse('')
     setTokens([])
+    setSidebarOpen(false)
+  }
+
+  const handleSelectConversation = (conversationId) => {
+    loadConversation(conversationId)
+    setMessage('')
+    setResponse('')
+    setTokens([])
+  }
+
+  const handleDeleteConversation = (conversationId) => {
+    deleteConversation(conversationId)
   }
 
   // Trigger node activation when tokens arrive
@@ -129,67 +157,98 @@ export default function MainLayout() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [])
 
+  // Get current conversation messages
+  const currentConversation = getCurrentConversation()
+  const conversationMessages = currentConversation?.messages || []
+
   return (
     <div className="main-layout" data-view-mode={viewMode}>
-      {/* Header with Zyron Logo and View Mode Controls */}
-      <header className="main-header">
-        <ZyronLogo size="md" href="/" />
+      {/* Conversation Sidebar */}
+      <ConversationSidebar
+        conversations={conversations}
+        currentConversationId={currentConversationId}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={handleDeleteConversation}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-        {/* View Mode Controls */}
-        <div className="view-mode-controls">
-          <button
-            className={`view-mode-btn ${viewMode === 'graph' ? 'active' : ''}`}
-            onClick={() => setViewMode('graph')}
-            title="Full Graph (G)"
-            aria-label="Full Graph View"
-          >
-            Graph
-          </button>
-          <button
-            className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
-            onClick={() => setViewMode('split')}
-            title="Split View (S)"
-            aria-label="Split View"
-          >
-            ← Split
-          </button>
-          <button
-            className={`view-mode-btn ${viewMode === 'chat' ? 'active' : ''}`}
-            onClick={() => setViewMode('chat')}
-            title="Full Chat (C)"
-            aria-label="Full Chat View"
-          >
-            Chat
-          </button>
+      {/* Main content area */}
+      <div className="main-content-area">
+        {/* Bouton menu pour ouvrir sidebar (mobile) */}
+        <button
+          className="open-sidebar-button"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Ouvrir le menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+
+        {/* Header with Zyron Logo and View Mode Controls */}
+        <header className="main-header">
+          <ZyronLogo size="md" href="/" />
+
+          {/* View Mode Controls */}
+          <div className="view-mode-controls">
+            <button
+              className={`view-mode-btn ${viewMode === 'graph' ? 'active' : ''}`}
+              onClick={() => setViewMode('graph')}
+              title="Full Graph (G)"
+              aria-label="Full Graph View"
+            >
+              Graph
+            </button>
+            <button
+              className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
+              onClick={() => setViewMode('split')}
+              title="Split View (S)"
+              aria-label="Split View"
+            >
+              ← Split
+            </button>
+            <button
+              className={`view-mode-btn ${viewMode === 'chat' ? 'active' : ''}`}
+              onClick={() => setViewMode('chat')}
+              title="Full Chat (C)"
+              aria-label="Full Chat View"
+            >
+              Chat
+            </button>
+          </div>
+        </header>
+
+        {/* Content container - Chat LEFT, Graph RIGHT */}
+        <div className="content-wrapper">
+          {/* Chat Panel - LEFT side (30%) - Shows in Chat and Split modes */}
+          {viewMode !== 'graph' && (
+            <div className="chat-section">
+              <ChatPanelContent
+                message={message}
+                response={response}
+                isThinking={isThinking}
+                onSendMessage={handleSendMessage}
+                currentConversationId={currentConversationId}
+                conversationMessages={conversationMessages}
+                onUpdateConversation={updateConversation}
+              />
+            </div>
+          )}
+
+          {/* Visual Brain - RIGHT side (70%) - Shows in Graph and Split modes */}
+          {viewMode !== 'chat' && (
+            <div className="visual-brain-section">
+              <VisualBrain
+                ref={visualBrainRef}
+                isThinking={isThinking}
+                tokens={tokens}
+                onNodeClick={(node) => console.log('Node clicked:', node)}
+              />
+            </div>
+          )}
         </div>
-      </header>
-
-      {/* Content container - Chat LEFT, Graph RIGHT */}
-      <div className="content-wrapper">
-        {/* Chat Panel - LEFT side (30%) - Shows in Chat and Split modes */}
-        {viewMode !== 'graph' && (
-          <div className="chat-section">
-            <ChatPanelContent
-              message={message}
-              response={response}
-              isThinking={isThinking}
-              onSendMessage={handleSendMessage}
-              onClearChat={handleClearChat}
-            />
-          </div>
-        )}
-
-        {/* Visual Brain - RIGHT side (70%) - Shows in Graph and Split modes */}
-        {viewMode !== 'chat' && (
-          <div className="visual-brain-section">
-            <VisualBrain
-              ref={visualBrainRef}
-              isThinking={isThinking}
-              tokens={tokens}
-              onNodeClick={(node) => console.log('Node clicked:', node)}
-            />
-          </div>
-        )}
       </div>
     </div>
   )

@@ -7,12 +7,29 @@ export default function ChatPanelContent({
   isThinking,
   onSendMessage,
   error,
+  currentConversationId,
+  conversationMessages,
+  onUpdateConversation,
 }) {
   const [localMessage, setLocalMessage] = useState(message)
   const [isMobile, setIsMobile] = useState(false)
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState(conversationMessages || [])
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
+
+  // Load conversation messages when conversation changes
+  useEffect(() => {
+    if (conversationMessages) {
+      setMessages(conversationMessages)
+    }
+  }, [currentConversationId, conversationMessages])
+
+  // Save messages to conversation whenever they change
+  useEffect(() => {
+    if (currentConversationId && messages.length > 0 && onUpdateConversation) {
+      onUpdateConversation(currentConversationId, messages)
+    }
+  }, [messages])
 
   // Detect mobile screen size
   useEffect(() => {
