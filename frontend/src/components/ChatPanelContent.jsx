@@ -288,7 +288,7 @@ export default function ChatPanelContent({
 
           /* Logo - desktop */
           .logo-full {
-            height: 40px;
+            height: 120px;
             width: auto;
             object-fit: contain;
             display: block;
@@ -349,7 +349,7 @@ export default function ChatPanelContent({
             }
 
             .logo-container-mobile img {
-              height: 84px !important;
+              height: 252px !important;
               width: auto !important;
               object-fit: contain !important;
             }
@@ -595,7 +595,7 @@ const styles = {
     background: 'transparent',
   },
   logoImage: {
-    height: '40px',
+    height: '120px',
     width: 'auto',
     objectFit: 'contain',
   },
