@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import ZyronLogo from './ZyronLogo'
 
 export default function ChatPanelContent({
   message,
@@ -71,6 +70,12 @@ export default function ChatPanelContent({
             font-family: 'Inter', sans-serif;
           }
 
+          /* Input focus state */
+          textarea:focus {
+            border-color: #3B82F6;
+            background: #FFFFFF;
+          }
+
           /* Scrollbar styling for messages */
           .messages-container::-webkit-scrollbar {
             width: 6px;
@@ -92,51 +97,51 @@ export default function ChatPanelContent({
       <div style={styles.chatPanel}>
         {/* 1. LOGO ZONE - TOP */}
         <div style={styles.logoContainer}>
-          <ZyronLogo size="md" />
-          <span style={styles.logoText}>Zyron</span>
+          <div style={styles.logoSquare}></div>
+          <span style={styles.logoText}>Zyron Ai</span>
         </div>
 
-        {/* 2. MESSAGES ZONE - MIDDLE (scrollable) */}
-        <div className="messages-container" style={styles.messagesContainer}>
-          {/* Error Display */}
-          {error && (
-            <div style={styles.errorContainer}>
-              <div style={styles.errorIcon}>⚠️</div>
-              <div style={styles.errorMessage}>
-                <strong>Erreur:</strong> {error}
-              </div>
-            </div>
-          )}
-
-          {/* Messages */}
-          {response && (
-            <div style={styles.message}>
-              {isThinking && (
-                <div style={styles.thinkingIndicator}>
-                  <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
+        {/* 2. MESSAGES ZONE - MIDDLE (large white box) */}
+        <div style={styles.messagesSection}>
+          <div className="messages-container" style={styles.messagesContainer}>
+            {/* Error Display */}
+            {error && (
+              <div style={styles.errorContainer}>
+                <div style={styles.errorIcon}>⚠️</div>
+                <div style={styles.errorMessage}>
+                  <strong>Erreur:</strong> {error}
                 </div>
-              )}
-              <p style={styles.messageText}>{response}</p>
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* Auto-scroll anchor */}
-          <div ref={messagesEndRef} />
+            {/* Thinking indicator */}
+            {isThinking && (
+              <div style={styles.thinkingIndicator}>
+                <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
+              </div>
+            )}
+
+            {/* Response text */}
+            {response && (
+              <p style={styles.messageText}>{response}</p>
+            )}
+
+            {/* Auto-scroll anchor */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
-        {/* 3. INPUT ZONE - BOTTOM (fixed) */}
+        {/* 3. INPUT ZONE - BOTTOM (fixed with gray bg) */}
         <div style={styles.inputContainer}>
-          <div style={styles.inputWrapper}>
-            <textarea
-              ref={textareaRef}
-              value={localMessage}
-              onChange={handleTextareaChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Zyron"
-              style={styles.messageInput}
-              disabled={isThinking}
-            />
-          </div>
+          <textarea
+            ref={textareaRef}
+            value={localMessage}
+            onChange={handleTextareaChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Zyron"
+            style={styles.messageInput}
+            disabled={isThinking}
+          />
         </div>
       </div>
     </>
@@ -155,40 +160,45 @@ const styles = {
 
   // 1. LOGO ZONE - TOP
   logoContainer: {
-    padding: '20px',
+    padding: '20px 16px',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    borderBottom: '1px solid #E0E0E0',
+    background: '#FFFFFF',
+  },
+  logoSquare: {
+    width: '32px',
+    height: '32px',
+    background: 'linear-gradient(135deg, #FF6B6B, #FF8E8E)',
+    borderRadius: '6px',
+    flexShrink: 0,
   },
   logoText: {
     fontFamily: "'Inter', sans-serif",
-    fontSize: '20px',
-    fontWeight: '600',
+    fontSize: '16px',
+    fontWeight: '500',
     color: '#1A1A1A',
+    letterSpacing: '-0.01em',
   },
 
-  // 2. MESSAGES ZONE - MIDDLE (scrollable)
-  messagesContainer: {
+  // 2. MESSAGES ZONE - MIDDLE (large white box section)
+  messagesSection: {
     flex: 1,
-    overflowY: 'auto',
-    padding: '20px',
+    padding: '12px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    minHeight: 0,
+    background: '#F5F5F5',
   },
-
-  // Message bubble styling
-  message: {
-    marginBottom: '16px',
-    padding: '12px 16px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    lineHeight: '1.5',
+  messagesContainer: {
+    flex: 1,
     background: '#FFFFFF',
+    borderRadius: '12px',
     border: '1px solid #E0E0E0',
-    maxWidth: '85%',
-    fontFamily: "'Inter', sans-serif",
+    padding: '16px',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
   },
   messageText: {
     margin: 0,
@@ -200,29 +210,26 @@ const styles = {
     fontFamily: "'Inter', sans-serif",
   },
 
-  // 3. INPUT ZONE - BOTTOM (fixed)
+  // 3. INPUT ZONE - BOTTOM (fixed with light gray background)
   inputContainer: {
-    padding: '16px',
-    borderTop: '1px solid #E0E0E0',
+    padding: '12px',
     background: '#F5F5F5',
-  },
-  inputWrapper: {
-    background: '#FFFFFF',
-    borderRadius: '12px',
-    border: '1px solid #E0E0E0',
-    overflow: 'hidden',
+    borderTop: 'none',
   },
   messageInput: {
     width: '100%',
-    minHeight: '80px',
-    padding: '16px',
-    border: 'none',
-    background: 'transparent',
+    minHeight: '48px',
+    maxHeight: '120px',
+    padding: '12px 16px',
+    border: '1px solid #E0E0E0',
+    borderRadius: '8px',
+    background: '#FAFAFA',
     fontFamily: "'Inter', sans-serif",
     fontSize: '14px',
     color: '#1A1A1A',
     resize: 'none',
     outline: 'none',
+    transition: 'border-color 0.2s, background 0.2s',
   },
 
   // Loading indicator
@@ -248,10 +255,10 @@ const styles = {
     padding: '12px 16px',
     backgroundColor: '#FFF3CD',
     border: '1px solid #FFC107',
-    borderRadius: '12px',
+    borderRadius: '8px',
     color: '#856404',
     fontSize: '13px',
-    marginBottom: '16px',
+    marginBottom: '12px',
   },
   errorIcon: {
     fontSize: '18px',
