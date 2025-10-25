@@ -286,6 +286,18 @@ export default function ChatPanelContent({
             align-items: flex-end;
           }
 
+          /* Logo - desktop */
+          .logo-full {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+          }
+
+          .logo-container-mobile {
+            background: transparent;
+          }
+
           /* Icon button (desktop - hidden by default) */
           .input-actions-left {
             display: none;
@@ -326,15 +338,16 @@ export default function ChatPanelContent({
 
             /* Logo - larger and lower position on mobile */
             .logo-container-mobile {
-              padding: 32px 20px 24px 20px !important;
+              padding: 40px 20px 32px 20px !important;
               border-bottom: none !important;
               background: transparent !important;
               position: relative !important;
             }
 
             .logo-container-mobile img {
-              width: 48px !important;
-              height: 48px !important;
+              height: 56px !important;
+              width: auto !important;
+              object-fit: contain !important;
             }
 
             /* Center messages when empty */
@@ -450,8 +463,9 @@ export default function ChatPanelContent({
         {/* 1. LOGO ZONE - TOP */}
         <div className="logo-container-mobile" style={styles.logoContainer}>
           <img
-            src="/zyron-logo.png"
+            src="/zyron-logo-transparent.png"
             alt="Zyron Ai"
+            className="logo-full"
             style={styles.logoImage}
           />
         </div>
@@ -579,13 +593,13 @@ const styles = {
 
   // 1. LOGO ZONE - TOP
   logoContainer: {
-    padding: '16px 20px',
+    padding: '20px',
     display: 'flex',
     alignItems: 'center',
-    background: '#FFFFFF',
+    background: 'transparent',
   },
   logoImage: {
-    height: '32px',
+    height: '40px',
     width: 'auto',
     objectFit: 'contain',
   },
