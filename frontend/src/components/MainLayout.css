@@ -6,7 +6,12 @@
   font-style: normal;
 }
 
-/* Main Layout - Chat LEFT (30%) + Graph RIGHT (70%) */
+/* Apply Inter font globally */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Main Layout - Chat LEFT (28%) + Graph RIGHT (72%) */
 
 .main-layout {
   width: 100vw;
@@ -16,7 +21,7 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #FFFFFF;
+  background: #FAFAFA;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
@@ -25,13 +30,12 @@
 .main-layout[data-view-mode="split"]::after {
   content: '';
   position: absolute;
-  top: 64px;
-  left: 30%;
-  width: 3px;
-  height: calc(100vh - 64px);
-  background: #D1D5DB;
+  top: 0;
+  left: 28%;
+  width: 1px;
+  height: 100vh;
+  background: #E0E0E0;
   z-index: 50;
-  cursor: col-resize;
 }
 
 /* View Modes */
@@ -52,68 +56,59 @@
    ════════════════════════════════════════ */
 
 .main-header {
-  height: 64px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: #FFFFFF;
-  border-bottom: 1px solid #E5E8EB;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  z-index: 101;
-  gap: 20px;
-  flex-shrink: 0;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
+/* Hide the logo from header since it will be in chat panel */
 .main-header .zyron-logo {
-  color: #fff;
-  transition: all 0.3s ease;
-}
-
-.main-header .zyron-logo:hover {
-  transform: translateY(-2px);
+  display: none;
 }
 
 /* ════════════════════════════════════════
-   VIEW MODE CONTROLS
+   VIEW MODE CONTROLS (Navigation buttons)
    ════════════════════════════════════════ */
 
 .view-mode-controls {
   display: flex;
   gap: 8px;
-  margin-left: auto;
 }
 
 .view-mode-btn {
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid #CED9E0;
-  color: #5C7080;
-  border-radius: 4px;
-  font-size: 13px;
+  padding: 8px 20px;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 500;
+  color: #666666;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
   user-select: none;
+  font-family: 'Inter', sans-serif;
 }
 
 .view-mode-btn:hover {
-  background: #F5F8FA;
-  border-color: #A7B6C2;
-  color: #182026;
+  background: #F5F5F5;
 }
 
 .view-mode-btn.active {
-  background: #2D72D2;
-  border-color: #2D72D2;
+  background: #3B82F6;
   color: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: #3B82F6;
 }
 
 .view-mode-btn.active:hover {
-  background: #215DB0;
-  border-color: #215DB0;
+  background: #2563EB;
+  border-color: #2563EB;
 }
 
 /* Content wrapper for side-by-side layout */
@@ -124,25 +119,27 @@
   position: relative;
 }
 
-/* Chat Panel - LEFT side (30%) */
+/* Chat Panel - LEFT side (28%) */
 .chat-section {
-  flex: 0 0 30%;
-  width: 30%;
+  flex: 0 0 28%;
+  width: 28%;
+  min-width: 320px;
+  max-width: 420px;
   padding: 0;
-  background: #FFFFFF;
+  background: #F5F5F5;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #E5E8EB;
+  border-right: 1px solid #E0E0E0;
 }
 
-/* Visual Brain - RIGHT side (70%) */
+/* Visual Brain - RIGHT side (72%) */
 .visual-brain-section {
-  flex: 0 0 70%;
-  width: 70%;
+  flex: 1;
+  width: 72%;
   position: relative;
   overflow: hidden;
-  background: #F5F7FA;
+  background: #FAFAFA;
   display: flex;
   align-items: center;
   justify-content: center;

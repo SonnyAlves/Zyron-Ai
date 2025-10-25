@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import ZyronLogo from './ZyronLogo'
 
 export default function ChatPanelContent({
   message,
   response,
   isThinking,
   onSendMessage,
-  onClearChat,
   error,
 }) {
   const [localMessage, setLocalMessage] = useState(message)
@@ -36,8 +36,9 @@ export default function ChatPanelContent({
     textarea.style.height = `${newHeight}px`
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       handleSend()
     }
   }
@@ -49,17 +50,7 @@ export default function ChatPanelContent({
 
     // Reset textarea height after sending
     if (textareaRef.current) {
-      textareaRef.current.style.height = '44px'
-    }
-  }
-
-  const handleClear = () => {
-    setLocalMessage('')
-    onClearChat()
-
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '44px'
+      textareaRef.current.style.height = '80px'
     }
   }
 
@@ -71,172 +62,185 @@ export default function ChatPanelContent({
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
+
+          /* Center placeholder text */
+          textarea::placeholder {
+            color: #9E9E9E;
+            text-align: center;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+          }
+
+          /* Scrollbar styling for messages */
+          .messages-container::-webkit-scrollbar {
+            width: 6px;
+          }
+          .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .messages-container::-webkit-scrollbar-thumb {
+            background: #E0E0E0;
+            border-radius: 3px;
+          }
+          .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #BDBDBD;
+          }
         `}
       </style>
-      <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Zyron AI</h2>
-        <button
-          onClick={handleClear}
-          style={styles.clearButton}
-          title="Clear conversation"
-        >
-          Clear
-        </button>
-      </div>
 
-      <textarea
-        ref={textareaRef}
-        value={localMessage}
-        onChange={handleTextareaChange}
-        onKeyPress={handleKeyPress}
-        placeholder="Ask Zyron anything... (Ctrl+Enter to send)"
-        style={{
-          ...styles.textarea,
-          minHeight: '44px',
-          maxHeight: '200px',
-          height: '44px',
-          overflow: 'auto',
-        }}
-        disabled={isThinking}
-      />
-
-      <button
-        onClick={handleSend}
-        disabled={isThinking || !localMessage.trim()}
-        style={{
-          ...styles.sendButton,
-          opacity: isThinking || !localMessage.trim() ? 0.5 : 1,
-          backgroundColor: isThinking || !localMessage.trim() ? '#A7B6C2' : '#2D72D2',
-          cursor: isThinking || !localMessage.trim() ? 'not-allowed' : 'pointer',
-        }}
-      >
-        {isThinking ? 'Envoi...' : 'Send'}
-      </button>
-
-      {/* Error Display */}
-      {error && (
-        <div style={styles.errorContainer}>
-          <div style={styles.errorIcon}>⚠️</div>
-          <div style={styles.errorMessage}>
-            <strong>Erreur:</strong> {error}
-          </div>
+      {/* Vertical 3-zone layout */}
+      <div style={styles.chatPanel}>
+        {/* 1. LOGO ZONE - TOP */}
+        <div style={styles.logoContainer}>
+          <ZyronLogo size="md" />
+          <span style={styles.logoText}>Zyron</span>
         </div>
-      )}
 
-      <div style={styles.responseContainer}>
-        <div style={styles.responseLabel}>
-          <span>Zyron's Response</span>
-          {isThinking && (
-            <span style={styles.thinkingIndicator}>
-              <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
-            </span>
+        {/* 2. MESSAGES ZONE - MIDDLE (scrollable) */}
+        <div className="messages-container" style={styles.messagesContainer}>
+          {/* Error Display */}
+          {error && (
+            <div style={styles.errorContainer}>
+              <div style={styles.errorIcon}>⚠️</div>
+              <div style={styles.errorMessage}>
+                <strong>Erreur:</strong> {error}
+              </div>
+            </div>
           )}
-        </div>
-        <div style={styles.responseBox}>
-          {response ? (
-            <p style={styles.responseText}>{response}</p>
-          ) : (
-            <p style={styles.placeholderText}>Ask a question to get started...</p>
+
+          {/* Messages */}
+          {response && (
+            <div style={styles.message}>
+              {isThinking && (
+                <div style={styles.thinkingIndicator}>
+                  <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
+                </div>
+              )}
+              <p style={styles.messageText}>{response}</p>
+            </div>
           )}
+
           {/* Auto-scroll anchor */}
           <div ref={messagesEndRef} />
         </div>
+
+        {/* 3. INPUT ZONE - BOTTOM (fixed) */}
+        <div style={styles.inputContainer}>
+          <div style={styles.inputWrapper}>
+            <textarea
+              ref={textareaRef}
+              value={localMessage}
+              onChange={handleTextareaChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Zyron"
+              style={styles.messageInput}
+              disabled={isThinking}
+            />
+          </div>
+        </div>
       </div>
-    </div>
     </>
   )
 }
 
 const styles = {
-  container: {
+  // Main chat panel container (vertical 3-zone layout)
+  chatPanel: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%',
-    padding: '24px',
-    gap: '16px',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    backgroundColor: 'transparent',
-    color: '#182026',
+    height: '100vh',
+    background: '#F5F5F5',
+    fontFamily: "'Inter', sans-serif",
   },
-  header: {
+
+  // 1. LOGO ZONE - TOP
+  logoContainer: {
+    padding: '20px',
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: '1px solid #E5E8EB',
-    paddingBottom: '16px',
+    gap: '12px',
+    borderBottom: '1px solid #E0E0E0',
   },
-  title: {
-    margin: 0,
-    fontSize: '24px',
-    fontWeight: '400',
-    color: '#182026',
-    letterSpacing: '-0.02em',
-    fontFamily: "'Gyokz', sans-serif",
-  },
-  clearButton: {
-    background: 'transparent',
-    border: '1px solid #CED9E0',
-    color: '#5C7080',
-    padding: '6px 14px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: '500',
-    transition: 'all 0.2s',
-  },
-  textarea: {
-    flex: '0 0 100px',
-    padding: '10px 14px',
-    borderRadius: '6px',
-    border: '1px solid #CED9E0',
-    backgroundColor: '#FFFFFF',
-    color: '#182026',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    fontSize: '14px',
-    resize: 'vertical',
-    outline: 'none',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
-  },
-  sendButton: {
-    padding: '10px 20px',
-    borderRadius: '6px',
-    border: 'none',
-    color: 'white',
+  logoText: {
+    fontFamily: "'Inter', sans-serif",
+    fontSize: '20px',
     fontWeight: '600',
-    fontSize: '13px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#2D72D2',
+    color: '#1A1A1A',
   },
-  responseContainer: {
+
+  // 2. MESSAGES ZONE - MIDDLE (scrollable)
+  messagesContainer: {
     flex: 1,
+    overflowY: 'auto',
+    padding: '20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
-    minHeight: 0,
+    gap: '16px',
   },
-  responseLabel: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    fontSize: '11px',
-    fontWeight: '600',
-    color: '#738694',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+
+  // Message bubble styling
+  message: {
+    marginBottom: '16px',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    background: '#FFFFFF',
+    border: '1px solid #E0E0E0',
+    maxWidth: '85%',
+    fontFamily: "'Inter', sans-serif",
   },
+  messageText: {
+    margin: 0,
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+    lineHeight: '1.6',
+    color: '#1A1A1A',
+    fontSize: '14px',
+    fontFamily: "'Inter', sans-serif",
+  },
+
+  // 3. INPUT ZONE - BOTTOM (fixed)
+  inputContainer: {
+    padding: '16px',
+    borderTop: '1px solid #E0E0E0',
+    background: '#F5F5F5',
+  },
+  inputWrapper: {
+    background: '#FFFFFF',
+    borderRadius: '12px',
+    border: '1px solid #E0E0E0',
+    overflow: 'hidden',
+  },
+  messageInput: {
+    width: '100%',
+    minHeight: '80px',
+    padding: '16px',
+    border: 'none',
+    background: 'transparent',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: '14px',
+    color: '#1A1A1A',
+    resize: 'none',
+    outline: 'none',
+  },
+
+  // Loading indicator
   thinkingIndicator: {
-    fontSize: '11px',
-    color: '#2D72D2',
+    fontSize: '12px',
+    color: '#666666',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
+    marginBottom: '8px',
+    fontFamily: "'Inter', sans-serif",
   },
   spinner: {
     display: 'inline-block',
     animation: 'spin 2s linear infinite',
   },
+
+  // Error display
   errorContainer: {
     display: 'flex',
     alignItems: 'flex-start',
@@ -244,10 +248,10 @@ const styles = {
     padding: '12px 16px',
     backgroundColor: '#FFF3CD',
     border: '1px solid #FFC107',
-    borderRadius: '6px',
+    borderRadius: '12px',
     color: '#856404',
     fontSize: '13px',
-    marginTop: '-8px',
+    marginBottom: '16px',
   },
   errorIcon: {
     fontSize: '18px',
@@ -256,28 +260,6 @@ const styles = {
   errorMessage: {
     flex: 1,
     lineHeight: '1.4',
-  },
-  responseBox: {
-    flex: 1,
-    padding: '12px 16px',
-    backgroundColor: '#FFFFFF',
-    borderRadius: '6px',
-    border: '1px solid #E5E8EB',
-    overflowY: 'auto',
-    minHeight: 0,
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-  },
-  responseText: {
-    margin: 0,
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
-    lineHeight: '1.6',
-    color: '#182026',
-    fontSize: '13px',
-  },
-  placeholderText: {
-    margin: 0,
-    color: '#A7B6C2',
-    fontStyle: 'italic',
+    fontFamily: "'Inter', sans-serif",
   },
 }
