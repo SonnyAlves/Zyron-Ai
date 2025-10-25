@@ -122,6 +122,30 @@ export default function ChatPanelContent({
             /* iOS keyboard handling */
             .input-container-mobile {
               padding-bottom: env(safe-area-inset-bottom, 12px);
+              position: sticky;
+              bottom: 0;
+              z-index: 10;
+            }
+
+            /* Mobile logo spacing */
+            .logo-container-mobile {
+              padding: 12px 16px !important;
+            }
+
+            /* Mobile messages spacing */
+            .messages-section-mobile {
+              padding: 8px !important;
+            }
+
+            /* Input on mobile - more prominent */
+            .mobile-input {
+              border: 2px solid #E0E0E0 !important;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .mobile-input:focus {
+              border-color: #3B82F6 !important;
+              box-shadow: 0 2px 12px rgba(59, 130, 246, 0.15) !important;
             }
           }
         `}
@@ -130,16 +154,19 @@ export default function ChatPanelContent({
       {/* Vertical 3-zone layout */}
       <div style={styles.chatPanel}>
         {/* 1. LOGO ZONE - TOP */}
-        <div style={styles.logoContainer}>
+        <div className="logo-container-mobile" style={styles.logoContainer}>
           <img
             src="/zyron-logo.png"
             alt="Zyron Ai"
-            style={styles.logoImage}
+            style={{
+              ...styles.logoImage,
+              height: isMobile ? '36px' : '32px', // Slightly bigger on mobile
+            }}
           />
         </div>
 
         {/* 2. MESSAGES ZONE - MIDDLE (large white box) */}
-        <div style={styles.messagesSection}>
+        <div className="messages-section-mobile" style={styles.messagesSection}>
           <div className="messages-container" style={styles.messagesContainer}>
             {/* Error Display */}
             {error && (
@@ -171,6 +198,7 @@ export default function ChatPanelContent({
         {/* 3. INPUT ZONE - BOTTOM (fixed with gray bg) */}
         <div className="input-container-mobile" style={styles.inputContainer}>
           <textarea
+            className="mobile-input"
             ref={textareaRef}
             value={localMessage}
             onChange={handleTextareaChange}

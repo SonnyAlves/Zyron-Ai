@@ -207,20 +207,13 @@
     display: none !important;
   }
 
-  /* Header navigation mobile */
+  /* HIDE entire header navigation on mobile */
   .main-header {
-    top: 12px;
-    right: 12px;
+    display: none !important;
   }
 
   .view-mode-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  /* Hide Graph and Split buttons on mobile - Chat only */
-  .view-mode-btn:not(:last-child) {
-    display: none;
+    display: none !important;
   }
 }
 
