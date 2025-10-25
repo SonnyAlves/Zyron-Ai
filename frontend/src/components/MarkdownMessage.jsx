@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './MarkdownMessage.css';
 
 const MarkdownMessage = ({ content }) => {
@@ -28,19 +26,11 @@ const MarkdownMessage = ({ content }) => {
                   Copy
                 </button>
               </div>
-              <SyntaxHighlighter
-                style={vscDarkPlus}
-                language={language}
-                PreTag="div"
-                customStyle={{
-                  margin: 0,
-                  borderRadius: '0 0 8px 8px',
-                  fontSize: '14px',
-                }}
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
+              <pre className="code-block-pre">
+                <code className="code-block-code" {...props}>
+                  {String(children).replace(/\n$/, '')}
+                </code>
+              </pre>
             </div>
           ) : (
             <code className="inline-code" {...props}>

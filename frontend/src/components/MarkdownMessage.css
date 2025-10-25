@@ -41,6 +41,24 @@
   background: #1F2937;
 }
 
+/* Code block content */
+.code-block-pre {
+  margin: 0;
+  background: #1E1E1E;
+  border-radius: 0 0 8px 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.code-block-code {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #D4D4D4;
+  display: block;
+  white-space: pre;
+}
+
 /* Inline code */
 .inline-code {
   background: #F3F4F6;
