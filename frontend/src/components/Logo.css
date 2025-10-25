@@ -1,0 +1,215 @@
+/* ════════════════════════════════════════
+   LOGO COMPONENT STYLES
+   ════════════════════════════════════════ */
+
+/* Import custom font */
+@font-face {
+  font-family: 'Gyokz';
+  src: url('/fonts/Gyokz-700-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gyokz';
+  src: url('/fonts/Gyokz-600-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gyokz';
+  src: url('/fonts/Gyokz-400-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ════════════════════════════════════════
+   BASE LOGO STYLES
+   ════════════════════════════════════════ */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: currentColor;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.logo:hover {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 4px 12px rgba(0, 209, 193, 0.2));
+}
+
+.logo:active {
+  transform: scale(0.98);
+}
+
+/* ════════════════════════════════════════
+   LOGO ICON (SVG)
+   ════════════════════════════════════════ */
+
+.logo__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.logo:hover .logo__icon {
+  filter: brightness(1.15);
+}
+
+/* ════════════════════════════════════════
+   LOGO TEXT (Custom Font)
+   ════════════════════════════════════════ */
+
+.logo__text {
+  font-family: 'Gyokz', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  line-height: 1;
+  background: linear-gradient(135deg, #00D1C1 0%, #6A3FF5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+}
+
+.logo:hover .logo__text {
+  letter-spacing: 1px;
+}
+
+/* ════════════════════════════════════════
+   LOGO SIZE VARIATIONS
+   ════════════════════════════════════════ */
+
+/* Small */
+.logo--sm {
+  gap: 8px;
+}
+
+.logo--sm .logo__icon {
+  width: 32px;
+  height: 32px;
+}
+
+.logo--sm .logo__text {
+  font-size: 16px;
+}
+
+/* Medium (default) */
+.logo--md {
+  gap: 12px;
+}
+
+.logo--md .logo__icon {
+  width: 40px;
+  height: 40px;
+}
+
+.logo--md .logo__text {
+  font-size: 20px;
+}
+
+/* Large */
+.logo--lg {
+  gap: 16px;
+}
+
+.logo--lg .logo__icon {
+  width: 56px;
+  height: 56px;
+}
+
+.logo--lg .logo__text {
+  font-size: 28px;
+}
+
+/* Extra Large */
+.logo--xl {
+  gap: 20px;
+}
+
+.logo--xl .logo__icon {
+  width: 72px;
+  height: 72px;
+}
+
+.logo--xl .logo__text {
+  font-size: 36px;
+}
+
+/* ════════════════════════════════════════
+   DARK MODE SUPPORT
+   ════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  .logo:hover {
+    filter: drop-shadow(0 4px 12px rgba(0, 209, 193, 0.3));
+  }
+}
+
+/* ════════════════════════════════════════
+   ACCESSIBILITY & FOCUS STATE
+   ════════════════════════════════════════ */
+
+.logo:focus-visible {
+  outline: 2px solid #00D1C1;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .logo--md {
+    gap: 8px;
+  }
+
+  .logo--md .logo__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo--md .logo__text {
+    font-size: 18px;
+  }
+
+  .logo--lg {
+    gap: 12px;
+  }
+
+  .logo--lg .logo__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .logo--lg .logo__text {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo--md {
+    gap: 6px;
+  }
+
+  .logo--md .logo__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo--md .logo__text {
+    font-size: 16px;
+  }
+}

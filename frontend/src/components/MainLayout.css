@@ -1,0 +1,260 @@
+/* Font Face Declaration */
+@font-face {
+  font-family: 'Gyokz';
+  src: url('/fonts/Gyokz-400-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Main Layout - Chat LEFT (30%) + Graph RIGHT (70%) */
+
+.main-layout {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #FFFFFF;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Vertical divider between chat and graph */
+.main-layout[data-view-mode="split"]::after {
+  content: '';
+  position: absolute;
+  top: 64px;
+  left: 30%;
+  width: 3px;
+  height: calc(100vh - 64px);
+  background: #D1D5DB;
+  z-index: 50;
+  cursor: col-resize;
+}
+
+/* View Modes */
+.main-layout[data-view-mode="chat"] .visual-brain-section {
+  display: none;
+}
+
+.main-layout[data-view-mode="graph"] .chat-section {
+  display: none;
+}
+
+.main-layout[data-view-mode="split"] {
+  /* Default layout visible */
+}
+
+/* ════════════════════════════════════════
+   HEADER WITH LOGO & CONTROLS
+   ════════════════════════════════════════ */
+
+.main-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E8EB;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  z-index: 101;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.main-header .zyron-logo {
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.main-header .zyron-logo:hover {
+  transform: translateY(-2px);
+}
+
+/* ════════════════════════════════════════
+   VIEW MODE CONTROLS
+   ════════════════════════════════════════ */
+
+.view-mode-controls {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.view-mode-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #CED9E0;
+  color: #5C7080;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.view-mode-btn:hover {
+  background: #F5F8FA;
+  border-color: #A7B6C2;
+  color: #182026;
+}
+
+.view-mode-btn.active {
+  background: #2D72D2;
+  border-color: #2D72D2;
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.view-mode-btn.active:hover {
+  background: #215DB0;
+  border-color: #215DB0;
+}
+
+/* Content wrapper for side-by-side layout */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat Panel - LEFT side (30%) */
+.chat-section {
+  flex: 0 0 30%;
+  width: 30%;
+  padding: 0;
+  background: #FFFFFF;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #E5E8EB;
+}
+
+/* Visual Brain - RIGHT side (70%) */
+.visual-brain-section {
+  flex: 0 0 70%;
+  width: 70%;
+  position: relative;
+  overflow: hidden;
+  background: #F5F7FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visual-brain-section .visual-brain-container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.visual-brain-section .canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+.visual-brain-section canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+/* Textarea Focus Styling */
+.chat-section textarea:focus {
+  outline: none;
+  border-color: #2D72D2;
+  box-shadow: 0 0 0 3px rgba(45, 114, 210, 0.1);
+}
+
+.chat-section textarea::placeholder {
+  color: #A7B6C2;
+}
+
+/* Add Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1280px) {
+  .main-layout[data-view-mode="split"] {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-layout[data-view-mode="split"] {
+    grid-template-columns: 1fr 300px;
+  }
+
+  .view-mode-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 300px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .visual-brain-section {
+    min-height: 400px;
+  }
+
+  .chat-section {
+    border-left: none;
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .visual-brain-section {
+    min-height: 300px;
+    max-height: 40vh;
+  }
+
+  .chat-section {
+    max-height: 60vh;
+  }
+}
+
+/* Scrollbar Styling */
+.chat-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-section::-webkit-scrollbar-track {
+  background: rgba(197, 209, 219, 0.2);
+}
+
+.chat-section::-webkit-scrollbar-thumb {
+  background: #CED9E0;
+  border-radius: 4px;
+}
+
+.chat-section::-webkit-scrollbar-thumb:hover {
+  background: #A7B6C2;
+}
