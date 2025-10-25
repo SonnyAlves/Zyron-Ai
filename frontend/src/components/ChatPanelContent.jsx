@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useStore } from '../store/useStore'
 import MessageWithCopy from './MessageWithCopy'
 
 export default function ChatPanelContent({
@@ -7,29 +8,16 @@ export default function ChatPanelContent({
   isThinking,
   onSendMessage,
   error,
-  currentConversationId,
-  conversationMessages,
-  onUpdateConversation,
 }) {
   const [localMessage, setLocalMessage] = useState(message)
   const [isMobile, setIsMobile] = useState(false)
-  const [messages, setMessages] = useState(conversationMessages || [])
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // Load conversation messages when conversation changes
-  useEffect(() => {
-    if (conversationMessages) {
-      setMessages(conversationMessages)
-    }
-  }, [currentConversationId, conversationMessages])
-
-  // Save messages to conversation whenever they change
-  useEffect(() => {
-    if (currentConversationId && messages.length > 0 && onUpdateConversation) {
-      onUpdateConversation(currentConversationId, messages)
-    }
-  }, [messages])
+  // Get messages from Zustand store
+  const messages = useStore(state => state.messages)
+  const addMessage = useStore(state => state.addMessage)
+  const currentConversationId = useStore(state => state.currentConversationId)
 
   // Detect mobile screen size
   useEffect(() => {
@@ -60,20 +48,13 @@ export default function ChatPanelContent({
     return () => window.removeEventListener('resize', handleResize)
   }, [isMobile])
 
-  // Update messages when response changes
+  // Save assistant response when streaming completes
   useEffect(() => {
-    if (response) {
-      setMessages(prev => {
-        const lastMsg = prev[prev.length - 1]
-        if (lastMsg && lastMsg.type === 'assistant') {
-          // Update last assistant message
-          return [...prev.slice(0, -1), { type: 'assistant', text: response }]
-        }
-        // Add new assistant message
-        return [...prev, { type: 'assistant', text: response }]
-      })
+    if (response && !isThinking && currentConversationId) {
+      // Only save when streaming is done
+      addMessage(currentConversationId, 'assistant', response)
     }
-  }, [response])
+  }, [isThinking, response, currentConversationId, addMessage])
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -107,24 +88,29 @@ export default function ChatPanelContent({
     }
   }
 
-  const handleSend = () => {
-    if (!localMessage.trim() || isThinking) return
+  const handleSend = async () => {
+    if (!localMessage.trim() || isThinking || !currentConversationId) return
 
-    // Add user message
-    setMessages(prev => [...prev, { type: 'user', text: localMessage }])
-
-    onSendMessage(localMessage)
+    const userMessageText = localMessage
     setLocalMessage('')
 
     // Reset textarea height after sending
     if (textareaRef.current) {
       textareaRef.current.style.height = isMobile ? '32px' : '44px'
     }
+
+    // Add user message to Supabase
+    await addMessage(currentConversationId, 'user', userMessageText)
+
+    // Call backend API for assistant response
+    onSendMessage(userMessageText)
   }
 
-  const handleSuggestedPrompt = (prompt) => {
-    setMessages(prev => [...prev, { type: 'user', text: prompt }])
-    onSendMessage(prompt)
+  const handleSuggestedPrompt = async (prompt) => {
+    if (!currentConversationId) return
+    setLocalMessage(prompt)
+    // Let user click send or we can auto-send
+    await handleSend()
   }
 
   const hasMessages = messages.length > 0 || response || isThinking

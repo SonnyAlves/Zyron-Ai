@@ -5,9 +5,13 @@ import './MessageWithCopy.css';
 const MessageWithCopy = ({ message }) => {
   const [copied, setCopied] = useState(false);
 
+  // Support both formats: Supabase (role/content) and localStorage (type/text)
+  const messageRole = message.role || message.type
+  const messageContent = message.content || message.text
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(message.text);
+      await navigator.clipboard.writeText(messageContent);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -16,16 +20,16 @@ const MessageWithCopy = ({ message }) => {
   };
 
   return (
-    <div className={`message-wrapper ${message.type}`}>
-      <div className={`message ${message.type}`}>
-        {message.type === 'assistant' ? (
-          <MarkdownMessage content={message.text} />
+    <div className={`message-wrapper ${messageRole}`}>
+      <div className={`message ${messageRole}`}>
+        {messageRole === 'assistant' ? (
+          <MarkdownMessage content={messageContent} />
         ) : (
-          message.text
+          messageContent
         )}
       </div>
 
-      {message.type === 'assistant' && (
+      {messageRole === 'assistant' && (
         <button
           className={`copy-message-button ${copied ? 'copied' : ''}`}
           onClick={handleCopy}

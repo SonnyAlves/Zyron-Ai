@@ -3,12 +3,14 @@ import VisualBrain from './VisualBrain'
 import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
 import ConversationSidebar from './ConversationSidebar'
-import { useConversations } from '../hooks/useConversations'
+import { useAppInitialization } from '../hooks/useAppInitialization'
+import { useStore } from '../store/useStore'
 import './MainLayout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 
 export default function MainLayout() {
+  const { isInitialized, user } = useAppInitialization()
   const [isThinking, setIsThinking] = useState(false)
   const [tokens, setTokens] = useState([])
   const [response, setResponse] = useState('')
@@ -17,17 +19,15 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const visualBrainRef = useRef(null)
 
-  // Conversation management
+  // Zustand store
   const {
     conversations,
     currentConversationId,
-    createNewConversation,
-    updateConversation,
-    loadConversation,
+    currentWorkspaceId,
+    createConversation,
+    setCurrentConversation,
     deleteConversation,
-    getCurrentConversation,
-    isLoaded,
-  } = useConversations()
+  } = useStore()
 
   const handleSendMessage = async (messageText) => {
     setMessage(messageText)
@@ -87,23 +87,26 @@ export default function MainLayout() {
     }
   }
 
-  const handleNewChat = () => {
-    createNewConversation()
+  const handleNewChat = async () => {
+    if (currentWorkspaceId && user) {
+      await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
+      setMessage('')
+      setResponse('')
+      setTokens([])
+      setSidebarOpen(false)
+    }
+  }
+
+  const handleSelectConversation = async (conversationId) => {
+    setCurrentConversation(conversationId)
     setMessage('')
     setResponse('')
     setTokens([])
     setSidebarOpen(false)
   }
 
-  const handleSelectConversation = (conversationId) => {
-    loadConversation(conversationId)
-    setMessage('')
-    setResponse('')
-    setTokens([])
-  }
-
-  const handleDeleteConversation = (conversationId) => {
-    deleteConversation(conversationId)
+  const handleDeleteConversation = async (conversationId) => {
+    await deleteConversation(conversationId)
   }
 
   // Trigger node activation when tokens arrive
@@ -157,9 +160,15 @@ export default function MainLayout() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [])
 
-  // Get current conversation messages
-  const currentConversation = getCurrentConversation()
-  const conversationMessages = currentConversation?.messages || []
+  // Show loading screen during initialization
+  if (!isInitialized) {
+    return (
+      <div className="loading-screen">
+        <div className="spinner" />
+        <p>Chargement de vos données...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="main-layout" data-view-mode={viewMode}>
@@ -230,9 +239,6 @@ export default function MainLayout() {
                 response={response}
                 isThinking={isThinking}
                 onSendMessage={handleSendMessage}
-                currentConversationId={currentConversationId}
-                conversationMessages={conversationMessages}
-                onUpdateConversation={updateConversation}
               />
             </div>
           )}
