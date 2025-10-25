@@ -33,7 +33,7 @@ export const useStore = create((set, get) => ({
       if (workspaces.length === 0) {
         const defaultWorkspace = await workspacesService.create(userId, {
           name: 'Mon Workspace',
-          icon: '🏠',
+          color: '#3B82F6',
         });
         set({
           workspaces: [defaultWorkspace],

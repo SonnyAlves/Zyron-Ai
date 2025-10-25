@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import VisualBrain from './VisualBrain'
 import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
+import WorkspaceSidebar from './WorkspaceSidebar'
 import ConversationSidebar from './ConversationSidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
@@ -21,9 +22,14 @@ export default function MainLayout() {
 
   // Zustand store
   const {
+    workspaces,
+    currentWorkspaceId,
     conversations,
     currentConversationId,
-    currentWorkspaceId,
+    createWorkspace,
+    updateWorkspace,
+    deleteWorkspace,
+    setCurrentWorkspace,
     createConversation,
     setCurrentConversation,
     deleteConversation,
@@ -87,6 +93,18 @@ export default function MainLayout() {
     }
   }
 
+  // Workspace handlers
+  const handleCreateWorkspace = async (workspaceData) => {
+    if (user) {
+      await createWorkspace(user.id, workspaceData)
+    }
+  }
+
+  const handleSelectWorkspace = (workspaceId) => {
+    setCurrentWorkspace(workspaceId)
+  }
+
+  // Conversation handlers
   const handleNewChat = async () => {
     if (currentWorkspaceId && user) {
       await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
@@ -108,6 +126,9 @@ export default function MainLayout() {
   const handleDeleteConversation = async (conversationId) => {
     await deleteConversation(conversationId)
   }
+
+  // Get current workspace for header display
+  const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId)
 
   // Trigger node activation when tokens arrive
   useEffect(() => {
@@ -172,6 +193,16 @@ export default function MainLayout() {
 
   return (
     <div className="main-layout" data-view-mode={viewMode}>
+      {/* Workspace Sidebar */}
+      <WorkspaceSidebar
+        workspaces={workspaces}
+        currentWorkspaceId={currentWorkspaceId}
+        onSelectWorkspace={handleSelectWorkspace}
+        onCreateWorkspace={handleCreateWorkspace}
+        onUpdateWorkspace={updateWorkspace}
+        onDeleteWorkspace={deleteWorkspace}
+      />
+
       {/* Conversation Sidebar */}
       <ConversationSidebar
         conversations={conversations}
@@ -196,9 +227,20 @@ export default function MainLayout() {
           </svg>
         </button>
 
-        {/* Header with Zyron Logo and View Mode Controls */}
+        {/* Header with Workspace Badge, Zyron Logo and View Mode Controls */}
         <header className="main-header">
-          <ZyronLogo size="md" href="/" />
+          <div className="header-left">
+            <ZyronLogo size="md" href="/" />
+            {currentWorkspace && (
+              <div className="current-workspace-badge">
+                <div
+                  className="workspace-color-dot-header"
+                  style={{ background: currentWorkspace.color }}
+                />
+                <span className="workspace-name-header">{currentWorkspace.name}</span>
+              </div>
+            )}
+          </div>
 
           {/* View Mode Controls */}
           <div className="view-mode-controls">

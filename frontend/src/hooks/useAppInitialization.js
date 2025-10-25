@@ -33,9 +33,16 @@ export const useAppInitialization = () => {
   useEffect(() => {
     if (currentConversationId) {
       loadMessages(currentConversationId);
-      setIsInitialized(true);
     }
   }, [currentConversationId, loadMessages]);
+
+  // Step 4: Marquer comme initialisé dès que les workspaces sont chargés
+  useEffect(() => {
+    if (isLoaded && user && currentWorkspaceId !== null) {
+      // Initialisé dès qu'on a un workspace (même sans conversation)
+      setIsInitialized(true);
+    }
+  }, [isLoaded, user, currentWorkspaceId]);
 
   return { isInitialized, user };
 };

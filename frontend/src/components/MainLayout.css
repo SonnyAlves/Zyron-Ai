@@ -57,18 +57,55 @@
 .main-header {
   position: fixed;
   top: 20px;
+  left: 320px; /* 280px workspace sidebar + 40px margin */
   right: 20px;
   z-index: 1000;
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   background: transparent;
   border: none;
   box-shadow: none;
 }
 
-/* Hide the logo from header since it will be in chat panel */
+/* Header left section with logo and workspace badge */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Show the logo in header now */
 .main-header .zyron-logo {
-  display: none;
+  display: block;
+}
+
+/* Current Workspace Badge */
+.current-workspace-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.workspace-color-dot-header {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.workspace-name-header {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1F2937;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
 }
 
 /* ════════════════════════════════════════
@@ -223,6 +260,11 @@
 
   .view-mode-btn {
     display: none !important;
+  }
+
+  /* Adjust header position when workspace sidebar hidden on mobile */
+  .main-header {
+    left: 20px;
   }
 }
 

@@ -26,7 +26,6 @@ export const workspacesService = {
         name: workspaceData.name || 'Nouveau Workspace',
         description: workspaceData.description || '',
         color: workspaceData.color || '#3B82F6',
-        icon: workspaceData.icon || '📁',
       })
       .select()
       .single();
