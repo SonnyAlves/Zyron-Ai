@@ -349,7 +349,7 @@ export default function ChatPanelContent({
             }
 
             .logo-container-mobile img {
-              height: 84px !important;
+              height: 168px !important;
               width: auto !important;
               object-fit: contain !important;
             }
