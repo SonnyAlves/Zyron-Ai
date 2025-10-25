@@ -8,8 +8,19 @@ export default function ChatPanelContent({
   error,
 }) {
   const [localMessage, setLocalMessage] = useState(message)
+  const [isMobile, setIsMobile] = useState(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 767)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Auto-scroll to bottom when response changes
   const scrollToBottom = () => {
@@ -77,6 +88,9 @@ export default function ChatPanelContent({
           }
 
           /* Scrollbar styling for messages */
+          .messages-container {
+            -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+          }
           .messages-container::-webkit-scrollbar {
             width: 6px;
           }
@@ -89,6 +103,26 @@ export default function ChatPanelContent({
           }
           .messages-container::-webkit-scrollbar-thumb:hover {
             background: #BDBDBD;
+          }
+
+          /* ════════════════════════════════════════
+             MOBILE RESPONSIVE STYLES
+             ════════════════════════════════════════ */
+
+          @media (max-width: 767px) {
+            /* Hide scrollbar on mobile for more space */
+            .messages-container::-webkit-scrollbar {
+              display: none;
+            }
+            .messages-container {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+
+            /* iOS keyboard handling */
+            .input-container-mobile {
+              padding-bottom: env(safe-area-inset-bottom, 12px);
+            }
           }
         `}
       </style>
@@ -135,14 +169,18 @@ export default function ChatPanelContent({
         </div>
 
         {/* 3. INPUT ZONE - BOTTOM (fixed with gray bg) */}
-        <div style={styles.inputContainer}>
+        <div className="input-container-mobile" style={styles.inputContainer}>
           <textarea
             ref={textareaRef}
             value={localMessage}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder="Ask Zyron"
-            style={styles.messageInput}
+            style={{
+              ...styles.messageInput,
+              fontSize: isMobile ? '16px' : '14px', // 16px on mobile to prevent iOS zoom
+              minHeight: isMobile ? '60px' : '48px',
+            }}
             disabled={isThinking}
           />
         </div>

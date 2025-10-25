@@ -175,56 +175,85 @@
   }
 }
 
-/* Responsive Design */
-@media (max-width: 1280px) {
-  .main-layout[data-view-mode="split"] {
-    grid-template-columns: 1fr 320px;
-  }
+/* ════════════════════════════════════════
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ════════════════════════════════════════ */
+
+/* CSS Variables for breakpoints */
+:root {
+  --breakpoint-mobile: 767px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
 }
 
-@media (max-width: 1024px) {
-  .main-layout[data-view-mode="split"] {
-    grid-template-columns: 1fr 300px;
+/* MOBILE (< 768px) - Chat Full Screen */
+@media (max-width: 767px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
+  /* Chat takes full screen on mobile */
+  .chat-section {
+    width: 100% !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    height: 100vh;
+    flex: 1;
+    border-right: none;
+  }
+
+  /* HIDE Visual Brain completely on mobile */
+  .visual-brain-section {
+    display: none !important;
+  }
+
+  /* Header navigation mobile */
+  .main-header {
+    top: 12px;
+    right: 12px;
   }
 
   .view-mode-btn {
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 12px;
   }
-}
 
-@media (max-width: 768px) {
-  .main-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 300px;
-    height: auto;
-    min-height: 100vh;
-  }
-
-  .visual-brain-section {
-    min-height: 400px;
-  }
-
-  .chat-section {
-    border-left: none;
-    border-top: 1px solid rgba(139, 92, 246, 0.2);
-    max-height: 300px;
+  /* Hide Graph and Split buttons on mobile - Chat only */
+  .view-mode-btn:not(:last-child) {
+    display: none;
   }
 }
 
-@media (max-width: 480px) {
-  .main-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+/* TABLET (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chat-section {
+    flex: 0 0 35%;
+    width: 35%;
+    min-width: 300px;
   }
 
   .visual-brain-section {
-    min-height: 300px;
-    max-height: 40vh;
+    flex: 1;
+    width: 65%;
   }
 
+  .view-mode-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}
+
+/* DESKTOP (≥ 1024px) - Current layout */
+@media (min-width: 1024px) {
+  /* Keep current 28/72 split */
   .chat-section {
-    max-height: 60vh;
+    flex: 0 0 28%;
+    width: 28%;
+  }
+
+  .visual-brain-section {
+    flex: 1;
+    width: 72%;
   }
 }
 
