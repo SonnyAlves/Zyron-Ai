@@ -1,0 +1,82 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-card {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.auth-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 24px;
+}
+
+.auth-card h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 8px;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-card p {
+  font-size: 16px;
+  color: #6B7280;
+  margin-bottom: 32px;
+  font-family: 'Inter', sans-serif;
+}
+
+.app-header-user {
+  position: fixed;
+  top: 20px;
+  right: 80px;
+  z-index: 1000;
+}
+
+@media (max-width: 767px) {
+  .app-header-user {
+    top: 20px;
+    right: 20px;
+  }
+}
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #F9FAFB;
+  font-family: 'Inter', sans-serif;
+}
+
+.loading-screen p {
+  margin-top: 16px;
+  color: #6B7280;
+  font-size: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E5E7EB;
+  border-top-color: #3B82F6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
