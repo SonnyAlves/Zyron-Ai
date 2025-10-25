@@ -336,9 +336,9 @@ export default function ChatPanelContent({
               scrollbar-width: none;
             }
 
-            /* Logo - centered at top on mobile */
+            /* Logo - centered vertically and horizontally on mobile */
             .logo-container-mobile {
-              padding: 60px 20px 40px 20px !important;
+              padding: 80px 20px 80px 20px !important;
               border-bottom: none !important;
               background: transparent !important;
               position: relative !important;
@@ -365,6 +365,7 @@ export default function ChatPanelContent({
             /* Messages with content - normal scroll */
             .messages-container-with-content {
               justify-content: flex-start;
+              padding-bottom: 100px !important;
             }
 
             /* Input container - Claude-style layout */
@@ -443,7 +444,8 @@ export default function ChatPanelContent({
 
             /* Empty state on mobile */
             .empty-state {
-              padding: 20px 24px;
+              padding: 40px 24px 80px 24px;
+              min-height: calc(100vh - 300px);
             }
 
             .empty-state h2 {
@@ -457,6 +459,7 @@ export default function ChatPanelContent({
 
             .suggested-prompts {
               max-width: 320px;
+              margin-bottom: 40px;
             }
           }
         `}
