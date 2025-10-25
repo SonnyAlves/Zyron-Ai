@@ -336,7 +336,7 @@ export default function ChatPanelContent({
               scrollbar-width: none;
             }
 
-            /* Logo - larger and lower position on mobile */
+            /* Logo - centered at top on mobile */
             .logo-container-mobile {
               padding: 60px 20px 40px 20px !important;
               border-bottom: none !important;
@@ -344,6 +344,7 @@ export default function ChatPanelContent({
               position: relative !important;
               display: flex !important;
               align-items: center !important;
+              justify-content: center !important;
               gap: 12px !important;
             }
 
@@ -466,7 +467,7 @@ export default function ChatPanelContent({
         {/* 1. LOGO ZONE - TOP */}
         <div className="logo-container-mobile" style={styles.logoContainer}>
           <img
-            src="/zyron-logo-transparent.png"
+            src="/zyron-logo-horizontal.png"
             alt="Zyron Ai"
             className="logo-full"
             style={styles.logoImage}
@@ -590,6 +591,7 @@ const styles = {
     padding: '20px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     background: 'transparent',
   },
   logoImage: {
