@@ -243,12 +243,15 @@ const VisualBrain = forwardRef((props, ref) => {
     };
     animate();
 
-    // Improved resize handler for full responsiveness
+    // REAL DYNAMIC RESIZE HANDLER with ResizeObserver
     const handleResize = () => {
       if (!canvasRef.current || !container) return;
 
       const newWidth = container.clientWidth;
       const newHeight = container.clientHeight;
+
+      // Skip if dimensions are invalid
+      if (newWidth === 0 || newHeight === 0) return;
 
       // Update camera aspect ratio
       camera.aspect = newWidth / newHeight;
@@ -257,16 +260,36 @@ const VisualBrain = forwardRef((props, ref) => {
       // Update renderer size
       renderer.setSize(newWidth, newHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Force re-render with new dimensions
+      renderer.render(scene, camera);
     };
 
+    // Listen to window resize events
     window.addEventListener('resize', handleResize);
 
-    // Also handle window orientation changes on mobile
+    // Listen to orientation changes on mobile
     window.addEventListener('orientationchange', handleResize);
+
+    // ResizeObserver for REAL dynamic responsiveness
+    // This catches container size changes that window.resize might miss
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === container) {
+          handleResize();
+        }
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    // Initial resize call to ensure proper sizing
+    handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
+      resizeObserver.disconnect();
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
@@ -382,8 +405,25 @@ const VisualBrain = forwardRef((props, ref) => {
   }));
 
   return (
-    <div className="w-full h-full relative">
-      <canvas ref={canvasRef} className="w-full h-full" />
+    <div
+      className="w-full h-full relative"
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          touchAction: 'none'
+        }}
+      />
     </div>
   );
 });
