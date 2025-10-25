@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import MarkdownMessage from './MarkdownMessage'
 
 export default function ChatPanelContent({
   message,
@@ -522,7 +523,11 @@ export default function ChatPanelContent({
             {/* Message Bubbles */}
             {messages.map((msg, idx) => (
               <div key={idx} className={`message ${msg.type}`}>
-                {msg.text}
+                {msg.type === 'assistant' ? (
+                  <MarkdownMessage content={msg.text} />
+                ) : (
+                  msg.text
+                )}
               </div>
             ))}
 
