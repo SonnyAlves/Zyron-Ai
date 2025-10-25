@@ -98,7 +98,7 @@ export default function ChatPanelContent({
         {/* 1. LOGO ZONE - TOP */}
         <div style={styles.logoContainer}>
           <img
-            src="/logos/zyron-logo.svg"
+            src="/zyron-logo.png"
             alt="Zyron Ai"
             style={styles.logoImage}
           />
