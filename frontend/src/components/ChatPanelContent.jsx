@@ -338,14 +338,17 @@ export default function ChatPanelContent({
 
             /* Logo - larger and lower position on mobile */
             .logo-container-mobile {
-              padding: 40px 20px 32px 20px !important;
+              padding: 60px 20px 40px 20px !important;
               border-bottom: none !important;
               background: transparent !important;
               position: relative !important;
+              display: flex !important;
+              align-items: center !important;
+              gap: 12px !important;
             }
 
             .logo-container-mobile img {
-              height: 56px !important;
+              height: 84px !important;
               width: auto !important;
               object-fit: contain !important;
             }
@@ -518,12 +521,7 @@ export default function ChatPanelContent({
               </div>
             ))}
 
-            {/* Thinking indicator */}
-            {isThinking && (
-              <div className="message assistant">
-                <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
-              </div>
-            )}
+            {/* Thinking indicator - removed per user request */}
 
             {/* Auto-scroll anchor */}
             <div ref={messagesEndRef} />
