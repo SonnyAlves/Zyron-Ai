@@ -4,6 +4,8 @@ import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
 import './MainLayout.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+
 export default function MainLayout() {
   const [isThinking, setIsThinking] = useState(false)
   const [tokens, setTokens] = useState([])
@@ -19,7 +21,7 @@ export default function MainLayout() {
       setResponse('')
       setTokens([])
 
-      const res = await fetch('http://localhost:8001/chat', {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

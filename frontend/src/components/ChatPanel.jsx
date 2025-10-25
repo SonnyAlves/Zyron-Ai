@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+
 export default function ChatPanel() {
   const [message, setMessage] = useState('')
   const [response, setResponse] = useState('')
@@ -16,7 +18,7 @@ export default function ChatPanel() {
       setTokens([])
       tokenCounterRef.current = 0
 
-      const res = await fetch('http://localhost:8001/chat', {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

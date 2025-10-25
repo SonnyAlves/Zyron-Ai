@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import VisualBrain from './VisualBrain/VisualBrain'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+
 export default function ChatInterface() {
   const [message, setMessage] = useState('')
   const [response, setResponse] = useState('')
@@ -17,7 +19,7 @@ export default function ChatInterface() {
       setTokens([])
       tokenCounterRef.current = 0
 
-      const res = await fetch('http://localhost:8001/chat', {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
