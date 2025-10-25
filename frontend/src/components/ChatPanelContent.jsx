@@ -288,14 +288,15 @@ export default function ChatPanelContent({
 
           /* Logo - desktop */
           .logo-full {
-            height: 120px;
+            height: 40px;
             width: auto;
             object-fit: contain;
             display: block;
           }
 
           .logo-container-mobile {
-            background: transparent;
+            background: #F5F5F5;
+            border-bottom: 1px solid #E5E7EB;
           }
 
           /* Icon button (desktop - hidden by default) */
@@ -336,11 +337,11 @@ export default function ChatPanelContent({
               scrollbar-width: none;
             }
 
-            /* Logo - centered vertically and horizontally on mobile */
+            /* Logo - compact zone on mobile */
             .logo-container-mobile {
-              padding: 80px 20px 80px 20px !important;
-              border-bottom: none !important;
-              background: transparent !important;
+              padding: 24px 20px !important;
+              border-bottom: 1px solid #E5E7EB !important;
+              background: #F5F5F5 !important;
               position: relative !important;
               display: flex !important;
               align-items: center !important;
@@ -349,7 +350,7 @@ export default function ChatPanelContent({
             }
 
             .logo-container-mobile img {
-              height: 168px !important;
+              height: 72px !important;
               width: auto !important;
               object-fit: contain !important;
             }
@@ -444,8 +445,8 @@ export default function ChatPanelContent({
 
             /* Empty state on mobile */
             .empty-state {
-              padding: 40px 24px 80px 24px;
-              min-height: calc(100vh - 300px);
+              padding: 32px 24px 60px 24px;
+              min-height: calc(100vh - 250px);
             }
 
             .empty-state h2 {
@@ -459,7 +460,7 @@ export default function ChatPanelContent({
 
             .suggested-prompts {
               max-width: 320px;
-              margin-bottom: 40px;
+              margin-bottom: 0;
             }
           }
         `}
@@ -591,14 +592,15 @@ const styles = {
 
   // 1. LOGO ZONE - TOP
   logoContainer: {
-    padding: '20px',
+    padding: '16px 20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'transparent',
+    background: '#F5F5F5',
+    borderBottom: '1px solid #E5E7EB',
   },
   logoImage: {
-    height: '120px',
+    height: '40px',
     width: 'auto',
     objectFit: 'contain',
   },
