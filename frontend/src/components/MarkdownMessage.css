@@ -97,23 +97,23 @@
 
 /* Headers */
 .markdown-h1 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 24px 0 16px 0;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 8px 0 4px 0;
   color: #1F2937;
 }
 
 .markdown-h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 20px 0 12px 0;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 8px 0 4px 0;
   color: #374151;
 }
 
 .markdown-h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 16px 0 8px 0;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 8px 0 4px 0;
   color: #4B5563;
 }
 
@@ -158,13 +158,13 @@
 
 .markdown-table th {
   background: #F9FAFB;
-  font-weight: 600;
+  font-weight: 400;
   color: #374151;
 }
 
 /* Strong et emphasis */
 strong {
-  font-weight: 600;
+  font-weight: 400;
   color: #1F2937;
 }
 
@@ -193,11 +193,11 @@ em {
   }
 
   .markdown-h1 {
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .markdown-h2 {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .markdown-h3 {

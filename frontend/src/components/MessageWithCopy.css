@@ -24,6 +24,8 @@
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
+  font-weight: 400;
+  text-transform: none;
 }
 
 .message-wrapper .message.user {
@@ -36,6 +38,41 @@
   background: #F3F4F6;
   color: #1F2937;
   border-radius: 18px 18px 18px 4px;
+}
+
+/* Normaliser les titres dans les messages markdown */
+.message-wrapper .message.assistant h1,
+.message-wrapper .message.assistant h2,
+.message-wrapper .message.assistant h3,
+.message-wrapper .message.assistant h4,
+.message-wrapper .message.assistant h5,
+.message-wrapper .message.assistant h6 {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Normaliser les paragraphes */
+.message-wrapper .message.assistant p {
+  font-weight: 400;
+  text-transform: none;
+  margin: 0;
+}
+
+/* Normaliser le texte en gras */
+.message-wrapper .message.assistant strong,
+.message-wrapper .message.assistant b {
+  font-weight: 400;
+}
+
+/* Normaliser les listes */
+.message-wrapper .message.assistant ul,
+.message-wrapper .message.assistant ol,
+.message-wrapper .message.assistant li {
+  font-weight: 400;
+  text-transform: none;
 }
 
 /* Bouton copy */
