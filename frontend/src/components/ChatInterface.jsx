@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import VisualBrain from './VisualBrain/VisualBrain'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
@@ -8,15 +8,43 @@ export default function ChatInterface() {
   const [response, setResponse] = useState('')
   const [isThinking, setIsThinking] = useState(false)
   const [tokens, setTokens] = useState([])
+  const [error, setError] = useState(null)
   const tokenCounterRef = useRef(0)
+  const messagesEndRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  // Auto-scroll to bottom when response changes
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    if (response || isThinking) {
+      scrollToBottom()
+    }
+  }, [response, isThinking])
+
+  // Auto-resize textarea
+  const handleTextareaChange = (e) => {
+    const textarea = e.target
+    setMessage(textarea.value)
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto'
+
+    // Set new height based on content (min 44px, max 200px)
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, 44), 200)
+    textarea.style.height = `${newHeight}px`
+  }
 
   const sendMessage = async () => {
-    if (!message.trim()) return
+    if (!message.trim() || isThinking) return
 
     try {
       setIsThinking(true)
       setResponse('')
       setTokens([])
+      setError(null)
       tokenCounterRef.current = 0
 
       const res = await fetch(`${API_URL}/chat`, {
@@ -28,7 +56,7 @@ export default function ChatInterface() {
       })
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
+        throw new Error(`Le backend ne répond pas (HTTP ${res.status})`)
       }
 
       const reader = res.body.getReader()
@@ -69,9 +97,13 @@ export default function ChatInterface() {
       }
     } catch (error) {
       console.error('Error:', error)
-      setResponse(`Error: ${error.message}`)
+      setError(error.message || 'Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setIsThinking(false)
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = '44px'
+      }
     }
   }
 
@@ -100,20 +132,25 @@ export default function ChatInterface() {
       />
 
       <textarea
+        ref={textareaRef}
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleTextareaChange}
         onKeyPress={handleKeyPress}
         placeholder="Ask Zyron anything... (Ctrl+Enter to send)"
+        disabled={isThinking}
         style={{
           width: '100%',
-          height: '100px',
+          minHeight: '44px',
+          maxHeight: '200px',
+          height: '44px',
           padding: '10px',
           fontSize: '16px',
           marginBottom: '10px',
           borderRadius: '4px',
           border: '1px solid #ccc',
           fontFamily: 'system-ui',
-          resize: 'vertical',
+          resize: 'none',
+          overflow: 'auto',
         }}
       />
 
@@ -132,11 +169,32 @@ export default function ChatInterface() {
           borderRadius: '4px',
           fontWeight: 'bold',
           opacity:
-            isThinking || !message.trim() ? 0.6 : 1,
+            isThinking || !message.trim() ? 0.5 : 1,
         }}
       >
-        {isThinking ? 'Thinking...' : 'Send'}
+        {isThinking ? 'Envoi...' : 'Send'}
       </button>
+
+      {/* Error Display */}
+      {error && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '10px',
+          padding: '12px 16px',
+          backgroundColor: '#FFF3CD',
+          border: '1px solid #FFC107',
+          borderRadius: '6px',
+          color: '#856404',
+          fontSize: '14px',
+          marginTop: '10px',
+        }}>
+          <div style={{ fontSize: '18px', lineHeight: '1' }}>⚠️</div>
+          <div style={{ flex: 1, lineHeight: '1.4' }}>
+            <strong>Erreur:</strong> {error}
+          </div>
+        </div>
+      )}
 
       <div
         style={{
@@ -149,11 +207,37 @@ export default function ChatInterface() {
           overflowY: 'auto',
         }}
       >
-        <strong>Zyron:</strong>
+        <strong>
+          Zyron:
+          {isThinking && (
+            <span style={{
+              marginLeft: '10px',
+              fontSize: '14px',
+              color: '#007bff',
+              fontWeight: 'normal',
+            }}>
+              <span style={{
+                display: 'inline-block',
+                animation: 'spin 2s linear infinite',
+              }}>⚙️</span> réfléchit...
+            </span>
+          )}
+        </strong>
         <p style={{ whiteSpace: 'pre-wrap', marginTop: '10px', lineHeight: '1.6' }}>
           {response || '(waiting for response...)'}
         </p>
+        {/* Auto-scroll anchor */}
+        <div ref={messagesEndRef} />
       </div>
+
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   )
 }

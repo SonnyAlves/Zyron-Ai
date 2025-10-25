@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 
@@ -7,15 +7,43 @@ export default function ChatPanel() {
   const [response, setResponse] = useState('')
   const [isThinking, setIsThinking] = useState(false)
   const [tokens, setTokens] = useState([])
+  const [error, setError] = useState(null)
   const tokenCounterRef = useRef(0)
+  const messagesEndRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  // Auto-scroll to bottom when response changes
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    if (response || isThinking) {
+      scrollToBottom()
+    }
+  }, [response, isThinking])
+
+  // Auto-resize textarea
+  const handleTextareaChange = (e) => {
+    const textarea = e.target
+    setMessage(textarea.value)
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto'
+
+    // Set new height based on content (min 44px, max 200px)
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, 44), 200)
+    textarea.style.height = `${newHeight}px`
+  }
 
   const sendMessage = async () => {
-    if (!message.trim()) return
+    if (!message.trim() || isThinking) return
 
     try {
       setIsThinking(true)
       setResponse('')
       setTokens([])
+      setError(null)
       tokenCounterRef.current = 0
 
       const res = await fetch(`${API_URL}/chat`, {
@@ -27,7 +55,7 @@ export default function ChatPanel() {
       })
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
+        throw new Error(`Le backend ne répond pas (HTTP ${res.status})`)
       }
 
       const reader = res.body.getReader()
@@ -68,9 +96,13 @@ export default function ChatPanel() {
       }
     } catch (error) {
       console.error('Error:', error)
-      setResponse(`Error: ${error.message}`)
+      setError(error.message || 'Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setIsThinking(false)
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = '44px'
+      }
     }
   }
 
@@ -84,11 +116,26 @@ export default function ChatPanel() {
     setMessage('')
     setResponse('')
     setTokens([])
+    setError(null)
     tokenCounterRef.current = 0
+
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '44px'
+    }
   }
 
   return (
-    <div style={styles.container}>
+    <>
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      <div style={styles.container}>
       <div style={styles.header}>
         <h2 style={styles.title}>Zyron AI Chat</h2>
         <button
@@ -101,11 +148,20 @@ export default function ChatPanel() {
       </div>
 
       <textarea
+        ref={textareaRef}
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleTextareaChange}
         onKeyPress={handleKeyPress}
         placeholder="Ask Zyron anything... (Ctrl+Enter to send)"
-        style={styles.textarea}
+        disabled={isThinking}
+        style={{
+          ...styles.textarea,
+          minHeight: '44px',
+          maxHeight: '200px',
+          height: '44px',
+          resize: 'none',
+          overflow: 'auto',
+        }}
       />
 
       <button
@@ -113,18 +169,32 @@ export default function ChatPanel() {
         disabled={isThinking || !message.trim()}
         style={{
           ...styles.sendButton,
-          opacity: isThinking || !message.trim() ? 0.6 : 1,
+          opacity: isThinking || !message.trim() ? 0.5 : 1,
           backgroundColor: isThinking || !message.trim() ? '#666' : '#8B5CF6',
           cursor: isThinking || !message.trim() ? 'not-allowed' : 'pointer',
         }}
       >
-        {isThinking ? '⚙️ Thinking...' : '↗️ Send'}
+        {isThinking ? 'Envoi...' : '↗️ Send'}
       </button>
+
+      {/* Error Display */}
+      {error && (
+        <div style={styles.errorContainer}>
+          <div style={styles.errorIcon}>⚠️</div>
+          <div style={styles.errorMessage}>
+            <strong>Erreur:</strong> {error}
+          </div>
+        </div>
+      )}
 
       <div style={styles.responseContainer}>
         <div style={styles.responseLabel}>
           <span>🧠 Zyron's Response</span>
-          {isThinking && <span style={styles.thinkingIndicator}>● streaming...</span>}
+          {isThinking && (
+            <span style={styles.thinkingIndicator}>
+              <span style={styles.spinner}>⚙️</span> Zyron réfléchit...
+            </span>
+          )}
         </div>
         <div style={styles.responseBox}>
           {response ? (
@@ -132,9 +202,12 @@ export default function ChatPanel() {
           ) : (
             <p style={styles.placeholderText}>Ask a question to get started...</p>
           )}
+          {/* Auto-scroll anchor */}
+          <div ref={messagesEndRef} />
         </div>
       </div>
     </div>
+    </>
   )
 }
 
@@ -219,7 +292,33 @@ const styles = {
   thinkingIndicator: {
     fontSize: '11px',
     color: '#3B82F6',
-    animation: 'pulse 1.5s infinite',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  spinner: {
+    display: 'inline-block',
+    animation: 'spin 2s linear infinite',
+  },
+  errorContainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '10px',
+    padding: '12px 16px',
+    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+    border: '1px solid rgba(255, 193, 7, 0.5)',
+    borderRadius: '6px',
+    color: '#FFC107',
+    fontSize: '13px',
+    marginTop: '10px',
+  },
+  errorIcon: {
+    fontSize: '18px',
+    lineHeight: '1',
+  },
+  errorMessage: {
+    flex: 1,
+    lineHeight: '1.4',
   },
   responseBox: {
     flex: 1,

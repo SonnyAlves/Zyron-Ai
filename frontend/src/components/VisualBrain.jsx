@@ -148,20 +148,27 @@ const VisualBrain = forwardRef((props, ref) => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
+    const container = canvasRef.current.parentElement;
+    if (!container) return;
+
     const scene = new THREE.Scene();
     scene.background = null; // Transparent for light mode
     sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // Use container dimensions instead of window dimensions for proper responsiveness
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
     camera.position.set(15, 10, 25);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ 
+    const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       antialias: true,
       alpha: true
     });
-    renderer.setSize(canvasRef.current.parentElement.offsetWidth, canvasRef.current.parentElement.offsetHeight);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
@@ -236,18 +243,30 @@ const VisualBrain = forwardRef((props, ref) => {
     };
     animate();
 
+    // Improved resize handler for full responsiveness
     const handleResize = () => {
-      if (!canvasRef.current) return;
-      const width = canvasRef.current.parentElement.offsetWidth;
-      const height = canvasRef.current.parentElement.offsetHeight;
-      camera.aspect = width / height;
+      if (!canvasRef.current || !container) return;
+
+      const newWidth = container.clientWidth;
+      const newHeight = container.clientHeight;
+
+      // Update camera aspect ratio
+      camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+
+      // Update renderer size
+      renderer.setSize(newWidth, newHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     };
+
     window.addEventListener('resize', handleResize);
+
+    // Also handle window orientation changes on mobile
+    window.addEventListener('orientationchange', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
