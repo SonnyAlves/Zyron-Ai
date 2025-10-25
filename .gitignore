@@ -52,3 +52,7 @@ logs/*.pid
 
 # IDE specific
 .vscode/settings.json.backup
+.env
+backend/.env
+.env
+backend/.env
