@@ -1,5 +1,5 @@
 import React from 'react';
-import { SignIn, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { SignIn, SignedIn, SignedOut } from '@clerk/clerk-react';
 import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 import './AuthWrapper.css';
 
@@ -29,9 +29,6 @@ const AuthWrapper = ({ children }) => {
       </SignedOut>
 
       <SignedIn>
-        <div className="app-header-user">
-          <UserButton afterSignOutUrl="/" />
-        </div>
         {children}
       </SignedIn>
     </>
