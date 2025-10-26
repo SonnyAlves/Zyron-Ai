@@ -11,22 +11,70 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Main Layout - Chat LEFT (28%) + Graph RIGHT (72%) */
-
+/* Main Layout */
 .main-layout {
-  width: 100vw;
-  height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
   overflow: hidden;
   background: #FAFAFA;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
 }
 
-/* Main content area (everything except sidebar) */
+/* Sidebar Overlay (dark background when sidebar is open) */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Workspace Sidebar Container (slide-in from left) */
+.workspace-sidebar-container {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  height: 100vh;
+  width: 280px;
+  background: white;
+  z-index: 1000;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.workspace-sidebar-container.open {
+  left: 0;
+}
+
+/* Conversation Sidebar Container (slide-in from left) */
+.conversation-sidebar-container {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  height: 100vh;
+  width: 320px;
+  background: white;
+  z-index: 1000;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.conversation-sidebar-container.open {
+  left: 0;
+}
+
+/* Main content area (fullscreen) */
 .main-content-area {
   flex: 1;
   display: flex;
@@ -35,50 +83,50 @@
   overflow: hidden;
 }
 
-/* Vertical divider removed - clean interface */
-
-/* View Modes */
-.main-layout[data-view-mode="chat"] .visual-brain-section {
-  display: none;
-}
-
-.main-layout[data-view-mode="graph"] .chat-section {
-  display: none;
-}
-
-.main-layout[data-view-mode="split"] {
-  /* Default layout visible */
-}
-
 /* ════════════════════════════════════════
-   HEADER WITH LOGO & CONTROLS
+   HEADER WITH TOGGLE BUTTONS
    ════════════════════════════════════════ */
 
 .main-header {
-  position: fixed;
-  top: 20px;
-  left: 320px; /* 280px workspace sidebar + 40px margin */
-  right: 20px;
-  z-index: 1000;
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid #E5E7EB;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+  flex-shrink: 0;
 }
 
-/* Header left section with logo and workspace badge */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-/* Show the logo in header now */
-.main-header .zyron-logo {
-  display: block;
+/* Toggle buttons (Workspaces + Conversations) */
+.toggle-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3F4F6;
+  border: none;
+  border-radius: 8px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-button:hover {
+  background: #E5E7EB;
+  color: #1F2937;
+}
+
+.toggle-button:active {
+  transform: scale(0.95);
 }
 
 /* Current Workspace Badge */
@@ -87,10 +135,8 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  background: #FFFFFF;
-  border: 1px solid #E0E0E0;
+  background: #F3F4F6;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .workspace-color-dot-header {
@@ -114,17 +160,20 @@
 
 .view-mode-controls {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 8px;
 }
 
 .view-mode-btn {
-  padding: 8px 20px;
-  background: #FFFFFF;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #666666;
+  color: #6B7280;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -133,18 +182,13 @@
 }
 
 .view-mode-btn:hover {
-  background: #F5F5F5;
+  color: #1F2937;
 }
 
 .view-mode-btn.active {
-  background: #3B82F6;
-  color: #FFFFFF;
-  border-color: #3B82F6;
-}
-
-.view-mode-btn.active:hover {
-  background: #2563EB;
-  border-color: #2563EB;
+  background: white;
+  color: #3B82F6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Content wrapper for side-by-side layout */
@@ -200,6 +244,48 @@
   display: block !important;
 }
 
+/* View Modes */
+.main-layout[data-view-mode="chat"] .visual-brain-section {
+  display: none;
+}
+
+.main-layout[data-view-mode="graph"] .chat-section {
+  display: none;
+}
+
+.main-layout[data-view-mode="split"] {
+  /* Default layout visible */
+}
+
+/* Loading Screen */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #F9FAFB;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E5E7EB;
+  border-top-color: #3B82F6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-screen p {
+  margin-top: 16px;
+  color: #6B7280;
+  font-size: 16px;
+}
+
 /* Textarea Focus Styling */
 .chat-section textarea:focus {
   outline: none;
@@ -211,26 +297,9 @@
   color: #A7B6C2;
 }
 
-/* Add Pulse Animation */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 /* ════════════════════════════════════════
    RESPONSIVE DESIGN - MOBILE FIRST
    ════════════════════════════════════════ */
-
-/* CSS Variables for breakpoints */
-:root {
-  --breakpoint-mobile: 767px;
-  --breakpoint-tablet: 768px;
-  --breakpoint-desktop: 1024px;
-}
 
 /* MOBILE (< 768px) - Chat Full Screen */
 @media (max-width: 767px) {
@@ -253,18 +322,18 @@
     display: none !important;
   }
 
-  /* HIDE entire header navigation on mobile */
+  /* Header adjustments */
   .main-header {
-    display: none !important;
+    padding: 0 16px;
   }
 
-  .view-mode-btn {
-    display: none !important;
+  .view-mode-controls {
+    display: none;
   }
 
-  /* Adjust header position when workspace sidebar hidden on mobile */
-  .main-header {
-    left: 20px;
+  .toggle-button {
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -289,7 +358,6 @@
 
 /* DESKTOP (≥ 1024px) - Current layout */
 @media (min-width: 1024px) {
-  /* Keep current 28/72 split */
   .chat-section {
     flex: 0 0 28%;
     width: 28%;

@@ -17,7 +17,8 @@ export default function MainLayout() {
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
   const [viewMode, setViewMode] = useState('split')  // 'split', 'graph', 'chat'
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
+  const [conversationSidebarOpen, setConversationSidebarOpen] = useState(false)
   const visualBrainRef = useRef(null)
 
   // Zustand store
@@ -97,11 +98,13 @@ export default function MainLayout() {
   const handleCreateWorkspace = async (workspaceData) => {
     if (user) {
       await createWorkspace(user.id, workspaceData)
+      setWorkspaceSidebarOpen(false)
     }
   }
 
   const handleSelectWorkspace = (workspaceId) => {
     setCurrentWorkspace(workspaceId)
+    setWorkspaceSidebarOpen(false)
   }
 
   // Conversation handlers
@@ -111,7 +114,7 @@ export default function MainLayout() {
       setMessage('')
       setResponse('')
       setTokens([])
-      setSidebarOpen(false)
+      setConversationSidebarOpen(false)
     }
   }
 
@@ -120,7 +123,7 @@ export default function MainLayout() {
     setMessage('')
     setResponse('')
     setTokens([])
-    setSidebarOpen(false)
+    setConversationSidebarOpen(false)
   }
 
   const handleDeleteConversation = async (conversationId) => {
@@ -193,44 +196,78 @@ export default function MainLayout() {
 
   return (
     <div className="main-layout" data-view-mode={viewMode}>
-      {/* Workspace Sidebar */}
-      <WorkspaceSidebar
-        workspaces={workspaces}
-        currentWorkspaceId={currentWorkspaceId}
-        onSelectWorkspace={handleSelectWorkspace}
-        onCreateWorkspace={handleCreateWorkspace}
-        onUpdateWorkspace={updateWorkspace}
-        onDeleteWorkspace={deleteWorkspace}
-      />
+      {/* Workspace Sidebar (toggle with overlay) */}
+      {workspaceSidebarOpen && (
+        <>
+          <div
+            className="sidebar-overlay"
+            onClick={() => setWorkspaceSidebarOpen(false)}
+          />
+          <div className="workspace-sidebar-container open">
+            <WorkspaceSidebar
+              workspaces={workspaces}
+              currentWorkspaceId={currentWorkspaceId}
+              onSelectWorkspace={handleSelectWorkspace}
+              onCreateWorkspace={handleCreateWorkspace}
+              onUpdateWorkspace={updateWorkspace}
+              onDeleteWorkspace={deleteWorkspace}
+            />
+          </div>
+        </>
+      )}
 
-      {/* Conversation Sidebar */}
-      <ConversationSidebar
-        conversations={conversations}
-        currentConversationId={currentConversationId}
-        onNewChat={handleNewChat}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={handleDeleteConversation}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      {/* Conversation Sidebar (toggle with overlay) */}
+      {conversationSidebarOpen && (
+        <>
+          <div
+            className="sidebar-overlay"
+            onClick={() => setConversationSidebarOpen(false)}
+          />
+          <div className="conversation-sidebar-container open">
+            <ConversationSidebar
+              conversations={conversations}
+              currentConversationId={currentConversationId}
+              onNewChat={handleNewChat}
+              onSelectConversation={handleSelectConversation}
+              onDeleteConversation={handleDeleteConversation}
+              isOpen={conversationSidebarOpen}
+              onClose={() => setConversationSidebarOpen(false)}
+            />
+          </div>
+        </>
+      )}
 
       {/* Main content area */}
       <div className="main-content-area">
-        {/* Bouton menu pour ouvrir sidebar (mobile) */}
-        <button
-          className="open-sidebar-button"
-          onClick={() => setSidebarOpen(true)}
-          aria-label="Ouvrir le menu"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
-
-        {/* Header with Workspace Badge, Zyron Logo and View Mode Controls */}
+        {/* Header with Toggle Buttons and View Mode Controls */}
         <header className="main-header">
           <div className="header-left">
-            <ZyronLogo size="md" href="/" />
+            {/* Toggle Workspaces Button */}
+            <button
+              className="toggle-button"
+              onClick={() => setWorkspaceSidebarOpen(true)}
+              title="Workspaces"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            </button>
+
+            {/* Toggle Conversations Button */}
+            <button
+              className="toggle-button"
+              onClick={() => setConversationSidebarOpen(true)}
+              title="Conversations"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {/* Current workspace badge */}
             {currentWorkspace && (
               <div className="current-workspace-badge">
                 <div
@@ -258,7 +295,7 @@ export default function MainLayout() {
               title="Split View (S)"
               aria-label="Split View"
             >
-              ← Split
+              Split
             </button>
             <button
               className={`view-mode-btn ${viewMode === 'chat' ? 'active' : ''}`}
