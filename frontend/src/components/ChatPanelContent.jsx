@@ -11,6 +11,7 @@ export default function ChatPanelContent({
 }) {
   const [localMessage, setLocalMessage] = useState(message)
   const [isMobile, setIsMobile] = useState(false)
+  const [hasSeenSuggestions, setHasSeenSuggestions] = useState(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -18,6 +19,14 @@ export default function ChatPanelContent({
   const messages = useStore(state => state.messages)
   const addMessage = useStore(state => state.addMessage)
   const currentConversationId = useStore(state => state.currentConversationId)
+
+  // Check si l'utilisateur a déjà vu les suggestions dans cette session
+  useEffect(() => {
+    const seenInSession = sessionStorage.getItem('zyron_suggestions_seen')
+    if (seenInSession) {
+      setHasSeenSuggestions(true)
+    }
+  }, [])
 
   // Detect mobile screen size
   useEffect(() => {
@@ -109,11 +118,17 @@ export default function ChatPanelContent({
   const handleSuggestedPrompt = async (prompt) => {
     if (!currentConversationId) return
     setLocalMessage(prompt)
+    // Marquer les suggestions comme vues dans cette session
+    sessionStorage.setItem('zyron_suggestions_seen', 'true')
+    setHasSeenSuggestions(true)
     // Let user click send or we can auto-send
     await handleSend()
   }
 
-  // Show empty state ONLY if no saved messages (ignore streaming state)
+  // Afficher suggestions seulement si:
+  // - Pas de messages dans la conversation actuelle
+  // - ET l'utilisateur n'a pas encore vu les suggestions dans cette session
+  const showSuggestions = messages.length === 0 && !hasSeenSuggestions
   const hasMessages = messages.length > 0
 
   return (
@@ -505,8 +520,8 @@ export default function ChatPanelContent({
               </div>
             )}
 
-            {/* Empty State - NO EMOJIS */}
-            {!hasMessages && (
+            {/* Empty State - Suggestions (uniquement 1ère session) */}
+            {showSuggestions && (
               <div className="empty-state">
                 <h2>Bienvenue sur Zyron AI</h2>
                 <p>Posez-moi n'importe quelle question</p>
