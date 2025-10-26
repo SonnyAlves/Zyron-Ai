@@ -105,6 +105,11 @@
   gap: 12px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
 /* Toggle buttons (Workspaces + Conversations) */
 .toggle-button {
   width: 40px;

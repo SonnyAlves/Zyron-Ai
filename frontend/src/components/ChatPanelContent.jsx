@@ -113,7 +113,8 @@ export default function ChatPanelContent({
     await handleSend()
   }
 
-  const hasMessages = messages.length > 0 || response || isThinking
+  // Show empty state ONLY if no saved messages (ignore streaming state)
+  const hasMessages = messages.length > 0
 
   return (
     <>
