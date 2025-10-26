@@ -20,10 +20,17 @@ const AuthWrapper = ({ children }) => {
       <SignedOut>
         <div className="auth-container">
           <div className="auth-card">
-            <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="auth-logo" />
-            <h1>Bienvenue sur Zyron AI</h1>
-            <p>Resolving mind's chaos</p>
-            <SignIn routing="hash" />
+            {/* Section gauche - Logo et texte */}
+            <div className="auth-left">
+              <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="auth-logo" />
+              <h1>Bienvenue sur Zyron AI</h1>
+              <p>Resolving mind's chaos</p>
+            </div>
+
+            {/* Section droite - Formulaire Clerk */}
+            <div className="auth-right">
+              <SignIn routing="hash" />
+            </div>
           </div>
         </div>
       </SignedOut>

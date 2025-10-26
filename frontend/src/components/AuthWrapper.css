@@ -5,16 +5,31 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: 'Inter', sans-serif;
+  padding: 20px;
 }
 
 .auth-card {
-  text-align: center;
-  padding: 40px;
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  align-items: center;
+  padding: 60px;
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
+  max-width: 900px;
   width: 90%;
+}
+
+/* Section gauche - Logo et titre */
+.auth-left {
+  flex: 1;
+  text-align: center;
+}
+
+/* Section droite - Formulaire Clerk */
+.auth-right {
+  flex: 1;
 }
 
 .auth-logo {
@@ -23,32 +38,35 @@
   margin-bottom: 24px;
 }
 
-.auth-card h1 {
-  font-size: 28px;
+.auth-left h1 {
+  font-size: 32px;
   font-weight: 700;
   color: #1F2937;
-  margin-bottom: 8px;
+  margin: 24px 0 12px 0;
   font-family: 'Inter', sans-serif;
 }
 
-.auth-card p {
-  font-size: 16px;
+.auth-left p {
+  font-size: 18px;
   color: #6B7280;
-  margin-bottom: 32px;
+  margin: 0;
   font-family: 'Inter', sans-serif;
 }
 
-.app-header-user {
-  position: fixed;
-  top: 20px;
-  right: 80px;
-  z-index: 1000;
-}
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .auth-card {
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px 30px;
+  }
 
-@media (max-width: 767px) {
-  .app-header-user {
-    top: 20px;
-    right: 20px;
+  .auth-left h1 {
+    font-size: 24px;
+  }
+
+  .auth-left p {
+    font-size: 16px;
   }
 }
 
