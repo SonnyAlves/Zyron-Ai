@@ -28,7 +28,8 @@ export function formatDate(isoDate, locale = 'fr-FR') {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  // Use locale-specific messages
+  // Locale-specific relative time messages
+  // Add more locales by extending this object
   const messages = {
     'fr-FR': {
       now: "À l'instant",
@@ -44,9 +45,51 @@ export function formatDate(isoDate, locale = 'fr-FR') {
       yesterday: 'Yesterday',
       daysAgo: (n) => `${n} days ago`,
     },
+    'es-ES': {
+      now: 'Hace poco',
+      minuteAgo: (n) => `Hace ${n} min`,
+      hourAgo: (n) => `Hace ${n}h`,
+      yesterday: 'Ayer',
+      daysAgo: (n) => `Hace ${n} días`,
+    },
+    'de-DE': {
+      now: 'Gerade eben',
+      minuteAgo: (n) => `vor ${n} Min`,
+      hourAgo: (n) => `vor ${n}h`,
+      yesterday: 'Gestern',
+      daysAgo: (n) => `vor ${n} Tagen`,
+    },
+    'ja-JP': {
+      now: '今',
+      minuteAgo: (n) => `${n}分前`,
+      hourAgo: (n) => `${n}時間前`,
+      yesterday: '昨日',
+      daysAgo: (n) => `${n}日前`,
+    },
+    'zh-CN': {
+      now: '刚刚',
+      minuteAgo: (n) => `${n}分钟前`,
+      hourAgo: (n) => `${n}小时前`,
+      yesterday: '昨天',
+      daysAgo: (n) => `${n}天前`,
+    },
+    'pt-BR': {
+      now: 'Agora mesmo',
+      minuteAgo: (n) => `Há ${n} min`,
+      hourAgo: (n) => `Há ${n}h`,
+      yesterday: 'Ontem',
+      daysAgo: (n) => `Há ${n} dias`,
+    },
+    'it-IT': {
+      now: 'Proprio ora',
+      minuteAgo: (n) => `${n} min fa`,
+      hourAgo: (n) => `${n}h fa`,
+      yesterday: 'Ieri',
+      daysAgo: (n) => `${n} giorni fa`,
+    },
   };
 
-  const msg = messages[locale] || messages['fr-FR'];
+  const msg = messages[locale] || messages['en-US'];
 
   // Relative time formatting
   if (diffMins < 1) return msg.now;
@@ -56,18 +99,21 @@ export function formatDate(isoDate, locale = 'fr-FR') {
   if (diffDays < 7) return msg.daysAgo(diffDays);
 
   // Absolute date formatting for older dates
+  // Format varies by locale (e.g., "15 déc" vs "Dec 15")
   try {
-    if (locale === 'fr-FR') {
-      return date.toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'short',
-      });
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
-    }
+    const localeFormats = {
+      'fr-FR': { day: 'numeric', month: 'short' },      // "15 déc"
+      'en-US': { month: 'short', day: 'numeric' },      // "Dec 15"
+      'es-ES': { day: 'numeric', month: 'short' },      // "15 dic"
+      'de-DE': { day: 'numeric', month: 'short' },      // "15. Dez"
+      'ja-JP': { year: 'numeric', month: '2-digit', day: '2-digit' }, // "2024/12/15"
+      'zh-CN': { year: 'numeric', month: '2-digit', day: '2-digit' }, // "2024/12/15"
+      'pt-BR': { day: 'numeric', month: 'short' },      // "15 de dez"
+      'it-IT': { day: 'numeric', month: 'short' },      // "15 dic"
+    };
+
+    const format = localeFormats[locale] || localeFormats['en-US'];
+    return date.toLocaleDateString(locale, format);
   } catch (error) {
     console.warn('Error formatting date:', error);
     return date.toISOString().split('T')[0];
