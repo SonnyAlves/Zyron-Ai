@@ -88,7 +88,7 @@
    ════════════════════════════════════════ */
 
 .main-header {
-  height: 84px;
+  height: 70px;
   background: white;
   border-bottom: 1px solid #E5E7EB;
   display: flex;
@@ -151,10 +151,10 @@
 /* Header Logo with text - optimized size */
 .header-logo-with-text {
   width: auto !important;
-  height: 72px !important;
+  height: 65px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 2px !important;
   padding: 0 !important;
   margin: 0 !important;
   background: transparent !important;
@@ -164,13 +164,13 @@
 .header-logo-with-text a {
   display: flex !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 2px !important;
   padding: 0 !important;
 }
 
 .header-logo-with-text img {
-  width: 60px !important;
-  height: 60px !important;
+  width: 65px !important;
+  height: 65px !important;
 }
 
 /* Workspace info in header center */

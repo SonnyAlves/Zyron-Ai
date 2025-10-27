@@ -335,6 +335,20 @@ function ChatPanelContent({
           }
 
           /* ════════════════════════════════════════
+             DESKTOP STYLES (≥768px)
+             ════════════════════════════════════════ */
+
+          @media (min-width: 768px) {
+            /* On desktop, input stays sticky within chat section */
+            .input-container-mobile {
+              position: sticky !important;
+              bottom: 0;
+              left: auto;
+              right: auto;
+            }
+          }
+
+          /* ════════════════════════════════════════
              MOBILE RESPONSIVE STYLES
              ════════════════════════════════════════ */
 
@@ -362,9 +376,9 @@ function ChatPanelContent({
               padding-bottom: 100px !important;
             }
 
-            /* Input container - Claude-style layout */
+            /* Input container - Claude-style layout on mobile */
             .input-container-mobile {
-              position: fixed;
+              position: fixed !important;
               bottom: 0;
               left: 0;
               right: 0;
@@ -466,7 +480,7 @@ function ChatPanelContent({
           className="messages-section-mobile"
           style={{
             ...styles.messagesSection,
-            paddingBottom: isMobile ? '80px' : '12px', // Space for fixed input on mobile
+            paddingBottom: isMobile ? '80px' : '0px', // Extra space on mobile for fixed input
           }}
         >
           <div
@@ -571,13 +585,14 @@ const styles = {
   chatPanel: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
+    height: '100%',
+    width: '100%',
     background: '#F5F5F5',
     fontFamily: "'Inter', sans-serif",
   },
 
   // 1. MESSAGES ZONE - TOP (logo removed - now in main header)
-  // 2. MESSAGES ZONE - MIDDLE
+  // 2. MESSAGES ZONE - MIDDLE (takes remaining space, input sticky at bottom)
   messagesSection: {
     flex: 1,
     padding: '12px',
@@ -585,6 +600,7 @@ const styles = {
     flexDirection: 'column',
     minHeight: 0,
     background: '#F5F5F5',
+    overflow: 'hidden',
   },
   messagesContainer: {
     flex: 1,
@@ -597,16 +613,15 @@ const styles = {
     flexDirection: 'column',
   },
 
-  // 3. INPUT ZONE - BOTTOM (Fixed - stays visible on scroll)
+  // 3. INPUT ZONE - BOTTOM (Sticky - stays at bottom of chat section, doesn't escape)
   inputContainer: {
-    position: 'fixed',
+    position: 'sticky',
     bottom: 0,
-    left: 0,
-    right: 0,
     padding: '12px',
     background: '#F5F5F5',
     borderTop: '1px solid #E5E7EB',
     zIndex: 10,
+    flexShrink: 0,
   },
   messageInput: {
     width: '100%',

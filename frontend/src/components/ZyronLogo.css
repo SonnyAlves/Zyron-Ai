@@ -80,19 +80,19 @@
 /* Header logo with text - optimized for smaller header */
 .header-logo-with-text {
   width: auto !important;
-  height: 72px !important;
-  gap: 4px !important;
+  height: 65px !important;
+  gap: 2px !important;
 }
 
 .header-logo-with-text .zyron-logo__svg {
-  width: 60px !important;
-  height: 60px !important;
+  width: 65px !important;
+  height: 65px !important;
   flex-shrink: 0;
 }
 
 .header-logo-with-text .zyron-logo__text {
   display: block !important;
-  font-size: 1em !important;
+  font-size: 1.15em !important;
   letter-spacing: 0.5px !important;
   color: #1F2937 !important;
   font-weight: 400 !important;
