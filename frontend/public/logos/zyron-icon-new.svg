@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <style>
+      .zyron-teal { fill: #5A9E9C; }
+      .zyron-pink { fill: #FF5A7E; }
+      .zyron-white { fill: #FFFFFF; opacity: 0.15; }
+      .zyron-shine { fill: #FFFFFF; opacity: 0.25; }
+    </style>
+  </defs>
+
+  <!-- Background (optional, remove if you want transparency) -->
+  <rect width="256" height="256" fill="transparent"/>
+
+  <!-- Outer Teal Ring -->
+  <path class="zyron-teal" d="M128 20 C200 20 260 80 260 152 C260 190 245 225 220 250 C200 270 172 280 145 275 C120 270 105 255 95 235 L95 235 C75 270 40 290 20 280 C5 275 -5 260 5 240 C35 190 70 140 100 95 C120 65 128 20 128 20 Z"/>
+
+  <!-- White separator -->
+  <path class="zyron-white" d="M128 45 C185 50 230 95 240 145 C244 165 235 185 220 200 C200 220 170 225 150 215 L150 215 C130 225 95 235 75 220 C55 205 45 180 42 160 C38 135 50 110 80 90 C100 80 115 45 128 45 Z"/>
+
+  <!-- Inner Pink/Red shape -->
+  <path class="zyron-pink" d="M128 65 C175 70 215 110 222 155 C225 175 215 195 195 210 C175 225 145 230 120 220 L120 220 C100 230 65 240 45 220 C28 205 20 180 18 155 C16 130 30 105 60 90 C80 80 105 70 128 65 Z"/>
+
+  <!-- Highlight/shine effect -->
+  <ellipse class="zyron-shine" cx="100" cy="110" rx="20" ry="25"/>
+</svg>

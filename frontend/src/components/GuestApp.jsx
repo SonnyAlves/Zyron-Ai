@@ -112,7 +112,7 @@ const GuestApp = () => {
       {/* Header */}
       <div className="guest-header">
         <div className="header-left">
-          <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="header-logo" />
+          <img src="/logos/zyron-icon-new.svg" alt="Zyron AI" className="header-logo" />
           <span className="header-title">Zyron AI</span>
           <span className="guest-badge">Guest Mode</span>
         </div>
