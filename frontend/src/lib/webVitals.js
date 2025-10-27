@@ -1,20 +1,21 @@
 /**
  * Web Vitals Performance Monitoring
- * Tracks Core Web Vitals (LCP, FID, CLS) and sends to Vercel Analytics
+ * Tracks Core Web Vitals (LCP, INP, CLS) and sends to Vercel Analytics
  *
  * Metrics tracked:
  * - LCP (Largest Contentful Paint): Page loading performance
- * - FID (First Input Delay): User interaction responsiveness
+ * - INP (Interaction to Next Paint): User interaction responsiveness (replaces FID)
  * - CLS (Cumulative Layout Shift): Visual stability
+ * - FCP (First Contentful Paint): Initial render time
  * - TTFB (Time to First Byte): Server response time
  */
 
 import {
   onCLS,
-  onFID,
   onFCP,
   onLCP,
   onTTFB,
+  onINP, // INP replaces FID in modern web-vitals
 } from 'web-vitals'
 
 /**
@@ -43,7 +44,7 @@ const sendToAnalytics = (metric) => {
   }
 
   // Log to console in development
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.log('📊 Web Vital:', {
       name: metric.name,
       value: metric.value.toFixed(2),
@@ -61,9 +62,9 @@ export const initWebVitals = () => {
   // Good: < 2.5s, Needs Improvement: 2.5-4s, Poor: > 4s
   onLCP(sendToAnalytics)
 
-  // FID: First Input Delay (how responsive to user input)
-  // Good: < 100ms, Needs Improvement: 100-300ms, Poor: > 300ms
-  onFID(sendToAnalytics)
+  // INP: Interaction to Next Paint (replaces FID - responsiveness)
+  // Good: < 200ms, Needs Improvement: 200-500ms, Poor: > 500ms
+  onINP(sendToAnalytics)
 
   // CLS: Cumulative Layout Shift (visual stability)
   // Good: < 0.1, Needs Improvement: 0.1-0.25, Poor: > 0.25
@@ -85,7 +86,7 @@ export const getMetricsSnapshot = async () => {
 
   // Create temporary listeners
   onLCP((m) => { metrics.lcp = m.value })
-  onFID((m) => { metrics.fid = m.value })
+  onINP((m) => { metrics.inp = m.value }) // INP replaces FID
   onCLS((m) => { metrics.cls = m.value })
   onFCP((m) => { metrics.fcp = m.value })
   onTTFB((m) => { metrics.ttfb = m.value })
