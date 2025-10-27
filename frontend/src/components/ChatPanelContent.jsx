@@ -310,11 +310,6 @@ function ChatPanelContent({
             display: block;
           }
 
-          .logo-container-mobile {
-            background: #F5F5F5;
-            border-bottom: 1px solid #E5E7EB;
-          }
-
           /* Icon button (desktop - hidden by default) */
           .input-actions-left {
             display: none;
@@ -351,24 +346,6 @@ function ChatPanelContent({
             .messages-container {
               -ms-overflow-style: none;
               scrollbar-width: none;
-            }
-
-            /* Logo - compact zone on mobile */
-            .logo-container-mobile {
-              padding: 24px 20px !important;
-              border-bottom: 1px solid #E5E7EB !important;
-              background: #F5F5F5 !important;
-              position: relative !important;
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              gap: 12px !important;
-            }
-
-            .logo-container-mobile img {
-              height: 144px !important;
-              width: auto !important;
-              object-fit: contain !important;
             }
 
             /* Center messages when empty */
@@ -484,17 +461,7 @@ function ChatPanelContent({
 
       {/* Vertical 3-zone layout */}
       <div style={styles.chatPanel}>
-        {/* 1. LOGO ZONE - TOP */}
-        <div className="logo-container-mobile" style={styles.logoContainer}>
-          <img
-            src="/logos/zyron-logo.png"
-            alt="Zyron Ai"
-            className="logo-full"
-            style={styles.logoImage}
-          />
-        </div>
-
-        {/* 2. MESSAGES ZONE - MIDDLE */}
+        {/* 1. MESSAGES ZONE - TOP (logo now in main header) */}
         <div
           className="messages-section-mobile"
           style={{
@@ -609,21 +576,7 @@ const styles = {
     fontFamily: "'Inter', sans-serif",
   },
 
-  // 1. LOGO ZONE - TOP
-  logoContainer: {
-    padding: '16px 20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#F5F5F5',
-    borderBottom: '1px solid #E5E7EB',
-  },
-  logoImage: {
-    height: '80px',
-    width: 'auto',
-    objectFit: 'contain',
-  },
-
+  // 1. MESSAGES ZONE - TOP (logo removed - now in main header)
   // 2. MESSAGES ZONE - MIDDLE
   messagesSection: {
     flex: 1,
