@@ -226,25 +226,90 @@
     flex-direction: column;
   }
 
-  /* Modal adjustments for mobile */
+  .landing-page {
+    padding: 40px 20px 120px;
+  }
+
+  /* Modal adjustments for mobile/tablet */
+  .modal-overlay {
+    -webkit-overflow-scrolling: touch;
+  }
+
   .modal-content {
     max-width: 95%;
-    width: 100%;
-    padding: 0 10px;
+    width: calc(100% - 20px);
+    padding: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 90vh;
+  }
+
+  .modal-signin {
+    padding: 15px;
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .modal-close {
+    top: -40px;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* iPhone and small mobile devices */
+@media (max-width: 480px) {
+  .landing-title {
+    font-size: 32px;
+  }
+
+  .landing-subtitle {
+    font-size: 18px;
+  }
+
+  .landing-description {
+    font-size: 16px;
+  }
+
+  .landing-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    width: calc(100vw - 20px);
+    max-height: 95vh;
   }
 
   .modal-signin {
     padding: 10px;
-    max-height: 85vh;
+    max-height: calc(95vh - 60px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal-close {
-    top: -35px;
+    top: 5px;
     right: 5px;
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    z-index: 1002;
   }
 
-  .landing-page {
-    padding: 40px 20px 120px;
+  .feature-card {
+    padding: 30px 24px;
+  }
+
+  .cta-button {
+    width: 100%;
+    padding: 14px 24px;
   }
 }
