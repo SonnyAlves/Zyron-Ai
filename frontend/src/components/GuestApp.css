@@ -355,4 +355,101 @@
   .visual-brain-section {
     display: none;
   }
+
+  .guest-header {
+    padding: 0 12px;
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .header-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .header-title {
+    font-size: 16px;
+  }
+
+  .guest-badge {
+    display: none; /* Hide on mobile to save space */
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .view-mode-toggles {
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .view-mode-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .signup-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .limit-banner {
+    padding: 10px 12px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+
+  .empty-state {
+    padding: 20px 16px;
+  }
+
+  .empty-state h2 {
+    font-size: 20px;
+  }
+
+  .empty-state p {
+    font-size: 13px;
+  }
+
+  .suggested-prompts {
+    max-width: 100%;
+  }
+
+  .input-area {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    display: none; /* Hide "Zyron AI" text on very small screens */
+  }
+
+  .view-mode-toggles {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-left {
+    flex: 1;
+  }
+
+  .header-right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .signup-button {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
 }
