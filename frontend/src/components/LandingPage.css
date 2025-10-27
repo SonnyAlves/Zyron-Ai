@@ -1,23 +1,28 @@
 .landing-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0e27;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 60px 20px 100px;
+  position: relative;
+  overflow: hidden;
 }
 
 .landing-hero {
   text-align: center;
   max-width: 700px;
   margin-bottom: 80px;
+  position: relative;
+  z-index: 1;
 }
 
 .landing-logo {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 24px;
+  object-fit: contain;
 }
 
 .landing-title {
@@ -25,7 +30,7 @@
   font-weight: 700;
   color: white;
   margin-bottom: 16px;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .landing-subtitle {
@@ -57,7 +62,7 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .cta-button.primary {
@@ -91,27 +96,40 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   max-width: 1000px;
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
 }
 
 .feature-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  padding: 32px;
+  padding: 40px 32px;
   border-radius: 16px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(96, 165, 250, 0.6);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .feature-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .feature-card h3 {
   color: white;
   font-size: 20px;
-  margin-bottom: 8px;
-  font-family: 'Geist', sans-serif;
+  margin-bottom: 12px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
 }
 
 .feature-card p {
@@ -149,7 +167,7 @@
   font-size: 14px;
   cursor: pointer;
   font-weight: 600;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .back-button:hover {
@@ -182,7 +200,7 @@
   font-size: 28px;
   color: #1F2937;
   margin-bottom: 8px;
-  font-family: 'Geist', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .auth-left p {
