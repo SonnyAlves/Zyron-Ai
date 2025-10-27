@@ -4,7 +4,7 @@ const VisualBrain = lazy(() => import('./VisualBrain'))
 import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
 import WorkspaceSidebar from './WorkspaceSidebar'
-import ConversationSidebar from './ConversationSidebar'
+import Sidebar from './Sidebar/Sidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
 import './MainLayout.css'
@@ -131,6 +131,17 @@ export default function MainLayout() {
     await deleteConversation(conversationId)
   }
 
+  const handleRenameConversation = async (conversationId) => {
+    // For now, trigger a simple prompt
+    // In future: use a modal component
+    const newTitle = prompt('Rename conversation:', '')
+    if (newTitle && newTitle.trim()) {
+      // Update the conversation in store (would need updateConversation method)
+      // For now, conversations are read-only after creation
+      console.log('Rename conversation:', conversationId, 'to:', newTitle)
+    }
+  }
+
   // Get current workspace for header display
   const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId)
 
@@ -223,26 +234,17 @@ export default function MainLayout() {
         </>
       )}
 
-      {/* Conversation Sidebar (toggle with overlay) */}
-      {conversationSidebarOpen && (
-        <>
-          <div
-            className="sidebar-overlay"
-            onClick={() => setConversationSidebarOpen(false)}
-          />
-          <div className="conversation-sidebar-container open">
-            <ConversationSidebar
-              conversations={conversations}
-              currentConversationId={currentConversationId}
-              onNewChat={handleNewChat}
-              onSelectConversation={handleSelectConversation}
-              onDeleteConversation={handleDeleteConversation}
-              isOpen={conversationSidebarOpen}
-              onClose={() => setConversationSidebarOpen(false)}
-            />
-          </div>
-        </>
-      )}
+      {/* New SOTA Sidebar Component */}
+      <Sidebar
+        conversations={conversations}
+        activeConversationId={currentConversationId}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewChat}
+        onRenameConversation={handleRenameConversation}
+        onDeleteConversation={handleDeleteConversation}
+        isOpen={conversationSidebarOpen}
+        onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
+      />
 
       {/* Main content area */}
       <div className="main-content-area">
