@@ -5,9 +5,9 @@ import './MessageWithCopy.css';
 const MessageWithCopy = memo(({ message }) => {
   const [copied, setCopied] = useState(false);
 
-  // Support both formats: Supabase (role/content) and localStorage (type/text)
-  const messageRole = message.role || message.type
-  const messageContent = message.content || message.text
+  // All messages use standardized Supabase format: {role, content}
+  const messageRole = message.role
+  const messageContent = message.content
 
   const handleCopy = useCallback(async () => {
     try {
@@ -79,10 +79,10 @@ const MessageWithCopy = memo(({ message }) => {
   );
 }, (prevProps, nextProps) => {
   // Custom comparison: only re-render if message content/role changed
-  const prevRole = prevProps.message.role || prevProps.message.type
-  const nextRole = nextProps.message.role || nextProps.message.type
-  const prevContent = prevProps.message.content || prevProps.message.text
-  const nextContent = nextProps.message.content || nextProps.message.text
+  const prevRole = prevProps.message.role
+  const nextRole = nextProps.message.role
+  const prevContent = prevProps.message.content
+  const nextContent = nextProps.message.content
 
   // Return true if props are equal (skip re-render), false to re-render
   return prevRole === nextRole && prevContent === nextContent
