@@ -5,7 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px 100px;
+  padding: 60px 20px 180px;
   position: relative;
   overflow: hidden;
 }
@@ -30,7 +30,7 @@
   font-weight: 700;
   color: white;
   margin-bottom: 16px;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Gyokz', sans-serif;
 }
 
 .landing-subtitle {
@@ -62,7 +62,7 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Gyokz', sans-serif;
 }
 
 .cta-button.primary {
@@ -128,7 +128,7 @@
   color: white;
   font-size: 20px;
   margin-bottom: 12px;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Gyokz', sans-serif;
   font-weight: 600;
 }
 
@@ -138,74 +138,79 @@
   line-height: 1.5;
 }
 
-.auth-container {
-  min-height: 100vh;
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  animation: slideIn 0.3s ease;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  transition: all 0.2s ease;
 }
 
-.auth-card {
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-signin {
   background: white;
-  padding: 60px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 900px;
-  width: 100%;
-  position: relative;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
-.back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: transparent;
-  border: none;
-  color: #667eea;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 600;
-  font-family: 'Raleway', sans-serif;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.back-button:hover {
-  text-decoration: underline;
-}
-
-.auth-content {
-  display: flex;
-  flex-direction: row;
-  gap: 60px;
-  align-items: center;
-}
-
-.auth-left {
-  flex: 1;
-  text-align: center;
-}
-
-.auth-right {
-  flex: 1;
-}
-
-.auth-logo {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 20px;
-}
-
-.auth-left h1 {
-  font-size: 28px;
-  color: #1F2937;
-  margin-bottom: 8px;
-  font-family: 'Raleway', sans-serif;
-}
-
-.auth-left p {
-  color: #6B7280;
-  margin-bottom: 0;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media (max-width: 768px) {

@@ -12,38 +12,31 @@ const LandingPage = () => {
     return <GuestApp />;
   }
 
-  if (showSignIn) {
-    return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <button
-            className="back-button"
-            onClick={() => setShowSignIn(false)}
-          >
-            ← Back
-          </button>
-          <div className="auth-content">
-            <div className="auth-left">
-              <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="auth-logo" />
-              <h1>Bienvenue sur Zyron AI</h1>
-              <p>Resolving mind's chaos</p>
-            </div>
-            <div className="auth-right">
-              <SignIn routing="hash" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="landing-page">
       <AnimatedBackground />
 
+      {/* Sign In Modal Overlay */}
+      {showSignIn && (
+        <>
+          <div className="modal-overlay" onClick={() => setShowSignIn(false)} />
+          <div className="modal-content">
+            <button
+              className="modal-close"
+              onClick={() => setShowSignIn(false)}
+            >
+              ✕
+            </button>
+            <div className="modal-signin">
+              <SignIn routing="hash" />
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Hero Section */}
       <div className="landing-hero">
-        <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="landing-logo" />
+        <img src="/zyron-logo-transparent.png" alt="Zyron AI" className="landing-logo" />
         <h1 className="landing-title">
           Zyron AI
         </h1>
