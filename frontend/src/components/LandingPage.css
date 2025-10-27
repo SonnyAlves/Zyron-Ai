@@ -226,12 +226,25 @@
     flex-direction: column;
   }
 
-  .auth-content {
-    flex-direction: column;
-    gap: 40px;
+  /* Modal adjustments for mobile */
+  .modal-content {
+    max-width: 95%;
+    width: 100%;
+    padding: 0 10px;
   }
 
-  .auth-card {
-    padding: 40px 30px;
+  .modal-signin {
+    padding: 10px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-close {
+    top: -35px;
+    right: 5px;
+  }
+
+  .landing-page {
+    padding: 40px 20px 120px;
   }
 }
