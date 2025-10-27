@@ -252,44 +252,31 @@ export default function MainLayout() {
             {/* Zyron Logo - Icon only, small size, on the left */}
             <ZyronLogo size="sm" className="header-logo" />
 
-            {/* Toggle Workspaces Button - avec icône flaticon + tooltip + badge */}
+            {/* Toggle Workspaces Button - Badge only, no gray box */}
             <div className="toggle-wrapper">
               <button
                 className="toggle-button"
                 onClick={() => setWorkspaceSidebarOpen(true)}
                 title="Workspaces"
                 aria-label="Ouvrir les workspaces"
-              >
-                {/* Flaticon grid icon for workspaces */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="4" y="4" width="6" height="6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <rect x="14" y="4" width="6" height="6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <rect x="4" y="14" width="6" height="6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <rect x="14" y="14" width="6" height="6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                {workspaces.length > 0 && (
-                  <span className="toggle-badge">{workspaces.length}</span>
-                )}
-              </button>
+              />
+              {workspaces.length > 0 && (
+                <span className="toggle-badge">{workspaces.length}</span>
+              )}
               <div className="toggle-tooltip">Workspaces ({workspaces.length})</div>
             </div>
 
-            {/* Toggle Conversations Button - avec icône flaticon + tooltip + badge */}
+            {/* Toggle Conversations Button - Badge only, no gray box */}
             <div className="toggle-wrapper">
               <button
                 className="toggle-button"
                 onClick={() => setConversationSidebarOpen(true)}
                 title="Conversations"
                 aria-label="Ouvrir les conversations"
-              >
-                {/* Flaticon chat/message icon for conversations */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                {conversations.length > 0 && (
-                  <span className="toggle-badge">{conversations.length}</span>
-                )}
-              </button>
+              />
+              {conversations.length > 0 && (
+                <span className="toggle-badge">{conversations.length}</span>
+              )}
               <div className="toggle-tooltip">Conversations ({conversations.length})</div>
             </div>
 
