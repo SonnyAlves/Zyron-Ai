@@ -5,6 +5,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  animation: messageAppear var(--duration-normal) var(--ease-out);
 }
 
 .message-wrapper.user {
@@ -19,24 +20,25 @@
 .message-wrapper .message {
   flex: 1;
   max-width: 85%;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: var(--message-padding);
+  border-radius: var(--message-border-radius);
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
   font-weight: 400;
   text-transform: none;
+  transition: var(--transition-all);
 }
 
 .message-wrapper .message.user {
-  background: #3B82F6;
-  color: white;
+  background: var(--color-user-bg);
+  color: var(--color-user-text);
   border-radius: 18px 18px 4px 18px;
 }
 
 .message-wrapper .message.assistant {
-  background: #F3F4F6;
-  color: #1F2937;
+  background: var(--color-assistant-bg);
+  color: var(--color-assistant-text);
   border-radius: 18px 18px 18px 4px;
 }
 
@@ -79,19 +81,20 @@
 .copy-message-button {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
   padding: 6px 12px;
-  background: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  color: #6B7280;
-  font-size: 13px;
-  font-weight: 500;
+  background: var(--color-assistant-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-all);
   opacity: 0;
   flex-shrink: 0;
   margin-top: 4px;
+  animation: fadeIn var(--duration-normal) var(--ease-out);
 }
 
 /* Desktop : visible au hover */
@@ -114,9 +117,10 @@
 }
 
 .copy-message-button:hover {
-  background: #E5E7EB;
-  border-color: #D1D5DB;
-  color: #374151;
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-light);
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
 }
 
 .copy-message-button:active {
@@ -126,9 +130,9 @@
 /* État "copied" */
 .copy-message-button.copied {
   opacity: 1 !important;
-  background: #DCFCE7;
-  border-color: #86EFAC;
-  color: #166534;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 .copy-text {
@@ -148,17 +152,39 @@
 
 /* Animation du checkmark */
 .copy-message-button.copied svg {
-  animation: checkmark 0.3s ease;
+  animation: checkmark var(--duration-fast) var(--ease-out);
 }
 
 @keyframes checkmark {
   0% {
     transform: scale(0);
+    opacity: 0;
   }
   50% {
     transform: scale(1.2);
   }
   100% {
     transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .message-wrapper {
+    animation: none;
+  }
+
+  .copy-message-button {
+    animation: none;
+  }
+
+  .copy-message-button.copied svg {
+    animation: none;
+  }
+
+  .message-wrapper .message,
+  .copy-message-button {
+    transition: none;
   }
 }
