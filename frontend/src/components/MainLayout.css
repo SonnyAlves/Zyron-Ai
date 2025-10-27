@@ -377,6 +377,46 @@
   box-shadow: 0 0 0 3px rgba(45, 114, 210, 0.1);
 }
 
+/* ════════════════════════════════════════
+   CLERK USER BUTTON STYLING
+   ════════════════════════════════════════ */
+
+/* Improve UserButton visibility */
+.cl-userButton {
+  transition: all 0.2s ease;
+}
+
+.cl-userButton:hover {
+  opacity: 0.9;
+}
+
+/* Avatar styling - make sure it's visible */
+.cl-userButton-box {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #E5E7EB !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cl-userButton-box:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  border-color: #D1D5DB !important;
+}
+
+.cl-userButton-box img {
+  border-radius: 6px !important;
+}
+
+/* Dropdown menu styling */
+.cl-popoverBox {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
 .chat-section textarea::placeholder {
   color: #A7B6C2;
 }
