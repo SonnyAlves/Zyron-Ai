@@ -1,13 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
-  <!-- Outer Teal Ring -->
-  <path d="M250 50 C380 50 480 150 480 280 C480 350 450 410 400 450 C380 470 350 480 320 480 C280 480 250 460 230 430 L230 430 C200 470 150 490 100 480 C50 470 20 430 20 380 C20 350 30 320 50 300 C100 250 140 200 180 150 C210 100 240 50 250 50 Z" fill="#5A9E9C" opacity="0.9"/>
+  <defs>
+    <style>
+      .zyron-teal { fill: #5BA89E; }
+      .zyron-pink { fill: #FF6B89; }
+      .zyron-white { fill: #FFFFFF; }
+    </style>
+  </defs>
 
-  <!-- White separator/border -->
-  <path d="M250 100 C350 110 430 180 440 270 C445 310 430 350 400 380 C370 410 330 420 290 410 C260 400 240 380 230 350 L230 350 C220 380 190 400 150 410 C100 420 60 400 40 360 C20 320 20 270 40 230 C70 180 120 140 170 120 C200 110 225 100 250 100 Z" fill="white" opacity="0.15"/>
+  <!-- Background (transparent) -->
+  <rect width="500" height="500" fill="transparent"/>
 
-  <!-- Inner Pink/Red shape -->
-  <path d="M250 130 C330 140 390 200 400 280 C405 320 390 360 360 390 C330 420 280 430 240 415 L240 415 C210 430 160 440 120 420 C80 400 60 360 55 310 C50 260 70 210 110 180 C140 160 180 140 220 135 C230 132 240 130 250 130 Z" fill="#FF5A7E"/>
+  <!-- Outer Teal Ring - Main curved shape -->
+  <path class="zyron-teal" d="M 380 80 Q 480 100 480 200 Q 490 300 450 380 Q 420 420 350 440 Q 300 450 250 450 Q 180 450 130 400 Q 80 350 90 260 Q 95 200 150 140 Q 200 80 300 70 Q 340 65 380 80 Z"/>
 
-  <!-- Highlight/shine effect -->
-  <ellipse cx="200" cy="200" rx="40" ry="50" fill="white" opacity="0.2"/>
+  <!-- White border/separator inner -->
+  <path class="zyron-white" d="M 360 110 Q 440 130 440 220 Q 445 290 410 360 Q 380 400 310 415 Q 260 425 210 420 Q 160 415 130 380 Q 110 360 110 320 Q 105 250 130 180 Q 155 120 220 105 Q 280 95 340 110 Q 350 110 360 110 Z"/>
+
+  <!-- Main Pink center shape -->
+  <path class="zyron-pink" d="M 350 140 Q 420 160 430 250 Q 435 320 400 370 Q 370 405 310 410 Q 260 415 210 405 Q 160 395 140 360 Q 125 330 130 280 Q 135 220 160 170 Q 190 130 250 120 Q 300 115 350 140 Z"/>
+
+  <!-- Small Pink hexagon/blob bottom-left -->
+  <path class="zyron-pink" d="M 120 350 Q 90 330 70 360 Q 55 385 70 410 Q 90 420 120 415 Q 140 405 135 380 Q 130 360 120 350 Z"/>
+
+  <!-- White separator line between shapes -->
+  <path class="zyron-white" d="M 190 290 Q 200 310 220 320 Q 240 330 260 320 Q 275 310 280 290" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"/>
 </svg>
