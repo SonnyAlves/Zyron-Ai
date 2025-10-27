@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import MarkdownMessage from './MarkdownMessage';
 import './MessageWithCopy.css';
 
-const MessageWithCopy = ({ message }) => {
+const MessageWithCopy = memo(({ message }) => {
   const [copied, setCopied] = useState(false);
 
   // Support both formats: Supabase (role/content) and localStorage (type/text)
   const messageRole = message.role || message.type
   const messageContent = message.content || message.text
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(messageContent);
       setCopied(true);
@@ -17,7 +17,7 @@ const MessageWithCopy = ({ message }) => {
     } catch (err) {
       console.error('Failed to copy:', err);
     }
-  };
+  }, [messageContent]);
 
   return (
     <div className={`message-wrapper ${messageRole}`}>
@@ -77,6 +77,17 @@ const MessageWithCopy = ({ message }) => {
       )}
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if message content/role changed
+  const prevRole = prevProps.message.role || prevProps.message.type
+  const nextRole = nextProps.message.role || nextProps.message.type
+  const prevContent = prevProps.message.content || prevProps.message.text
+  const nextContent = nextProps.message.content || nextProps.message.text
+
+  // Return true if props are equal (skip re-render), false to re-render
+  return prevRole === nextRole && prevContent === nextContent
+});
+
+MessageWithCopy.displayName = 'MessageWithCopy'
 
 export default MessageWithCopy;

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback, useMemo } from 'react';
 import './ConversationSidebar.css';
 
-const ConversationSidebar = ({
+const ConversationSidebar = memo(({
   conversations,
   currentConversationId,
   onNewChat,
@@ -12,7 +12,8 @@ const ConversationSidebar = ({
 }) => {
   const [deletingId, setDeletingId] = useState(null);
 
-  const formatDate = (isoDate) => {
+  // Memoized date formatting to avoid recalculation
+  const formatDate = useCallback((isoDate) => {
     const date = new Date(isoDate);
     const now = new Date();
     const diffMs = now - date;
@@ -27,16 +28,16 @@ const ConversationSidebar = ({
     if (diffDays < 7) return `Il y a ${diffDays} jours`;
 
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-  };
+  }, []);
 
-  const handleDelete = (e, conversationId) => {
+  const handleDelete = useCallback((e, conversationId) => {
     e.stopPropagation();
     setDeletingId(conversationId);
     setTimeout(() => {
       onDeleteConversation(conversationId);
       setDeletingId(null);
     }, 200);
-  };
+  }, [onDeleteConversation]);
 
   return (
     <>
@@ -109,6 +110,19 @@ const ConversationSidebar = ({
       </div>
     </>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if conversations or currentId changed
+  return (
+    prevProps.conversations === nextProps.conversations &&
+    prevProps.currentConversationId === nextProps.currentConversationId &&
+    prevProps.isOpen === nextProps.isOpen &&
+    prevProps.onNewChat === nextProps.onNewChat &&
+    prevProps.onSelectConversation === nextProps.onSelectConversation &&
+    prevProps.onDeleteConversation === nextProps.onDeleteConversation &&
+    prevProps.onClose === nextProps.onClose
+  );
+});
+
+ConversationSidebar.displayName = 'ConversationSidebar'
 
 export default ConversationSidebar;
