@@ -45,6 +45,41 @@
   color: #1F2937;
 }
 
+.icon-button:active {
+  transform: scale(0.95);
+}
+
+/* Header buttons wrapper */
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Close button */
+.close-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #F3F4F6;
+  color: #1F2937;
+}
+
+.close-button:active {
+  transform: scale(0.95);
+}
+
 /* Workspaces list */
 .workspaces-list {
   flex: 1;

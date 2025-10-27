@@ -217,6 +217,7 @@ export default function MainLayout() {
               onCreateWorkspace={handleCreateWorkspace}
               onUpdateWorkspace={updateWorkspace}
               onDeleteWorkspace={deleteWorkspace}
+              onClose={() => setWorkspaceSidebarOpen(false)}
             />
           </div>
         </>

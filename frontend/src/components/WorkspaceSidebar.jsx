@@ -8,6 +8,7 @@ const WorkspaceSidebar = ({
   onCreateWorkspace,
   onUpdateWorkspace,
   onDeleteWorkspace,
+  onClose,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -56,15 +57,23 @@ const WorkspaceSidebar = ({
       {/* Header */}
       <div className="workspace-header">
         <h3>Workspaces</h3>
-        <button
-          className="icon-button"
-          onClick={() => setIsCreating(true)}
-          title="New Workspace"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
+        <div className="header-buttons">
+          <button
+            className="icon-button"
+            onClick={() => setIsCreating(true)}
+            title="New Workspace"
+            aria-label="Créer un workspace"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <button className="close-button" onClick={onClose} aria-label="Fermer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Create form */}
