@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import CopyButton from './CopyButton';
 import './MarkdownMessage.css';
 
 const MarkdownMessage = ({ content }) => {
@@ -12,23 +13,22 @@ const MarkdownMessage = ({ content }) => {
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
+          const codeContent = String(children).replace(/\n$/, '');
 
           return !inline && language ? (
             <div className="code-block-wrapper">
               <div className="code-block-header">
                 <span className="code-language">{language}</span>
-                <button
-                  className="copy-code-button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
-                  }}
-                >
-                  Copy
-                </button>
+                <CopyButton
+                  text={codeContent}
+                  label="Copy"
+                  variant="subtle"
+                  feedbackDuration={1500}
+                />
               </div>
               <pre className="code-block-pre">
                 <code className="code-block-code" {...props}>
-                  {String(children).replace(/\n$/, '')}
+                  {codeContent}
                 </code>
               </pre>
             </div>

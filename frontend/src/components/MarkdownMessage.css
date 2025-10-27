@@ -22,23 +22,17 @@
   text-transform: uppercase;
 }
 
-.copy-code-button {
+/* CopyButton styling in code block header */
+.code-block-header .copy-button {
+  --color-bg: #374151;
+  --color-border: #4B5563;
+  --color-text: #F3F4F6;
   padding: 4px 12px;
-  background: #374151;
-  color: #F3F4F6;
-  border: none;
-  border-radius: 4px;
   font-size: 12px;
-  cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-.copy-code-button:hover {
-  background: #4B5563;
-}
-
-.copy-code-button:active {
-  background: #1F2937;
+.code-block-header .copy-button:hover:not(:disabled) {
+  --color-bg: #4B5563;
 }
 
 /* Code block content */
