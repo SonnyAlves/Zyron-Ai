@@ -186,13 +186,17 @@ export const useStore = create((set, get) => ({
   addMessage: async (conversationId, role, content) => {
     try {
       const newMessage = await messagesService.create(conversationId, role, content);
-      set(state => ({
-        messages: [...state.messages, newMessage],
+
+      // Use updater function to get current state without race conditions
+      const state = get();
+      const isFirstUserMessage = state.messages.length === 0 && role === 'user';
+
+      set(prevState => ({
+        messages: [...prevState.messages, newMessage],
       }));
 
-      // Auto-update conversation title si c'est le premier message user
-      const state = get();
-      if (state.messages.length === 1 && role === 'user') {
+      // Auto-update conversation title only for first user message
+      if (isFirstUserMessage) {
         const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
         await conversationsService.update(conversationId, { title });
         set(prevState => ({
