@@ -214,21 +214,185 @@
   }
 }
 
-/* Desktop - Non-scrollable (Web Version) */
-@media (min-width: 769px) {
+/* Tablet - Non-scrollable (Web Version) */
+@media (min-width: 769px) and (max-width: 1024px) {
   .landing-page {
     height: 100vh;
     overflow: hidden;
-    padding: 40px 20px;
-    justify-content: space-around;
+    padding: 30px 20px;
+    justify-content: space-between;
+  }
+
+  .landing-logo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .landing-title {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .landing-subtitle {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .landing-description {
+    font-size: 16px;
+    margin-bottom: 30px;
   }
 
   .landing-hero {
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    max-width: 600px;
   }
 
   .landing-features {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 900px;
     margin-top: 0;
+  }
+
+  .feature-card {
+    padding: 28px 20px;
+  }
+
+  .feature-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .feature-card p {
+    font-size: 13px;
+  }
+
+  .cta-button {
+    padding: 14px 28px;
+    font-size: 15px;
+  }
+}
+
+/* Desktop - Non-scrollable (Web Version) */
+@media (min-width: 1025px) {
+  .landing-page {
+    height: 100vh;
+    overflow: hidden;
+    padding: 40px 60px;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .landing-logo {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 28px;
+  }
+
+  .landing-title {
+    font-size: 72px;
+    margin-bottom: 18px;
+  }
+
+  .landing-subtitle {
+    font-size: 28px;
+    margin-bottom: 28px;
+  }
+
+  .landing-description {
+    font-size: 18px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  .landing-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+    margin-bottom: 0;
+    max-width: 550px;
+  }
+
+  .landing-features {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    max-width: 450px;
+  }
+
+  .feature-card {
+    padding: 32px 28px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .feature-icon {
+    margin-bottom: 16px;
+    justify-content: flex-start;
+  }
+
+  .feature-card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .cta-button {
+    padding: 16px 36px;
+    font-size: 16px;
+  }
+
+  .landing-cta {
+    gap: 20px;
+  }
+
+  .landing-note {
+    font-size: 14px;
+  }
+}
+
+/* Very Large Desktop */
+@media (min-width: 1440px) {
+  .landing-page {
+    padding: 50px 80px;
+  }
+
+  .landing-logo {
+    width: 160px;
+    height: 160px;
+  }
+
+  .landing-title {
+    font-size: 80px;
+  }
+
+  .landing-subtitle {
+    font-size: 32px;
+  }
+
+  .landing-hero {
+    max-width: 600px;
+  }
+
+  .landing-features {
+    max-width: 500px;
+  }
+
+  .feature-card {
+    padding: 40px 36px;
   }
 }
 
