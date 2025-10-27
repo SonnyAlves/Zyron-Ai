@@ -1,10 +1,18 @@
-import React from 'react';
-import { SignIn, SignedIn, SignedOut } from '@clerk/clerk-react';
+import React, { useEffect } from 'react';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
+import { useGuestStore } from '../store/useGuestStore';
+import LandingPage from './LandingPage';
 import './AuthWrapper.css';
 
 const AuthWrapper = ({ children }) => {
   const { isLoaded } = useSupabaseAuth();
+  const { enableGuestMode } = useGuestStore();
+
+  useEffect(() => {
+    // Activer automatiquement le mode guest si pas connecté
+    enableGuestMode();
+  }, [enableGuestMode]);
 
   if (!isLoaded) {
     return (
@@ -18,21 +26,8 @@ const AuthWrapper = ({ children }) => {
   return (
     <>
       <SignedOut>
-        <div className="auth-container">
-          <div className="auth-card">
-            {/* Section gauche - Logo et texte */}
-            <div className="auth-left">
-              <img src="/zyron-logo-mobile.png" alt="Zyron AI" className="auth-logo" />
-              <h1>Bienvenue sur Zyron AI</h1>
-              <p>Resolving mind's chaos</p>
-            </div>
-
-            {/* Section droite - Formulaire Clerk */}
-            <div className="auth-right">
-              <SignIn routing="hash" />
-            </div>
-          </div>
-        </div>
+        {/* Landing page avec accès guest */}
+        <LandingPage />
       </SignedOut>
 
       <SignedIn>
