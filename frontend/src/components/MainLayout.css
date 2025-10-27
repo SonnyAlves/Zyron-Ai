@@ -6,9 +6,9 @@
   font-style: normal;
 }
 
-/* Apply Inter font globally */
+/* Apply Geist font globally */
 * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Main Layout */
@@ -108,6 +108,7 @@
 .header-right {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 /* Toggle buttons (Workspaces + Conversations) */
@@ -155,7 +156,7 @@
   font-size: 14px;
   font-weight: 500;
   color: #1F2937;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Geist', sans-serif;
   white-space: nowrap;
 }
 
@@ -183,7 +184,7 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   user-select: none;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Geist', sans-serif;
 }
 
 .view-mode-btn:hover {
@@ -250,16 +251,12 @@
 }
 
 /* View Modes */
-.main-layout[data-view-mode="chat"] .visual-brain-section {
-  display: none;
-}
-
 .main-layout[data-view-mode="graph"] .chat-section {
   display: none;
 }
 
 .main-layout[data-view-mode="split"] {
-  /* Default layout visible */
+  /* Default layout - both chat and graph visible */
 }
 
 /* Loading Screen */

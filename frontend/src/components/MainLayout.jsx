@@ -17,7 +17,7 @@ export default function MainLayout() {
   const [tokens, setTokens] = useState([])
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
-  const [viewMode, setViewMode] = useState('split')  // 'split', 'graph', 'chat'
+  const [viewMode, setViewMode] = useState('split')  // 'split' or 'graph'
   const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
   const [conversationSidebarOpen, setConversationSidebarOpen] = useState(false)
   const visualBrainRef = useRef(null)
@@ -163,7 +163,7 @@ export default function MainLayout() {
     }
   }, [tokens])
 
-  // Keyboard shortcuts: G (graph), C (chat), S (split)
+  // Keyboard shortcuts: G (graph), S (split)
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Don't trigger shortcuts if user is typing in input/textarea
@@ -174,8 +174,6 @@ export default function MainLayout() {
       const key = e.key.toLowerCase()
       if (key === 'g') {
         setViewMode('graph')
-      } else if (key === 'c') {
-        setViewMode('chat')
       } else if (key === 's') {
         setViewMode('split')
       }
@@ -278,44 +276,40 @@ export default function MainLayout() {
             )}
           </div>
 
-          {/* View Mode Controls */}
-          <div className="view-mode-controls">
-            <button
-              className={`view-mode-btn ${viewMode === 'graph' ? 'active' : ''}`}
-              onClick={() => setViewMode('graph')}
-              title="Full Graph (G)"
-              aria-label="Full Graph View"
-            >
-              Graph
-            </button>
-            <button
-              className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
-              onClick={() => setViewMode('split')}
-              title="Split View (S)"
-              aria-label="Split View"
-            >
-              Split
-            </button>
-            <button
-              className={`view-mode-btn ${viewMode === 'chat' ? 'active' : ''}`}
-              onClick={() => setViewMode('chat')}
-              title="Full Chat (C)"
-              aria-label="Full Chat View"
-            >
-              Chat
-            </button>
-          </div>
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
 
-          {/* User button à droite */}
+          {/* Right section: View Mode toggles + UserButton */}
           <div className="header-right">
+            {/* View Mode Controls */}
+            <div className="view-mode-controls">
+              <button
+                className={`view-mode-btn ${viewMode === 'graph' ? 'active' : ''}`}
+                onClick={() => setViewMode('graph')}
+                title="Full Graph (G)"
+                aria-label="Full Graph View"
+              >
+                Graph
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
+                onClick={() => setViewMode('split')}
+                title="Split View (S)"
+                aria-label="Split View"
+              >
+                Split
+              </button>
+            </div>
+
+            {/* User button */}
             <UserButton afterSignOutUrl="/" />
           </div>
         </header>
 
         {/* Content container - Chat LEFT, Graph RIGHT */}
         <div className="content-wrapper">
-          {/* Chat Panel - LEFT side (30%) - Shows in Chat and Split modes */}
-          {viewMode !== 'graph' && (
+          {/* Chat Panel - LEFT side (28%) - Shows in Split mode only */}
+          {viewMode === 'split' && (
             <div className="chat-section">
               <ChatPanelContent
                 message={message}
@@ -326,17 +320,15 @@ export default function MainLayout() {
             </div>
           )}
 
-          {/* Visual Brain - RIGHT side (70%) - Shows in Graph and Split modes */}
-          {viewMode !== 'chat' && (
-            <div className="visual-brain-section">
-              <VisualBrain
-                ref={visualBrainRef}
-                isThinking={isThinking}
-                tokens={tokens}
-                onNodeClick={(node) => console.log('Node clicked:', node)}
-              />
-            </div>
-          )}
+          {/* Visual Brain - RIGHT side (72%) - Always visible */}
+          <div className="visual-brain-section">
+            <VisualBrain
+              ref={visualBrainRef}
+              isThinking={isThinking}
+              tokens={tokens}
+              onNodeClick={(node) => console.log('Node clicked:', node)}
+            />
+          </div>
         </div>
       </div>
     </div>
