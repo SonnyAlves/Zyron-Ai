@@ -1,0 +1,86 @@
+# Documentation
+*.md
+docs/
+CHANGES.md
+LOGO_IMPLEMENTATION_SUMMARY.md
+CHAT_OPTIMIZATION_PLAN.md
+DEVELOPMENT.md
+EMERGENT_UPGRADE.md
+FULLSCREEN_LAYOUT.md
+FUSION_SUMMARY.md
+INTEGRATION_GUIDE.md
+LAYOUT_CORRECTIONS.md
+LIGHT_MODE_FIX.md
+LIGHT_MODE_PALANTIR_FIX.md
+LOGO_INTEGRATION.md
+LOGO_UPGRADE_ZYRON.md
+LOGO_USAGE_EXAMPLES.md
+LOGO_VISUAL_GUIDE.md
+MARKDOWN_SETUP_INSTRUCTIONS.md
+PHASE2_SUMMARY.md
+PORT_SOLUTION_SUMMARY.md
+PROJECT_COMPLETION_REPORT.md
+QUICK_REFERENCE.md
+SERVER_MANAGEMENT.md
+TESTING_CHECKLIST.md
+TESTING_LIGHT_MODE.md
+VISUAL_BRAIN_GUIDE.md
+
+# Development files
+.vscode/
+.claude/
+.env.example
+.env.local
+.env.*.local
+
+# Backend (not needed for frontend deploy)
+backend/
+visual_brain/
+lib/
+config/
+logs/
+*.py
+check-gpu.py
+dev-orchestrator.py
+
+# Test files
+*.test.js
+*.spec.js
+__tests__/
+
+# Build artifacts
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+*.sql
+
+# Project config
+.project.config
+Makefile
+zyron.code-workspace
+dev
+services.yaml
+
+# Frontend node_modules (Vercel installs fresh)
+frontend/node_modules/
+frontend/.env.local
+frontend/.env.*.local
+
+# Cache
+*.cache
+.cache/
+docker_*.log
+docker_*.txt

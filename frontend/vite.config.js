@@ -5,6 +5,15 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
+    // Optimize build output
+    target: 'ES2020',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -12,10 +21,27 @@ export default defineConfig({
           'three': ['three'],
           // Separate React vendor code
           'react-vendor': ['react', 'react-dom', '@clerk/clerk-react'],
-        }
+          // Separate Supabase
+          'supabase': ['@supabase/supabase-js'],
+        },
+        // Optimize chunk naming for caching
+        entryFileNames: 'js/[name]-[hash].js',
+        chunkFileNames: 'js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       }
     },
     // Increase chunk size warning limit since Three.js chunk will be ~400-500KB
     chunkSizeWarningLimit: 600,
+    // Optimize CSS code splitting
+    cssCodeSplit: true,
+    // Use source maps only in development
+    sourcemap: false,
+    // Optimize CSS minification
+    cssMinify: true,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@clerk/clerk-react', '@supabase/supabase-js', 'zustand'],
+    exclude: ['three'],
   },
 })
