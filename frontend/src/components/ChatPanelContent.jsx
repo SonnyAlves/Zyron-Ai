@@ -597,11 +597,16 @@ const styles = {
     flexDirection: 'column',
   },
 
-  // 3. INPUT ZONE - BOTTOM
+  // 3. INPUT ZONE - BOTTOM (Fixed - stays visible on scroll)
   inputContainer: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
     padding: '12px',
     background: '#F5F5F5',
-    borderTop: 'none',
+    borderTop: '1px solid #E5E7EB',
+    zIndex: 10,
   },
   messageInput: {
     width: '100%',

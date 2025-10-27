@@ -88,7 +88,7 @@
    ════════════════════════════════════════ */
 
 .main-header {
-  height: 120px;
+  height: 84px;
   background: white;
   border-bottom: 1px solid #E5E7EB;
   display: flex;
@@ -148,13 +148,13 @@
   height: 28px !important;
 }
 
-/* Header Logo with text - shows icon + "Zyron AI" (3x larger) */
+/* Header Logo with text - optimized size */
 .header-logo-with-text {
   width: auto !important;
-  height: 96px !important;
+  height: 72px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 4px !important;
   padding: 0 !important;
   margin: 0 !important;
   background: transparent !important;
@@ -164,13 +164,13 @@
 .header-logo-with-text a {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 4px !important;
   padding: 0 !important;
 }
 
 .header-logo-with-text img {
-  width: 84px !important;
-  height: 84px !important;
+  width: 60px !important;
+  height: 60px !important;
 }
 
 /* Workspace info in header center */
