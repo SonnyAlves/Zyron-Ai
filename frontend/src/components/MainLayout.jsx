@@ -163,9 +163,16 @@ export default function MainLayout() {
     }
   }, [tokens])
 
-  // Keyboard shortcuts: G (graph), S (split)
+  // Keyboard shortcuts: G (graph), S (split), Escape (close sidebars)
   useEffect(() => {
     const handleKeyPress = (e) => {
+      // Escape key closes sidebars
+      if (e.key === 'Escape') {
+        setWorkspaceSidebarOpen(false)
+        setConversationSidebarOpen(false)
+        return
+      }
+
       // Don't trigger shortcuts if user is typing in input/textarea
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return
@@ -241,28 +248,40 @@ export default function MainLayout() {
         {/* Header with Toggle Buttons and View Mode Controls */}
         <header className="main-header">
           <div className="header-left">
-            {/* Toggle Workspaces Button - avec icône crayon */}
-            <button
-              className="toggle-button"
-              onClick={() => setWorkspaceSidebarOpen(true)}
-              title="Workspaces"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {/* Toggle Workspaces Button - avec icône + tooltip + badge */}
+            <div className="toggle-wrapper">
+              <button
+                className="toggle-button"
+                onClick={() => setWorkspaceSidebarOpen(true)}
+                title="Workspaces"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {workspaces.length > 0 && (
+                  <span className="toggle-badge">{workspaces.length}</span>
+                )}
+              </button>
+              <div className="toggle-tooltip">Workspaces ({workspaces.length})</div>
+            </div>
 
-            {/* Toggle Conversations Button */}
-            <button
-              className="toggle-button"
-              onClick={() => setConversationSidebarOpen(true)}
-              title="Conversations"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            {/* Toggle Conversations Button - avec icône + tooltip + badge */}
+            <div className="toggle-wrapper">
+              <button
+                className="toggle-button"
+                onClick={() => setConversationSidebarOpen(true)}
+                title="Conversations"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {conversations.length > 0 && (
+                  <span className="toggle-badge">{conversations.length}</span>
+                )}
+              </button>
+              <div className="toggle-tooltip">Conversations ({conversations.length})</div>
+            </div>
 
             {/* Current workspace badge */}
             {currentWorkspace && (

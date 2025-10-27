@@ -111,6 +111,12 @@
   gap: 16px;
 }
 
+/* Toggle wrapper for tooltip + button */
+.toggle-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 /* Toggle buttons (Workspaces + Conversations) */
 .toggle-button {
   width: 40px;
@@ -124,6 +130,7 @@
   color: #6B7280;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .toggle-button:hover {
@@ -131,8 +138,67 @@
   color: #1F2937;
 }
 
+.toggle-button:hover ~ .toggle-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
 .toggle-button:active {
   transform: scale(0.95);
+}
+
+/* Badge on toggle button */
+.toggle-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #3B82F6;
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 2px solid white;
+}
+
+/* Tooltip for toggle buttons */
+.toggle-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #1F2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+  z-index: 1000;
+}
+
+/* Arrow under tooltip */
+.toggle-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #1F2937;
 }
 
 /* Current Workspace Badge */
