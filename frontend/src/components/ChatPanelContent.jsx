@@ -335,20 +335,6 @@ function ChatPanelContent({
           }
 
           /* ════════════════════════════════════════
-             DESKTOP STYLES (≥768px)
-             ════════════════════════════════════════ */
-
-          @media (min-width: 768px) {
-            /* On desktop, input stays sticky within chat section */
-            .input-container-mobile {
-              position: sticky !important;
-              bottom: 0;
-              left: auto;
-              right: auto;
-            }
-          }
-
-          /* ════════════════════════════════════════
              MOBILE RESPONSIVE STYLES
              ════════════════════════════════════════ */
 
@@ -613,15 +599,15 @@ const styles = {
     flexDirection: 'column',
   },
 
-  // 3. INPUT ZONE - BOTTOM (Sticky - stays at bottom of chat section, doesn't escape)
+  // 3. INPUT ZONE - BOTTOM (Flex child - natural sizing within chat section)
   inputContainer: {
-    position: 'sticky',
-    bottom: 0,
     padding: '12px',
     background: '#F5F5F5',
     borderTop: '1px solid #E5E7EB',
     zIndex: 10,
     flexShrink: 0,
+    width: '100%',
+    boxSizing: 'border-box',
   },
   messageInput: {
     width: '100%',
