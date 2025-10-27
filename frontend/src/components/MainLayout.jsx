@@ -248,55 +248,23 @@ export default function MainLayout() {
       <div className="main-content-area">
         {/* Header with Toggle Buttons and View Mode Controls */}
         <header className="main-header">
+          {/* Left: Logo with text */}
           <div className="header-left">
-            {/* Zyron Logo - Icon only, small size, on the left */}
-            <ZyronLogo size="sm" className="header-logo" />
-
-            {/* Toggle Workspaces Button - Badge only, no gray box */}
-            <div className="toggle-wrapper">
-              <button
-                className="toggle-button"
-                onClick={() => setWorkspaceSidebarOpen(true)}
-                title="Workspaces"
-                aria-label="Ouvrir les workspaces"
-              />
-              {workspaces.length > 0 && (
-                <span className="toggle-badge">{workspaces.length}</span>
-              )}
-              <div className="toggle-tooltip">Workspaces ({workspaces.length})</div>
-            </div>
-
-            {/* Toggle Conversations Button - Badge only, no gray box */}
-            <div className="toggle-wrapper">
-              <button
-                className="toggle-button"
-                onClick={() => setConversationSidebarOpen(true)}
-                title="Conversations"
-                aria-label="Ouvrir les conversations"
-              />
-              {conversations.length > 0 && (
-                <span className="toggle-badge">{conversations.length}</span>
-              )}
-              <div className="toggle-tooltip">Conversations ({conversations.length})</div>
-            </div>
-
-            {/* Current workspace badge */}
-            {currentWorkspace && (
-              <div className="current-workspace-badge">
-                <div
-                  className="workspace-color-dot-header"
-                  style={{ background: currentWorkspace.color }}
-                />
-                <span className="workspace-name-header">{currentWorkspace.name}</span>
-              </div>
-            )}
+            <ZyronLogo size="sm" className="header-logo-with-text" />
           </div>
 
-          {/* Spacer */}
-          <div style={{ flex: 1 }} />
+          {/* Center: Workspace info + View mode controls */}
+          <div className="header-center">
+            {currentWorkspace && (
+              <div className="workspace-info">
+                <div
+                  className="workspace-dot"
+                  style={{ background: currentWorkspace.color }}
+                />
+                <span className="workspace-name">{currentWorkspace.name}</span>
+              </div>
+            )}
 
-          {/* Right section: View Mode toggles + UserButton */}
-          <div className="header-right">
             {/* View Mode Controls */}
             <div className="view-mode-controls">
               <button
@@ -315,6 +283,36 @@ export default function MainLayout() {
               >
                 Split
               </button>
+            </div>
+          </div>
+
+          {/* Right: Quick access to workspaces/conversations + User button */}
+          <div className="header-right">
+            {/* Quick badges for workspace/conversations */}
+            <div className="quick-badges">
+              <div className="toggle-wrapper">
+                <button
+                  className="quick-badge-btn"
+                  onClick={() => setWorkspaceSidebarOpen(true)}
+                  title="Workspaces"
+                  aria-label="Ouvrir les workspaces"
+                />
+                {workspaces.length > 0 && (
+                  <span className="badge">{workspaces.length}</span>
+                )}
+              </div>
+
+              <div className="toggle-wrapper">
+                <button
+                  className="quick-badge-btn"
+                  onClick={() => setConversationSidebarOpen(true)}
+                  title="Conversations"
+                  aria-label="Ouvrir les conversations"
+                />
+                {conversations.length > 0 && (
+                  <span className="badge">{conversations.length}</span>
+                )}
+              </div>
             </div>
 
             {/* User button */}

@@ -21,6 +21,7 @@ export default function ZyronLogo({ size = 'md', href = '/', className = '' }) {
         alt="Zyron AI Logo"
         className="zyron-logo__svg"
       />
+      <span className="zyron-logo__text">Zyron AI</span>
     </a>
   );
 }

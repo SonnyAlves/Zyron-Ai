@@ -58,10 +58,11 @@
    SIZE VARIATIONS
    ════════════════════════════════════════ */
 
-/* Small - Navbar size */
+/* Small - Navbar size (icon only by default) */
 .zyron-logo--sm {
   width: 28px;
   height: 28px;
+  gap: 0;
 }
 
 .zyron-logo--sm .zyron-logo__svg {
@@ -74,6 +75,28 @@
   display: none;
   font-size: 0.9em;
   letter-spacing: 1px;
+}
+
+/* Header logo with text - show icon + "Zyron AI" text */
+.header-logo-with-text {
+  width: auto !important;
+  height: 32px !important;
+  gap: 10px !important;
+}
+
+.header-logo-with-text .zyron-logo__svg {
+  width: 28px !important;
+  height: 28px !important;
+  flex-shrink: 0;
+}
+
+.header-logo-with-text .zyron-logo__text {
+  display: block !important;
+  font-size: 0.95em !important;
+  letter-spacing: 1px !important;
+  color: #1F2937 !important;
+  font-weight: 700 !important;
+  white-space: nowrap;
 }
 
 /* Medium - Header size (default) */
