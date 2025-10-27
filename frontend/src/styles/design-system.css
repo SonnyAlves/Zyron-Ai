@@ -1,0 +1,387 @@
+/* ════════════════════════════════════════════════════════════════
+   ZYRON AI - DESIGN SYSTEM
+   Centralized design tokens for consistency across the app
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ──────────────────────────────────────────────────────────────
+     COLOR PALETTE
+     ────────────────────────────────────────────────────────────── */
+
+  /* Primary Colors */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-active: #1D4ED8;
+
+  /* Teal Accent (Zyron Brand) */
+  --color-teal: #5BA89E;
+  --color-teal-light: #7BBBB3;
+
+  /* Pink Accent (Zyron Brand) */
+  --color-pink: #FF6B89;
+  --color-pink-light: #FF8FA3;
+
+  /* Backgrounds */
+  --color-bg-dark: #0a0e27;
+  --color-bg-light: #F9FAFB;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-hover: #F3F4F6;
+  --color-bg-active: #E5E7EB;
+
+  /* Messages */
+  --color-user-bg: #3B82F6;
+  --color-user-text: #FFFFFF;
+  --color-assistant-bg: #F3F4F6;
+  --color-assistant-text: #1F2937;
+
+  /* Text Colors */
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --color-border: #E5E7EB;
+  --color-border-light: #F3F4F6;
+  --color-divider: rgba(229, 231, 235, 0.5);
+
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #0EA5E9;
+
+  /* Code Highlighting */
+  --color-code-bg: #1E1E1E;
+  --color-code-text: #E1E4E8;
+  --color-code-keyword: #FF7B72;
+  --color-code-string: #A5D6FF;
+  --color-code-number: #79C0FF;
+  --color-code-function: #D2A8FF;
+
+  /* ──────────────────────────────────────────────────────────────
+     SPACING SYSTEM (8px Grid)
+     ────────────────────────────────────────────────────────────── */
+
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+
+  /* ──────────────────────────────────────────────────────────────
+     TYPOGRAPHY
+     ────────────────────────────────────────────────────────────── */
+
+  /* Font Families */
+  --font-primary: 'Gyokz', system-ui, -apple-system, sans-serif;
+  --font-secondary: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+
+  /* Font Sizes */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 17px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+  --font-size-4xl: 32px;
+  --font-size-5xl: 40px;
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  --line-height-loose: 1.8;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.5px;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.5px;
+
+  /* ──────────────────────────────────────────────────────────────
+     SHADOWS (Elevation System)
+     ────────────────────────────────────────────────────────────── */
+
+  --shadow-none: 0 0 0 transparent;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  /* ──────────────────────────────────────────────────────────────
+     BORDER RADIUS
+     ────────────────────────────────────────────────────────────── */
+
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* ──────────────────────────────────────────────────────────────
+     TRANSITIONS & ANIMATIONS
+     ────────────────────────────────────────────────────────────── */
+
+  /* Transition Durations */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  /* Transition Timings */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Standard Transitions */
+  --transition-all: all var(--duration-normal) var(--ease-out);
+  --transition-colors: color, background-color, border-color var(--duration-fast) var(--ease-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-out);
+
+  /* ──────────────────────────────────────────────────────────────
+     BREAKPOINTS (Mobile-first approach)
+     ────────────────────────────────────────────────────────────── */
+
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ──────────────────────────────────────────────────────────────
+     Z-INDEX SCALE (Layering System)
+     ────────────────────────────────────────────────────────────── */
+
+  --z-hide: -1;
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-notification: 800;
+  --z-maximum: 999;
+
+  /* ──────────────────────────────────────────────────────────────
+     CHAT-SPECIFIC TOKENS
+     ────────────────────────────────────────────────────────────── */
+
+  /* Message Styling */
+  --message-max-width: 90%;
+  --message-gap: var(--space-3);
+  --message-padding: var(--space-4);
+  --message-border-radius: var(--radius-lg);
+
+  /* Input Area */
+  --input-height: 44px;
+  --input-padding: var(--space-3);
+  --input-font-size: var(--font-size-md);
+  --input-border: 1px solid var(--color-border);
+
+  /* Conversation Sidebar */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 64px;
+  --conversation-item-height: 56px;
+  --conversation-item-gap: var(--space-3);
+
+  /* Visual Brain */
+  --graph-node-size: 32px;
+  --graph-edge-width: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ANIMATION KEYFRAMES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Message appearing */
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide out to right (delete animation) */
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Checkmark animation */
+@keyframes checkmark {
+  from {
+    stroke-dashoffset: 24;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Loading dots */
+@keyframes dots {
+  0%, 20% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  80%, 100% {
+    opacity: 0.2;
+  }
+}
+
+/* Skeleton loading shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   GLOBAL UTILITIES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+textarea,
+select {
+  transition: var(--transition-all);
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+::-moz-selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
