@@ -36,7 +36,7 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <div className="landing-hero">
-        <img src="/logos/zyron-logo-new.svg" alt="Zyron AI" className="landing-logo" />
+        <img src="/logos/zyron-logo.png" alt="Zyron AI" className="landing-logo" />
         <h1 className="landing-title">
           Zyron AI
         </h1>
