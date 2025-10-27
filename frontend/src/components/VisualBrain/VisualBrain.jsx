@@ -3,7 +3,7 @@ import { NeuralNetwork } from './NeuralNetwork';
 import Controls from './Controls';
 import './styles.css';
 
-export default function VisualBrain({ isThinking, tokens, onNodeClick }) {
+export default function VisualBrain({ isThinking, tokens }) {
   const containerRef = useRef(null);
   const networkRef = useRef(null);
   const [theme, setTheme] = useState(0);
