@@ -102,13 +102,29 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+/* Header Logo - Remove gray background, clean design */
+.header-logo {
+  height: 32px !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+.header-logo img {
+  height: 32px;
+  width: auto;
 }
 
 /* Toggle wrapper for tooltip + button */
