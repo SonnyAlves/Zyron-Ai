@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { useStore } from '../store/useStore'
 import MessageWithCopy from './MessageWithCopy'
+import { useThrottle } from '../hooks/useDebounce'
+import { useAutoScroll } from '../hooks/useAutoScroll'
 
-export default function ChatPanelContent({
+function ChatPanelContent({
   message,
   response,
   isThinking,
@@ -13,6 +15,7 @@ export default function ChatPanelContent({
   const [isMobile, setIsMobile] = useState(false)
   const [hasSeenSuggestions, setHasSeenSuggestions] = useState(false)
   const messagesEndRef = useRef(null)
+  const messagesContainerRef = useRef(null)
   const textareaRef = useRef(null)
 
   // Get messages from Zustand store
@@ -65,19 +68,12 @@ export default function ChatPanelContent({
     }
   }, [isThinking, response, currentConversationId, addMessage])
 
-  // Auto-scroll to bottom when messages change
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  // Smart auto-scroll using IntersectionObserver
+  // Only scrolls if user is already at the bottom of conversation
+  useAutoScroll(messagesEndRef, messagesContainerRef, [messages, isThinking])
 
-  useEffect(() => {
-    if (messages.length > 0 || isThinking) {
-      scrollToBottom()
-    }
-  }, [messages, isThinking])
-
-  // Auto-resize textarea
-  const handleTextareaChange = (e) => {
+  // Auto-resize textarea with throttling
+  const handleTextareaChange = useCallback((e) => {
     const textarea = e.target
     setLocalMessage(textarea.value)
 
@@ -88,7 +84,7 @@ export default function ChatPanelContent({
     const minHeight = isMobile ? 32 : 44
     const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), 120)
     textarea.style.height = `${newHeight}px`
-  }
+  }, [isMobile])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -507,6 +503,7 @@ export default function ChatPanelContent({
           }}
         >
           <div
+            ref={messagesContainerRef}
             className={`messages-container ${hasMessages ? 'messages-container-with-content' : 'messages-container-empty'}`}
             style={styles.messagesContainer}
           >
@@ -597,6 +594,10 @@ export default function ChatPanelContent({
     </>
   )
 }
+
+ChatPanelContent.displayName = 'ChatPanelContent'
+
+export default memo(ChatPanelContent)
 
 const styles = {
   // Main chat panel container (vertical 3-zone layout)
