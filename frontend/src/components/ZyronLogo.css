@@ -92,10 +92,11 @@
 
 .header-logo-with-text .zyron-logo__text {
   display: block !important;
-  font-size: 1.6em !important;
-  letter-spacing: 1px !important;
+  font-size: 0.9em !important;
+  letter-spacing: 0.5px !important;
   color: #1F2937 !important;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
+  font-family: 'Gyokz', sans-serif !important;
   white-space: nowrap;
 }
 

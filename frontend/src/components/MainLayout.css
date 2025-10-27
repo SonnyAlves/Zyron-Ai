@@ -154,7 +154,7 @@
   height: 96px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 15px !important;
+  gap: 6px !important;
   padding: 0 !important;
   margin: 0 !important;
   background: transparent !important;
@@ -164,7 +164,7 @@
 .header-logo-with-text a {
   display: flex !important;
   align-items: center !important;
-  gap: 15px !important;
+  gap: 6px !important;
   padding: 0 !important;
 }
 
