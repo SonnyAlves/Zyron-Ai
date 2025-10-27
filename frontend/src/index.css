@@ -40,6 +40,13 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow: hidden;
+  background-color: #0a0e27;
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow: visible;
+  }
 }
 
 h1 {
