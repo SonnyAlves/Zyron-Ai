@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import CopyButton from './CopyButton';
@@ -10,7 +10,7 @@ const MarkdownMessage = ({ content }) => {
       remarkPlugins={[remarkGfm]}
       components={{
         // Code blocks avec syntax highlighting
-        code({ node, inline, className, children, ...props }) {
+        code({ inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '');
           const language = match ? match[1] : '';
           const codeContent = String(children).replace(/\n$/, '');
@@ -40,7 +40,7 @@ const MarkdownMessage = ({ content }) => {
         },
 
         // Liens cliquables
-        a({ node, children, href, ...props }) {
+        a({ children, href, ...props }) {
           return (
             <a
               href={href}
@@ -55,36 +55,36 @@ const MarkdownMessage = ({ content }) => {
         },
 
         // Paragraphes
-        p({ node, children, ...props }) {
+        p({ children, ...props }) {
           return <p className="markdown-paragraph" {...props}>{children}</p>;
         },
 
         // Headers
-        h1({ node, children, ...props }) {
+        h1({ children, ...props }) {
           return <h1 className="markdown-h1" {...props}>{children}</h1>;
         },
-        h2({ node, children, ...props }) {
+        h2({ children, ...props }) {
           return <h2 className="markdown-h2" {...props}>{children}</h2>;
         },
-        h3({ node, children, ...props }) {
+        h3({ children, ...props }) {
           return <h3 className="markdown-h3" {...props}>{children}</h3>;
         },
 
         // Listes
-        ul({ node, children, ...props }) {
+        ul({ children, ...props }) {
           return <ul className="markdown-list" {...props}>{children}</ul>;
         },
-        ol({ node, children, ...props }) {
+        ol({ children, ...props }) {
           return <ol className="markdown-list numbered" {...props}>{children}</ol>;
         },
 
         // Blockquotes
-        blockquote({ node, children, ...props }) {
+        blockquote({ children, ...props }) {
           return <blockquote className="markdown-blockquote" {...props}>{children}</blockquote>;
         },
 
         // Tables
-        table({ node, children, ...props }) {
+        table({ children, ...props }) {
           return <table className="markdown-table" {...props}>{children}</table>;
         },
       }}

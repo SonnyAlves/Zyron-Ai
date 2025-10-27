@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
 import {
   Scene,
   PerspectiveCamera,
@@ -129,8 +129,6 @@ const VisualBrain = forwardRef((props, ref) => {
   const edgeObjectsRef = useRef([]);
   const particlesRef = useRef(null);
   const animationIdRef = useRef(null);
-  
-  const [nodes, setNodes] = useState(INITIAL_BRAIN_NODES);
 
   // Seeded random for consistent positions
   const seededRandom = (seed) => {
@@ -390,10 +388,7 @@ const VisualBrain = forwardRef((props, ref) => {
         const energyIncrease = activation.energyDelta || 0.15;
         const newEnergy = Math.min(nodeObj.userData.energy + energyIncrease, 1.0);
         nodeObj.userData.energy = newEnergy;
-        
-        // Update visual properties
-        const color = COLORS[nodeObj.userData.category];
-        
+
         // Animate glow/emissive intensity
         nodeObj.material.emissiveIntensity = 0.5 + (newEnergy * 0.5);
         nodeObj.material.opacity = 0.7 + (newEnergy * 0.3);
