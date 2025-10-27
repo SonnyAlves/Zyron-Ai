@@ -77,22 +77,22 @@
   letter-spacing: 1px;
 }
 
-/* Header logo with text - show icon + "Zyron AI" text */
+/* Header logo with text - show icon + "Zyron AI" text (3x larger) */
 .header-logo-with-text {
   width: auto !important;
-  height: 32px !important;
-  gap: 10px !important;
+  height: 96px !important;
+  gap: 15px !important;
 }
 
 .header-logo-with-text .zyron-logo__svg {
-  width: 28px !important;
-  height: 28px !important;
+  width: 84px !important;
+  height: 84px !important;
   flex-shrink: 0;
 }
 
 .header-logo-with-text .zyron-logo__text {
   display: block !important;
-  font-size: 0.95em !important;
+  font-size: 1.6em !important;
   letter-spacing: 1px !important;
   color: #1F2937 !important;
   font-weight: 700 !important;
