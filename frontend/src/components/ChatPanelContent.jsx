@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { useStore } from '../store/useStore'
 import MessageWithCopy from './MessageWithCopy'
-import { useThrottle } from '../hooks/useDebounce'
 import { useAutoScroll } from '../hooks/useAutoScroll'
 
 function ChatPanelContent({

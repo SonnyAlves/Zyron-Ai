@@ -4,7 +4,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { nodeShader, connectionShader, colorPalettes } from './shaders';
+import { nodeShader } from './shaders';
 
 // 7 Node Categories for Emergent aesthetic
 const NODE_CATEGORIES = {
@@ -393,7 +393,7 @@ export class NeuralNetwork {
     this.connectionLines = lines;
   }
 
-  addNode(tokenData) {
+  addNode() {
     // Add a new node for streaming tokens
     if (this.nodes.length === 0) return;
 
@@ -504,7 +504,7 @@ export class NeuralNetwork {
     this.composer.render();
   };
 
-  updateMode(mode) {
+  updateMode() {
     // Emergent aesthetic is optimized for light mode only
     this.config.mode = 'light';
     this.pulseUniforms.uLightMode.value = 1;
