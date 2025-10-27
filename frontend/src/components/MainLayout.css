@@ -111,20 +111,31 @@
   gap: 16px;
 }
 
-/* Header Logo - Remove gray background, clean design */
+/* Header Logo - Icon only, no container */
 .header-logo {
-  height: 32px !important;
-  width: auto !important;
-  display: flex !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: inline-flex !important;
   align-items: center !important;
+  justify-content: center !important;
   padding: 0 !important;
   margin: 0 !important;
   background: transparent !important;
+  border: none !important;
+  gap: 0 !important;
+}
+
+.header-logo a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .header-logo img {
-  height: 32px;
-  width: auto;
+  width: 28px !important;
+  height: 28px !important;
 }
 
 /* Toggle wrapper for tooltip + button */

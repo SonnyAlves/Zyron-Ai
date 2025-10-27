@@ -60,17 +60,18 @@
 
 /* Small - Navbar size */
 .zyron-logo--sm {
-  width: 120px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .zyron-logo--sm .zyron-logo__svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
 .zyron-logo--sm .zyron-logo__text {
+  display: none;
   font-size: 0.9em;
   letter-spacing: 1px;
 }
