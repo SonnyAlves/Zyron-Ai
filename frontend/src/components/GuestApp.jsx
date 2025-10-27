@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useGuestStore } from '../store/useGuestStore';
 import { SignIn, useClerk } from '@clerk/clerk-react';
+import { useStreamingChat } from '../hooks/useStreamingChat';
 import VisualBrain from './VisualBrain';
 import './GuestApp.css';
 
@@ -8,7 +9,6 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
 const GuestApp = () => {
   const [viewMode, setViewMode] = useState('split');
-  const [isThinking, setIsThinking] = useState(false);
   const [tokens, setTokens] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const visualBrainRef = useRef(null);
@@ -21,12 +21,13 @@ const GuestApp = () => {
   } = useGuestStore();
 
   const { openSignUp } = useClerk();
+  const { isLoading, error, sendMessage, abort } = useStreamingChat(API_URL);
 
   const remaining = getRemainingMessages();
   const showBanner = remaining <= 3;
 
-  const handleSend = async () => {
-    if (!inputValue.trim() || isThinking) return;
+  const handleSend = useCallback(async () => {
+    if (!inputValue.trim() || isLoading) return;
 
     if (isLimitReached()) {
       openSignUp();
@@ -35,77 +36,41 @@ const GuestApp = () => {
 
     const userMessage = inputValue.trim();
     setInputValue('');
-    setIsThinking(true);
     setTokens([]);
 
-    try {
-      // Add user message
-      const userMsg = {
-        id: Date.now().toString(),
-        role: 'user',
-        content: userMessage,
-        created_at: new Date().toISOString(),
-      };
-      addGuestMessage(userMsg);
+    // Add user message to store
+    const userMsg = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: userMessage,
+      created_at: new Date().toISOString(),
+    };
+    addGuestMessage(userMsg);
 
-      // Call backend
-      const response = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    // Stream response from backend
+    await sendMessage(
+      userMessage,
+      // onChunk: track tokens for visual brain
+      (token) => {
+        setTokens((prev) => [...prev, token]);
+        visualBrainRef.current?.addToken(token);
+      },
+      // onComplete: add assistant message to store
+      (fullContent) => {
+        const assistantMsg = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: fullContent,
+          created_at: new Date().toISOString(),
+        };
+        addGuestMessage(assistantMsg);
+      },
+      // onError: handle errors (error state is already in hook)
+      (err) => {
+        console.error('Streaming error:', err);
       }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let assistantContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines[lines.length - 1];
-
-        for (let i = 0; i < lines.length - 1; i++) {
-          const line = lines[i];
-          if (line.startsWith('data: ')) {
-            const text = line.slice(6);
-            if (text) {
-              assistantContent += text;
-              setTokens((prev) => [...prev, text]);
-            }
-          }
-        }
-      }
-
-      if (buffer.startsWith('data: ')) {
-        const text = buffer.slice(6);
-        if (text) {
-          assistantContent += text;
-          setTokens((prev) => [...prev, text]);
-        }
-      }
-
-      // Add assistant message
-      const assistantMsg = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: assistantContent,
-        created_at: new Date().toISOString(),
-      };
-      addGuestMessage(assistantMsg);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsThinking(false);
-    }
-  };
+    );
+  }, [inputValue, isLoading, isLimitReached, sendMessage, addGuestMessage, openSignUp]);
 
   return (
     <div className="guest-app">
@@ -194,7 +159,14 @@ const GuestApp = () => {
                     </div>
                   ))
                 )}
-                {isThinking && (
+                {error && (
+                  <div className="message error">
+                    <div className="message-content">
+                      <strong>Error:</strong> {error}
+                    </div>
+                  </div>
+                )}
+                {isLoading && (
                   <div className="message assistant">
                     <div className="message-content">
                       <div className="thinking-indicator">
@@ -219,15 +191,25 @@ const GuestApp = () => {
                     }
                   }}
                   placeholder={isLimitReached() ? "Inscrivez-vous pour continuer..." : "Message Zyron AI..."}
-                  disabled={isLimitReached() || isThinking}
+                  disabled={isLimitReached() || isLoading}
                 />
-                <button
-                  onClick={handleSend}
-                  disabled={!inputValue.trim() || isThinking || isLimitReached()}
-                  className="send-button"
-                >
-                  ↑
-                </button>
+                {isLoading ? (
+                  <button
+                    onClick={abort}
+                    className="send-button stop-button"
+                    title="Stop generating"
+                  >
+                    ⏹
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSend}
+                    disabled={!inputValue.trim() || isLoading || isLimitReached()}
+                    className="send-button"
+                  >
+                    ↑
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -237,7 +219,7 @@ const GuestApp = () => {
         <div className="visual-brain-section">
           <VisualBrain
             ref={visualBrainRef}
-            isThinking={isThinking}
+            isThinking={isLoading}
             tokens={tokens}
             onNodeClick={(node) => console.log('Node clicked:', node)}
           />
