@@ -1,4 +1,5 @@
 import React, { useState, memo, useCallback, useMemo } from 'react';
+import { formatDate } from '../utils/formatDate';
 import './ConversationSidebar.css';
 
 const ConversationSidebar = memo(({
@@ -11,24 +12,6 @@ const ConversationSidebar = memo(({
   onClose,
 }) => {
   const [deletingId, setDeletingId] = useState(null);
-
-  // Memoized date formatting to avoid recalculation
-  const formatDate = useCallback((isoDate) => {
-    const date = new Date(isoDate);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'À l\'instant';
-    if (diffMins < 60) return `Il y a ${diffMins} min`;
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffDays === 1) return 'Hier';
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
-
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-  }, []);
 
   const handleDelete = useCallback((e, conversationId) => {
     e.stopPropagation();
