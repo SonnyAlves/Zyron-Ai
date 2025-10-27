@@ -556,9 +556,31 @@
     display: none !important;
   }
 
-  /* Header adjustments */
+  /* Header adjustments - reduce for mobile */
   .main-header {
+    height: 60px;
     padding: 0 16px;
+    gap: 16px;
+  }
+
+  /* Reduce logo and text for mobile */
+  .header-logo-with-text {
+    height: 55px !important;
+    gap: 2px !important;
+  }
+
+  .header-logo-with-text img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .header-logo-with-text a {
+    gap: 2px !important;
+  }
+
+  /* Reduce header text on mobile */
+  .header-logo-with-text .zyron-logo__text {
+    font-size: 0.95em !important;
   }
 
   .view-mode-controls {

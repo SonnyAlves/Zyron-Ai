@@ -221,6 +221,21 @@
    ════════════════════════════════════════ */
 
 @media (max-width: 768px) {
+  /* Header logo on mobile - reduced size */
+  .header-logo-with-text {
+    height: 55px !important;
+    gap: 2px !important;
+  }
+
+  .header-logo-with-text .zyron-logo__svg {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .header-logo-with-text .zyron-logo__text {
+    font-size: 0.95em !important;
+  }
+
   .zyron-logo--md {
     width: 140px;
     height: 40px;
