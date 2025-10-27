@@ -1,5 +1,28 @@
 import React, { useRef, useEffect, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
-import * as THREE from 'three';
+import {
+  Scene,
+  PerspectiveCamera,
+  WebGLRenderer,
+  AmbientLight,
+  DirectionalLight,
+  BufferGeometry,
+  BufferAttribute,
+  PointsMaterial,
+  AdditiveBlending,
+  Points,
+  FogExp2,
+  Vector3,
+  SphereGeometry,
+  MeshPhongMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  BackSide,
+  LineBasicMaterial,
+  Line,
+  Color,
+  Fog,
+  Raycaster
+} from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // Simplified node data for always-on brain (40-60 nodes)
@@ -151,7 +174,7 @@ const VisualBrain = forwardRef((props, ref) => {
     const container = canvasRef.current.parentElement;
     if (!container) return;
 
-    const scene = new THREE.Scene();
+    const scene = new Scene();
     scene.background = null; // Transparent for light mode
     sceneRef.current = scene;
 
@@ -159,11 +182,11 @@ const VisualBrain = forwardRef((props, ref) => {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    const camera = new PerspectiveCamera(60, width / height, 0.1, 1000);
     camera.position.set(15, 10, 25);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({
+    const renderer = new WebGLRenderer({
       canvas: canvasRef.current,
       antialias: true,
       alpha: true
@@ -179,33 +202,33 @@ const VisualBrain = forwardRef((props, ref) => {
     controlsRef.current = controls;
 
     // Lighting - Professional setup for light mode
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.6);
+    scene.add(new AmbientLight(0xffffff, 0.8));
+    const light1 = new DirectionalLight(0xffffff, 0.6);
     light1.position.set(15, 10, 15);
     scene.add(light1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.3);
+    const light2 = new DirectionalLight(0xffffff, 0.3);
     light2.position.set(-15, -10, -15);
     scene.add(light2);
 
     // Particles
-    const particlesGeom = new THREE.BufferGeometry();
+    const particlesGeom = new BufferGeometry();
     const particlePositions = new Float32Array(2000 * 3);
     for(let i = 0; i < 2000 * 3; i++) {
       particlePositions[i] = (seededRandom(i * 50) - 0.5) * 100;
     }
-    particlesGeom.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particlesMat = new THREE.PointsMaterial({
+    particlesGeom.setAttribute('position', new BufferAttribute(particlePositions, 3));
+    const particlesMat = new PointsMaterial({
       size: 0.06,
       color: 0x2F80FF,
       transparent: true,
       opacity: 0.4,
-      blending: THREE.AdditiveBlending
+      blending: AdditiveBlending
     });
-    particlesRef.current = new THREE.Points(particlesGeom, particlesMat);
+    particlesRef.current = new Points(particlesGeom, particlesMat);
     scene.add(particlesRef.current);
 
     // Fog
-    scene.fog = new THREE.FogExp2(0x1a1a2e, 0.015);
+    scene.fog = new FogExp2(0x1a1a2e, 0.015);
 
     // Create nodes
     INITIAL_BRAIN_NODES.forEach(node => {
@@ -300,12 +323,12 @@ const VisualBrain = forwardRef((props, ref) => {
 
   const createNode = (node, scene) => {
     const pos = nodePositions[node.id];
-    const position = new THREE.Vector3(pos.x, pos.y, pos.z);
+    const position = new Vector3(pos.x, pos.y, pos.z);
     const color = COLORS[node.category];
     
     const size = (0.6 + node.weight * 0.3) * 0.8; // Smaller for low energy
-    const geometry = new THREE.SphereGeometry(size, 32, 32);
-    const material = new THREE.MeshPhongMaterial({
+    const geometry = new SphereGeometry(size, 32, 32);
+    const material = new MeshPhongMaterial({
       color: color,
       transparent: true,
       opacity: 0.7,
@@ -314,18 +337,18 @@ const VisualBrain = forwardRef((props, ref) => {
       shininess: 100
     });
     
-    const sphere = new THREE.Mesh(geometry, material);
+    const sphere = new Mesh(geometry, material);
     sphere.position.copy(position);
     sphere.userData = { ...node, originalEnergy: node.energy };
     
-    const haloGeom = new THREE.SphereGeometry(size * 1.8, 32, 32);
-    const haloMat = new THREE.MeshBasicMaterial({
+    const haloGeom = new SphereGeometry(size * 1.8, 32, 32);
+    const haloMat = new MeshBasicMaterial({
       color: color,
       transparent: true,
       opacity: 0.1,
-      side: THREE.BackSide
+      side: BackSide
     });
-    const halo = new THREE.Mesh(haloGeom, haloMat);
+    const halo = new Mesh(haloGeom, haloMat);
     halo.position.copy(position);
     sphere.userData.halo = halo;
     
@@ -341,15 +364,15 @@ const VisualBrain = forwardRef((props, ref) => {
     if (!fromNode || !toNode) return;
     
     const points = [fromNode.position, toNode.position];
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({
+    const geometry = new BufferGeometry().setFromPoints(points);
+    const material = new LineBasicMaterial({
       color: 0x2F80FF,
       transparent: true,
       opacity: 0.2,
       linewidth: 1
     });
     
-    const line = new THREE.Line(geometry, material);
+    const line = new Line(geometry, material);
     scene.add(line);
     edgeObjectsRef.current.push(line);
   };

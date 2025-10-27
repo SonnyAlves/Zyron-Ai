@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense, lazy } from 'react'
 import { UserButton } from '@clerk/clerk-react'
-import VisualBrain from './VisualBrain'
+const VisualBrain = lazy(() => import('./VisualBrain'))
 import ChatPanelContent from './ChatPanelContent'
 import ZyronLogo from './ZyronLogo'
 import WorkspaceSidebar from './WorkspaceSidebar'
@@ -334,14 +334,16 @@ export default function MainLayout() {
             </div>
           )}
 
-          {/* Visual Brain - RIGHT side (72%) - Always visible */}
+          {/* Visual Brain - RIGHT side (72%) - Always visible, lazy-loaded */}
           <div className="visual-brain-section">
-            <VisualBrain
-              ref={visualBrainRef}
-              isThinking={isThinking}
-              tokens={tokens}
-              onNodeClick={(node) => console.log('Node clicked:', node)}
-            />
+            <Suspense fallback={<div className="h-full w-full bg-[#F7F7F7]" />}>
+              <VisualBrain
+                ref={visualBrainRef}
+                isThinking={isThinking}
+                tokens={tokens}
+                onNodeClick={(node) => console.log('Node clicked:', node)}
+              />
+            </Suspense>
           </div>
         </div>
       </div>

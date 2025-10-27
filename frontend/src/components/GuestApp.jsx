@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, Suspense, lazy } from 'react';
 import { useGuestStore } from '../store/useGuestStore';
 import { SignIn, useClerk } from '@clerk/clerk-react';
 import { useStreamingChat } from '../hooks/useStreamingChat';
-import VisualBrain from './VisualBrain';
+const VisualBrain = lazy(() => import('./VisualBrain'));
 import './GuestApp.css';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
@@ -215,14 +215,16 @@ const GuestApp = () => {
           </div>
         )}
 
-        {/* Visual Brain - RIGHT side (72%) */}
+        {/* Visual Brain - RIGHT side (72%) - lazy-loaded */}
         <div className="visual-brain-section">
-          <VisualBrain
-            ref={visualBrainRef}
-            isThinking={isLoading}
-            tokens={tokens}
-            onNodeClick={(node) => console.log('Node clicked:', node)}
-          />
+          <Suspense fallback={<div className="h-full w-full bg-[#F7F7F7]" />}>
+            <VisualBrain
+              ref={visualBrainRef}
+              isThinking={isLoading}
+              tokens={tokens}
+              onNodeClick={(node) => console.log('Node clicked:', node)}
+            />
+          </Suspense>
         </div>
       </div>
     </div>
