@@ -6,13 +6,13 @@
 }
 
 .guest-header {
-  height: 60px;
+  height: 56px;
   background: white;
   border-bottom: 1px solid #E5E7EB;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 16px;
 }
 
 .header-left {
@@ -358,23 +358,25 @@
 
   .guest-header {
     padding: 0 12px;
-    height: auto;
-    min-height: 60px;
-    flex-wrap: wrap;
+    height: 52px;
+    min-height: auto;
+    flex-wrap: nowrap;
     gap: 8px;
   }
 
   .header-left {
-    gap: 8px;
+    gap: 6px;
   }
 
   .header-logo {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
 
   .header-title {
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .guest-badge {
@@ -382,74 +384,185 @@
   }
 
   .header-right {
-    gap: 8px;
+    gap: 6px;
+    margin-left: auto;
   }
 
   .view-mode-toggles {
-    padding: 3px;
+    padding: 2px;
     gap: 2px;
   }
 
   .view-mode-button {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
   }
 
   .signup-button {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
     white-space: nowrap;
   }
 
   .limit-banner {
-    padding: 10px 12px;
+    padding: 8px 12px;
     font-size: 12px;
     flex-wrap: wrap;
   }
 
   .empty-state {
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
 
   .empty-state h2 {
-    font-size: 20px;
+    font-size: 18px;
+    margin-bottom: 6px;
   }
 
   .empty-state p {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .suggested-prompts {
     max-width: 100%;
+    gap: 8px;
+  }
+
+  .suggested-prompts button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .messages-area {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .message-content {
+    max-width: 90%;
+    padding: 10px 14px;
+    font-size: 13px;
   }
 
   .input-area {
-    padding: 12px;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .input-area textarea {
+    min-height: 40px;
+    max-height: 100px;
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .send-button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
 }
 
 @media (max-width: 480px) {
-  .header-title {
-    display: none; /* Hide "Zyron AI" text on very small screens */
+  .guest-header {
+    height: 48px;
+    padding: 0 8px;
   }
 
-  .view-mode-toggles {
-    order: 3;
-    width: 100%;
-    justify-content: center;
+  .header-logo {
+    width: 20px;
+    height: 20px;
+  }
+
+  .header-title {
+    display: none; /* Hide "Zyron AI" text on very small screens */
+    font-size: 12px;
   }
 
   .header-left {
-    flex: 1;
+    gap: 4px;
+  }
+
+  .view-mode-toggles {
+    padding: 2px;
+    gap: 1px;
+  }
+
+  .view-mode-button {
+    padding: 4px 8px;
+    font-size: 10px;
   }
 
   .header-right {
-    flex: 1;
-    justify-content: flex-end;
+    gap: 4px;
+    margin-left: auto;
   }
 
   .signup-button {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .limit-banner {
+    padding: 6px 8px;
     font-size: 11px;
-    padding: 5px 10px;
+    gap: 4px;
+  }
+
+  .empty-state {
+    padding: 12px 8px;
+  }
+
+  .empty-state h2 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .empty-state p {
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+
+  .guest-info {
+    font-size: 11px;
+  }
+
+  .suggested-prompts {
+    gap: 6px;
+    width: 100%;
+  }
+
+  .suggested-prompts button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .messages-area {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .message-content {
+    max-width: 85%;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .input-area {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .input-area textarea {
+    min-height: 36px;
+    max-height: 80px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .send-button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
 }

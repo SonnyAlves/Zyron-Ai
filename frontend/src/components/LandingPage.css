@@ -5,15 +5,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px 180px;
+  padding: 40px 20px 40px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .landing-hero {
   text-align: center;
   max-width: 700px;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
   position: relative;
   z-index: 1;
 }
@@ -213,6 +214,24 @@
   }
 }
 
+/* Desktop - Non-scrollable (Web Version) */
+@media (min-width: 769px) {
+  .landing-page {
+    height: 100vh;
+    overflow: hidden;
+    padding: 40px 20px;
+    justify-content: space-around;
+  }
+
+  .landing-hero {
+    margin-bottom: 20px;
+  }
+
+  .landing-features {
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .landing-features {
     grid-template-columns: 1fr;
@@ -227,7 +246,7 @@
   }
 
   .landing-page {
-    padding: 40px 20px 120px;
+    padding: 40px 20px 40px;
   }
 
   /* Modal adjustments for mobile/tablet */
