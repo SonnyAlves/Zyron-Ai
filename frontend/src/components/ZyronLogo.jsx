@@ -10,18 +10,18 @@ import './ZyronLogo.css';
  * - Fully accessible
  * - Optimized for dark backgrounds
  */
-export default function ZyronLogo({ size = 'md', href = '/', className = '' }) {
+export default function ZyronLogo({ size = 'md', href = '/', className = '', showText = true }) {
   const sizeClass = `zyron-logo--${size}`;
   const classes = `zyron-logo ${sizeClass} ${className}`.trim();
 
   return (
     <a href={href} className={classes} aria-label="Zyron AI - Home">
       <img
-        src="/logo.svg"
+        src="/zyron-logo-official.png"
         alt="Zyron AI Logo"
         className="zyron-logo__svg"
       />
-      <span className="zyron-logo__text">Zyron AI</span>
+      {showText && <span className="zyron-logo__text">Zyron AI</span>}
     </a>
   );
 }

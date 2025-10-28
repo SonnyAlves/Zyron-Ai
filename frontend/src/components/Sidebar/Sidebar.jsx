@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Menu, Plus } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { groupConversations } from '../../utils/groupConversations';
 import ConversationItem from './ConversationItem';
 import SectionHeader from './SectionHeader';
@@ -80,15 +80,15 @@ export default function Sidebar({
       )}
 
       <aside className={`sidebar ${isOpen ? 'open' : 'collapsed'}`}>
-        {/* Header */}
+        {/* Header with Close Button */}
         <div className="sidebar-header">
-          <h1 className="sidebar-logo">Zyron</h1>
           <button
-            className="sidebar-toggle-btn"
+            className="sidebar-close-btn"
             onClick={() => onToggle?.()}
-            aria-label="Toggle sidebar"
+            aria-label="Close sidebar"
+            title="Close"
           >
-            <Menu size={20} />
+            <X size={20} />
           </button>
         </div>
 
