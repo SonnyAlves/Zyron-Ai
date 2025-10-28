@@ -36,7 +36,8 @@ VISUAL_BRAIN_GUIDE.md
 # Backend (not needed for frontend deploy)
 backend/
 visual_brain/
-lib/
+/lib/
+backend/lib/
 config/
 logs/
 *.py
