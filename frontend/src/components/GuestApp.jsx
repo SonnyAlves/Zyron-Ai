@@ -131,7 +131,7 @@ const GuestApp = () => {
             <div className="chat-panel-guest">
               {/* Messages area */}
               <div className="messages-area">
-                {guestMessages.length === 0 ? (
+                {guestMessages.length === 0 && !isLoading ? (
                   <div className="empty-state">
                     <h2>Bienvenue sur Zyron AI</h2>
                     <p>Posez-moi n'importe quelle question</p>
