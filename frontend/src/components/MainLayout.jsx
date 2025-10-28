@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, Suspense, lazy } from 'react'
-import { UserButton } from '@clerk/clerk-react'
 const VisualBrain = lazy(() => import('./VisualBrain'))
-import ChatPanelContent from './ChatPanelContent'
-import ZyronLogo from './ZyronLogo'
-import WorkspaceSidebar from './WorkspaceSidebar'
+import Header from './Header'
 import Sidebar from './Sidebar/Sidebar'
+import ChatPanelContent from './ChatPanelContent'
+import WorkspaceSidebar from './WorkspaceSidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
 import './MainLayout.css'
@@ -19,7 +18,7 @@ export default function MainLayout() {
   const [message, setMessage] = useState('')
   const [viewMode, setViewMode] = useState('split')  // 'split' or 'graph'
   const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
-  const [conversationSidebarOpen, setConversationSidebarOpen] = useState(false)
+  const [conversationSidebarOpen, setConversationSidebarOpen] = useState(true)  // Sidebar visible by default
   const visualBrainRef = useRef(null)
 
   // Zustand store
@@ -212,7 +211,14 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="main-layout" data-view-mode={viewMode}>
+    <div className="main-layout">
+      {/* FIXED HEADER AT TOP - SEPARATE FROM SIDEBAR */}
+      <Header
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onSidebarToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
+      />
+
       {/* Workspace Sidebar (toggle with overlay) */}
       {workspaceSidebarOpen && (
         <>
@@ -234,119 +240,42 @@ export default function MainLayout() {
         </>
       )}
 
-      {/* New SOTA Sidebar Component */}
-      <Sidebar
-        conversations={conversations}
-        activeConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewChat}
-        onRenameConversation={handleRenameConversation}
-        onDeleteConversation={handleDeleteConversation}
-        isOpen={conversationSidebarOpen}
-        onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
-      />
-
-      {/* Main content area */}
+      {/* MAIN CONTENT AREA - Below fixed header (mt-64px) */}
       <div className="main-content-area">
-        {/* Header with Toggle Buttons and View Mode Controls */}
-        <header className="main-header">
-          {/* Left: Logo with text */}
-          <div className="header-left">
-            <ZyronLogo size="sm" className="header-logo-with-text" />
-          </div>
+        {/* SIDEBAR - Fixed left, starts below header */}
+        <Sidebar
+          conversations={conversations}
+          activeConversationId={currentConversationId}
+          onSelectConversation={handleSelectConversation}
+          onNewConversation={handleNewChat}
+          onRenameConversation={handleRenameConversation}
+          onDeleteConversation={handleDeleteConversation}
+          isOpen={conversationSidebarOpen}
+          onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
+        />
 
-          {/* Center: Workspace info + View mode controls */}
-          <div className="header-center">
-            {currentWorkspace && (
-              <div className="workspace-info">
-                <div
-                  className="workspace-dot"
-                  style={{ background: currentWorkspace.color }}
-                />
-                <span className="workspace-name">{currentWorkspace.name}</span>
-              </div>
-            )}
-
-            {/* View Mode Controls */}
-            <div className="view-mode-controls">
-              <button
-                className={`view-mode-btn ${viewMode === 'graph' ? 'active' : ''}`}
-                onClick={() => setViewMode('graph')}
-                title="Full Graph (G)"
-                aria-label="Full Graph View"
-              >
-                Graph
-              </button>
-              <button
-                className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
-                onClick={() => setViewMode('split')}
-                title="Split View (S)"
-                aria-label="Split View"
-              >
-                Split
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Quick access to workspaces/conversations + User button */}
-          <div className="header-right">
-            {/* Quick badges for workspace/conversations */}
-            <div className="quick-badges">
-              <div className="toggle-wrapper">
-                <button
-                  className="quick-badge-btn"
-                  onClick={() => setWorkspaceSidebarOpen(true)}
-                  title="Workspaces"
-                  aria-label="Ouvrir les workspaces"
-                />
-                {workspaces.length > 0 && (
-                  <span className="badge">{workspaces.length}</span>
-                )}
-              </div>
-
-              <div className="toggle-wrapper">
-                <button
-                  className="quick-badge-btn"
-                  onClick={() => setConversationSidebarOpen(true)}
-                  title="Conversations"
-                  aria-label="Ouvrir les conversations"
-                />
-                {conversations.length > 0 && (
-                  <span className="badge">{conversations.length}</span>
-                )}
-              </div>
-            </div>
-
-            {/* User button */}
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </header>
-
-        {/* Content container - Chat LEFT, Graph RIGHT */}
-        <div className="content-wrapper">
-          {/* Chat Panel - LEFT side (28%) - Shows in Split mode only */}
+        {/* CHAT AREA - Flex grow to fill space */}
+        <div className={`chat-area ${conversationSidebarOpen ? 'with-sidebar' : 'without-sidebar'}`}>
           {viewMode === 'split' && (
-            <div className="chat-section">
-              <ChatPanelContent
-                message={message}
-                response={response}
-                isThinking={isThinking}
-                onSendMessage={handleSendMessage}
-              />
-            </div>
+            <ChatPanelContent
+              message={message}
+              response={response}
+              isThinking={isThinking}
+              onSendMessage={handleSendMessage}
+            />
           )}
+        </div>
 
-          {/* Visual Brain - RIGHT side (72%) - Always visible, lazy-loaded */}
-          <div className="visual-brain-section">
-            <Suspense fallback={<div className="h-full w-full bg-[#F7F7F7]" />}>
-              <VisualBrain
-                ref={visualBrainRef}
-                isThinking={isThinking}
-                tokens={tokens}
-                onNodeClick={(node) => console.log('Node clicked:', node)}
-              />
-            </Suspense>
-          </div>
+        {/* VISUAL BRAIN - Fixed width, hidden on mobile */}
+        <div className="visual-brain-area">
+          <Suspense fallback={<div className="h-full w-full bg-[#F7F7F7]" />}>
+            <VisualBrain
+              ref={visualBrainRef}
+              isThinking={isThinking}
+              tokens={tokens}
+              onNodeClick={(node) => console.log('Node clicked:', node)}
+            />
+          </Suspense>
         </div>
       </div>
     </div>

@@ -1,0 +1,151 @@
+/* Header - FIXED AT TOP */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #E5E7EB;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 24px;
+}
+
+/* Header Left - Logo + Brand */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-hamburger {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #666666;
+  padding: 4px;
+  margin-right: 8px;
+}
+
+.header-logo {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+/* Header Center - Status + Navigation */
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.status-text {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-nav-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 150ms ease;
+}
+
+.header-nav-btn:hover {
+  background: #f7f7f7;
+  color: #1a1a1a;
+}
+
+.header-nav-btn.active {
+  background: #f7f7f7;
+  color: #1a1a1a;
+}
+
+/* Header Right - Icons + User */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 150ms ease;
+  padding: 0;
+}
+
+.header-icon-btn:hover {
+  color: #1a1a1a;
+}
+
+/* Mobile: Show hamburger menu */
+@media (max-width: 768px) {
+  .header-hamburger {
+    display: flex;
+  }
+
+  .header-nav {
+    display: none;
+  }
+
+  .header-status {
+    display: none;
+  }
+
+  .header-title {
+    font-size: 14px;
+  }
+}
