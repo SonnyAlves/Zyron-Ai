@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase.js';
 
 export const useSupabaseAuth = () => {
   const { user, isLoaded } = useUser();
