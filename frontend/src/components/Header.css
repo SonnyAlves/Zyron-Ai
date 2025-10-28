@@ -23,7 +23,9 @@
 }
 
 .header-hamburger {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   height: 32px;
   border: none;
@@ -32,6 +34,13 @@
   color: #666666;
   padding: 4px;
   margin-right: 8px;
+  border-radius: 6px;
+  transition: all 150ms ease;
+}
+
+.header-hamburger:hover {
+  background: #f7f7f7;
+  color: #1a1a1a;
 }
 
 .header-logo {
@@ -131,12 +140,8 @@
   color: #1a1a1a;
 }
 
-/* Mobile: Show hamburger menu */
+/* Mobile: Hide some header elements */
 @media (max-width: 768px) {
-  .header-hamburger {
-    display: flex;
-  }
-
   .header-nav {
     display: none;
   }

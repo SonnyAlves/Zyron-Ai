@@ -23,8 +23,11 @@ const ConversationItem = memo(function ConversationItem({
           <button
             className="conversation-item__menu-trigger"
             onClick={(e) => e.stopPropagation()}
+            title="Menu"
           >
-            <MoreVertical size={16} />
+            <MoreVertical size={16} color="#000000" strokeWidth={3} />
+            {/* DEBUG: Fallback if icon doesn't show */}
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>⋮</span>
           </button>
         </DropdownMenu.Trigger>
 

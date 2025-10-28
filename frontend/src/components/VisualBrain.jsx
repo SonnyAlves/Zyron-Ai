@@ -424,13 +424,15 @@ const VisualBrain = forwardRef((props, ref) => {
 
   return (
     <div
-      className="w-full h-full relative"
+      className="visual-brain-container"
       style={{
-        minHeight: '100vh',
         width: '100%',
         height: '100%',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
       <canvas
