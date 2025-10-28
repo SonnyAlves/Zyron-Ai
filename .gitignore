@@ -56,3 +56,4 @@ logs/*.pid
 backend/.env
 .env
 backend/.env
+.vercel
