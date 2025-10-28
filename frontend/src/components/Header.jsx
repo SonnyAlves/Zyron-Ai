@@ -9,7 +9,7 @@ export default function Header({ viewMode, setViewMode, onSidebarToggle }) {
       {/* Left: Logo + Brand */}
       <div className="header-left">
         <button
-          className="header-hamburger lg:hidden"
+          className="header-hamburger"
           onClick={onSidebarToggle}
           aria-label="Toggle sidebar"
         >

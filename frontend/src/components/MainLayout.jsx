@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, Suspense, lazy } from 'react'
-const VisualBrain = lazy(() => import('./VisualBrain'))
+import { useState, useEffect, useRef } from 'react'
+import VisualBrain from './VisualBrain' // ✅ RESTORED - Real Three.js component
 import Header from './Header'
 import Sidebar from './Sidebar/Sidebar'
 import ChatPanelContent from './ChatPanelContent'
 import WorkspaceSidebar from './WorkspaceSidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
-import './MainLayout.css'
+// import './MainLayout.css' // ❌ DISABLED - Using inline styles only
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
 
@@ -114,7 +114,10 @@ export default function MainLayout() {
       setMessage('')
       setResponse('')
       setTokens([])
-      setConversationSidebarOpen(false)
+      // Don't auto-close sidebar on desktop - only on mobile
+      if (window.innerWidth < 768) {
+        setConversationSidebarOpen(false)
+      }
     }
   }
 
@@ -123,7 +126,10 @@ export default function MainLayout() {
     setMessage('')
     setResponse('')
     setTokens([])
-    setConversationSidebarOpen(false)
+    // Don't auto-close sidebar on desktop - only on mobile
+    if (window.innerWidth < 768) {
+      setConversationSidebarOpen(false)
+    }
   }
 
   const handleDeleteConversation = async (conversationId) => {
@@ -211,8 +217,13 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="main-layout">
-      {/* FIXED HEADER AT TOP - SEPARATE FROM SIDEBAR */}
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      {/* HEADER - Fixed 64px */}
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -223,10 +234,27 @@ export default function MainLayout() {
       {workspaceSidebarOpen && (
         <>
           <div
-            className="sidebar-overlay"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999
+            }}
             onClick={() => setWorkspaceSidebarOpen(false)}
           />
-          <div className="workspace-sidebar-container open">
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            width: '280px',
+            background: 'white',
+            zIndex: 1000,
+            boxShadow: '2px 0 12px rgba(0, 0, 0, 0.15)'
+          }}>
             <WorkspaceSidebar
               workspaces={workspaces}
               currentWorkspaceId={currentWorkspaceId}
@@ -240,42 +268,66 @@ export default function MainLayout() {
         </>
       )}
 
-      {/* MAIN CONTENT AREA - Below fixed header (mt-64px) */}
-      <div className="main-content-area">
-        {/* SIDEBAR - Fixed left, starts below header */}
-        <Sidebar
-          conversations={conversations}
-          activeConversationId={currentConversationId}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewChat}
-          onRenameConversation={handleRenameConversation}
-          onDeleteConversation={handleDeleteConversation}
-          isOpen={conversationSidebarOpen}
-          onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
-        />
-
-        {/* CHAT AREA - Flex grow to fill space */}
-        <div className={`chat-area ${conversationSidebarOpen ? 'with-sidebar' : 'without-sidebar'}`}>
-          {viewMode === 'split' && (
-            <ChatPanelContent
-              message={message}
-              response={response}
-              isThinking={isThinking}
-              onSendMessage={handleSendMessage}
+      {/* MAIN CONTENT - 3 COLUMNS FORCED */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        overflow: 'hidden',
+        marginTop: '64px'
+      }}>
+        {/* Column 1: Sidebar - 280px or hidden */}
+        {conversationSidebarOpen && (
+          <div style={{
+            width: '280px',
+            height: '100%',
+            flexShrink: 0,
+            overflow: 'auto',
+            borderRight: '1px solid #e5e5e5',
+            background: 'white'
+          }}>
+            <Sidebar
+              conversations={conversations}
+              activeConversationId={currentConversationId}
+              onSelectConversation={handleSelectConversation}
+              onNewConversation={handleNewChat}
+              onRenameConversation={handleRenameConversation}
+              onDeleteConversation={handleDeleteConversation}
+              isOpen={conversationSidebarOpen}
+              onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
             />
-          )}
+          </div>
+        )}
+
+        {/* Column 2: Chat - Flexible */}
+        <div style={{
+          flex: 1,
+          height: '100%',
+          minWidth: 0,
+          overflow: 'auto',
+          background: 'white'
+        }}>
+          <ChatPanelContent
+            message={message}
+            response={response}
+            isThinking={isThinking}
+            onSendMessage={handleSendMessage}
+          />
         </div>
 
-        {/* VISUAL BRAIN - Fixed width, hidden on mobile */}
-        <div className="visual-brain-area">
-          <Suspense fallback={<div className="h-full w-full bg-[#F7F7F7]" />}>
-            <VisualBrain
-              ref={visualBrainRef}
-              isThinking={isThinking}
-              tokens={tokens}
-              onNodeClick={(node) => console.log('Node clicked:', node)}
-            />
-          </Suspense>
+        {/* Column 3: Visual Brain - Three.js */}
+        <div style={{
+          width: '500px',
+          height: '100%',
+          flexShrink: 0,
+          overflow: 'hidden',
+          background: '#F7F7F7'
+        }}>
+          <VisualBrain
+            ref={visualBrainRef}
+            isThinking={isThinking}
+            tokens={tokens}
+            onNodeClick={(node) => console.log('Node clicked:', node)}
+          />
         </div>
       </div>
     </div>

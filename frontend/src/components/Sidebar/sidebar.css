@@ -26,7 +26,7 @@
 
 /* ============ SIDEBAR HEADER ============ */
 .sidebar-header {
-  display: flex;
+  display: none; /* Hidden on desktop - we use hamburger in main header */
   justify-content: flex-end;
   align-items: center;
   padding: 12px 16px;
@@ -367,19 +367,21 @@
   width: 28px;
   height: 28px;
   border: none;
-  background: transparent;
+  background: #f0f0f0; /* DEBUG: visible background */
   cursor: pointer;
-  color: #999999;
-  display: flex;
+  color: #1a1a1a; /* DEBUG: dark color */
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 1 !important; /* DEBUG: ALWAYS VISIBLE */
   transition: opacity 150ms ease;
   flex-shrink: 0;
+  border-radius: 4px;
 }
 
-.conversation-item:hover .conversation-item__menu-trigger {
-  opacity: 1;
+.conversation-item__menu-trigger:hover {
+  background: #e0e0e0;
+  color: #000000;
 }
 
 /* ============ DROPDOWN MENU ============ */
@@ -464,11 +466,12 @@
 
 /* ============ MOBILE BACKDROP ============ */
 .sidebar-mobile-backdrop {
-  display: none;
+  display: none; /* Hidden by default */
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.3);
   z-index: 35;
+  pointer-events: auto; /* Only on mobile */
 }
 
 /* ==========================================
@@ -477,10 +480,15 @@
 
 @media (max-width: 768px) {
   .sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    height: calc(100vh - 64px);
     transform: translateX(-100%);
     width: 100%;
     max-width: 280px;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 45;
   }
 
   .sidebar.open {
@@ -491,6 +499,12 @@
     transform: translateX(-100%);
   }
 
+  /* Show header with X button on mobile */
+  .sidebar-header {
+    display: flex;
+  }
+
+  /* Show backdrop on mobile */
   .sidebar-mobile-backdrop {
     display: block;
   }
