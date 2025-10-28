@@ -16,9 +16,12 @@ export default function MainLayout() {
   const [tokens, setTokens] = useState([])
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
-  const [viewMode, setViewMode] = useState('split')  // 'split' or 'graph'
   const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
   const [conversationSidebarOpen, setConversationSidebarOpen] = useState(true)  // Sidebar visible by default
+  const [visualBrainWidth, setVisualBrainWidth] = useState(835) // Resizable width, default 835px (balanced with chat)
+  const [isResizing, setIsResizing] = useState(false)
+  const isDragging = useRef(false) // Track if user is dragging (ref to avoid re-renders)
+  const dragTimeout = useRef(null) // Timeout to re-enable auto-resize after drag
   const visualBrainRef = useRef(null)
 
   // Zustand store
@@ -147,8 +150,58 @@ export default function MainLayout() {
     }
   }
 
+  // Sidebar toggle handler
+  const handleToggleSidebar = () => {
+    setConversationSidebarOpen(!conversationSidebarOpen)
+  }
+
+  // Resize handlers for Visual Brain width
+  const handleMouseDown = () => {
+    setIsResizing(true)
+    isDragging.current = true // Mark as dragging (ref doesn't trigger re-render)
+
+    // Clear any existing timeout
+    if (dragTimeout.current) {
+      clearTimeout(dragTimeout.current)
+    }
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isResizing) return
+
+    // Calculate new width based on mouse position from right edge
+    const newWidth = window.innerWidth - e.clientX
+
+    // Clamp between min (300px) and max (900px)
+    const clampedWidth = Math.max(300, Math.min(900, newWidth))
+    setVisualBrainWidth(clampedWidth)
+  }
+
+  const handleMouseUp = () => {
+    setIsResizing(false)
+
+    // Wait 500ms before allowing auto-resize again (prevents jump)
+    dragTimeout.current = setTimeout(() => {
+      isDragging.current = false
+    }, 500)
+  }
+
   // Get current workspace for header display
   const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId)
+
+  // Auto-expand Visual Brain when sidebar closes (unless user is dragging)
+  useEffect(() => {
+    // Don't auto-resize if user is currently dragging or just finished dragging
+    if (isDragging.current) return
+
+    if (!conversationSidebarOpen) {
+      // Sidebar closed → expand Visual Brain to 985px
+      setVisualBrainWidth(985)
+    } else {
+      // Sidebar open → return to default 835px
+      setVisualBrainWidth(835)
+    }
+  }, [conversationSidebarOpen])
 
   // Trigger node activation when tokens arrive
   useEffect(() => {
@@ -179,7 +232,29 @@ export default function MainLayout() {
     }
   }, [tokens])
 
-  // Keyboard shortcuts: G (graph), S (split), Escape (close sidebars)
+  // Mouse event listeners for resizing
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dragTimeout.current) {
+        clearTimeout(dragTimeout.current)
+      }
+    }
+  }, [])
+
+  // Keyboard shortcuts: R (reset width), Escape (close sidebars)
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Escape key closes sidebars
@@ -195,10 +270,13 @@ export default function MainLayout() {
       }
 
       const key = e.key.toLowerCase()
-      if (key === 'g') {
-        setViewMode('graph')
-      } else if (key === 's') {
-        setViewMode('split')
+      if (key === 'r') {
+        // Reset Visual Brain width and re-enable auto-expand
+        isDragging.current = false
+        if (dragTimeout.current) {
+          clearTimeout(dragTimeout.current)
+        }
+        setVisualBrainWidth(conversationSidebarOpen ? 835 : 985)
       }
     }
 
@@ -225,9 +303,7 @@ export default function MainLayout() {
     }}>
       {/* HEADER - Fixed 64px */}
       <Header
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        onSidebarToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
+        onSidebarToggle={handleToggleSidebar}
       />
 
       {/* Workspace Sidebar (toggle with overlay) */}
@@ -293,7 +369,7 @@ export default function MainLayout() {
               onRenameConversation={handleRenameConversation}
               onDeleteConversation={handleDeleteConversation}
               isOpen={conversationSidebarOpen}
-              onToggle={() => setConversationSidebarOpen(!conversationSidebarOpen)}
+              onToggle={handleToggleSidebar}
             />
           </div>
         )}
@@ -314,13 +390,46 @@ export default function MainLayout() {
           />
         </div>
 
-        {/* Column 3: Visual Brain - Three.js */}
+        {/* RESIZE HANDLE - Draggable divider */}
+        <div
+          onMouseDown={handleMouseDown}
+          style={{
+            width: '4px',
+            cursor: 'col-resize',
+            background: isResizing ? '#667eea' : '#e5e5e5',
+            transition: isResizing ? 'none' : 'background 0.2s',
+            flexShrink: 0,
+            position: 'relative',
+            zIndex: 10,
+            userSelect: 'none'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#667eea'}
+          onMouseLeave={(e) => !isResizing && (e.currentTarget.style.background = '#e5e5e5')}
+        >
+          {/* Drag indicator (subtle hint) */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px',
+            height: '40px',
+            background: 'rgba(102, 126, 234, 0.2)',
+            borderRadius: '4px',
+            pointerEvents: 'none',
+            opacity: isResizing ? 1 : 0,
+            transition: 'opacity 0.2s'
+          }} />
+        </div>
+
+        {/* Column 3: Visual Brain - Auto-expands when sidebar closes */}
         <div style={{
-          width: '500px',
+          width: `${visualBrainWidth}px`,
           height: '100%',
           flexShrink: 0,
           overflow: 'hidden',
-          background: '#F7F7F7'
+          background: '#F7F7F7',
+          transition: isResizing ? 'none' : 'width 0.3s ease'
         }}>
           <VisualBrain
             ref={visualBrainRef}

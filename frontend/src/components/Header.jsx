@@ -3,7 +3,7 @@ import { UserButton } from '@clerk/clerk-react';
 import ZyronLogo from './ZyronLogo';
 import './Header.css';
 
-export default function Header({ viewMode, setViewMode, onSidebarToggle }) {
+export default function Header({ onSidebarToggle }) {
   return (
     <header className="header">
       {/* Left: Logo + Brand */}
@@ -17,29 +17,6 @@ export default function Header({ viewMode, setViewMode, onSidebarToggle }) {
         </button>
         <ZyronLogo size="sm" showText={false} className="header-logo" />
         <span className="header-title">Zyron AI</span>
-      </div>
-
-      {/* Center: Status + Navigation */}
-      <div className="header-center">
-        <div className="header-status">
-          <div className="status-dot"></div>
-          <span className="status-text">TEST</span>
-        </div>
-
-        <div className="header-nav">
-          <button
-            className={`header-nav-btn ${viewMode === 'graph' ? 'active' : ''}`}
-            onClick={() => setViewMode('graph')}
-          >
-            Graph
-          </button>
-          <button
-            className={`header-nav-btn active ${viewMode === 'split' ? 'active' : ''}`}
-            onClick={() => setViewMode('split')}
-          >
-            Split
-          </button>
-        </div>
       </div>
 
       {/* Right: Settings + User */}

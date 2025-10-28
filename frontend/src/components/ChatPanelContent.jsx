@@ -72,14 +72,16 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
               fontSize: '32px',
               marginBottom: '16px',
               color: '#1F2937',
-              fontWeight: '700'
+              fontWeight: '400',
+              fontFamily: "'Gyokz Regular', 'Gyokz', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
             }}>
               Bienvenue sur Zyron AI
             </h1>
             <p style={{
               color: '#6B7280',
               marginBottom: '32px',
-              fontSize: '16px'
+              fontSize: '16px',
+              fontFamily: "'Gyokz Regular', 'Gyokz', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
             }}>
               Posez-moi n'importe quelle question
             </p>
@@ -269,9 +271,12 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
           style={{
             flex: 1,
             padding: '12px 16px',
-            border: '1px solid #ccc',
+            border: '1px solid #d0d0d0',
             borderRadius: '8px',
-            fontSize: '14px'
+            fontSize: '14px',
+            outline: 'none',
+            background: '#f5f5f5',
+            color: '#1a1a1a'
           }}
         />
         <button
@@ -279,12 +284,17 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
           disabled={!localMessage.trim() || isThinking}
           style={{
             padding: '12px 24px',
-            background: isThinking ? '#ccc' : 'black',
+            background: isThinking ? '#999999' : '#cbcbcb',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: isThinking ? 'not-allowed' : 'pointer'
+            cursor: isThinking ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'background 0.2s'
           }}
+          onMouseEnter={(e) => !isThinking && (e.target.style.background = '#b8b8b8')}
+          onMouseLeave={(e) => !isThinking && (e.target.style.background = '#cbcbcb')}
         >
           {isThinking ? 'Thinking...' : 'Send'}
         </button>
