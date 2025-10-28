@@ -1,16 +1,10 @@
 {
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/dist",
-  "devCommand": "cd frontend && npm run dev",
-  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install --prefix frontend",
   "framework": "vite",
-  "env": {
-    "VITE_CLERK_PUBLISHABLE_KEY": "@VITE_CLERK_PUBLISHABLE_KEY",
-    "VITE_SUPABASE_URL": "@VITE_SUPABASE_URL",
-    "VITE_SUPABASE_ANON_KEY": "@VITE_SUPABASE_ANON_KEY",
-    "VITE_API_URL": "@VITE_API_URL",
-    "VITE_BACKEND_URL": "@VITE_BACKEND_URL"
-  },
+  "cwd": "frontend",
   "rewrites": [
     {
       "source": "/(.*)",
