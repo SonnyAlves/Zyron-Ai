@@ -10,7 +10,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
  * Guest chat layout with message limit
  * Simple 2-column layout: Chat + Visual Brain
  */
-export default function GuestChatLayout({ onBeforeSend, remainingMessages, onSignupClick }) {
+export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
   const [messages, setMessages] = useState([])
   const [tokens, setTokens] = useState([])
   const [inputValue, setInputValue] = useState('')
@@ -173,7 +173,7 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages, onSig
         }}>
           ⚠️ {remainingMessages} message{remainingMessages !== 1 ? 's' : ''} remaining •{' '}
           <button
-            onClick={onSignupClick}
+            onClick={() => openSignUp()}
             style={{
               background: 'none',
               border: 'none',
