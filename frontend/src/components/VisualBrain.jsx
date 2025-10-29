@@ -33,6 +33,13 @@ const EASING = {
   // Smooth entrance
   easeInCubic: (t) => t * t * t,
 
+  // Elastic bounce - organic life
+  easeOutElastic: (t) => {
+    const c4 = (2 * Math.PI) / 3;
+    return t === 0 ? 0 : t === 1 ? 1 :
+      Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  },
+
   // Breathing - continuous sine wave
   breathe: (t) => Math.sin(t * Math.PI * 2) * 0.5 + 0.5,
 };
@@ -49,7 +56,7 @@ const INITIAL_BRAIN_NODES = [
   { id: 'g7', text: 'Customer Success', category: 'Goal', energy: 0.3, weight: 0.6 },
   { id: 'g8', text: 'Innovation Focus', category: 'Goal', energy: 0.28, weight: 0.55 },
   
-  // Ideas (blue) - 14 nodes (largest cluster)
+  // Ideas (blue) - 12 nodes (REDUCED from 14 - balanced cluster)
   { id: 'i1', text: 'New Feature Concept', category: 'Idea', energy: 0.3, weight: 0.6 },
   { id: 'i2', text: 'Market Opportunity', category: 'Idea', energy: 0.32, weight: 0.65 },
   { id: 'i3', text: 'Tech Innovation', category: 'Idea', energy: 0.29, weight: 0.55 },
@@ -62,43 +69,46 @@ const INITIAL_BRAIN_NODES = [
   { id: 'i10', text: 'Competitive Edge', category: 'Idea', energy: 0.31, weight: 0.65 },
   { id: 'i11', text: 'Value Proposition', category: 'Idea', energy: 0.3, weight: 0.6 },
   { id: 'i12', text: 'Market Positioning', category: 'Idea', energy: 0.28, weight: 0.55 },
-  { id: 'i13', text: 'Customer Insight', category: 'Idea', energy: 0.32, weight: 0.65 },
-  { id: 'i14', text: 'Innovation Path', category: 'Idea', energy: 0.3, weight: 0.6 },
-  
-  // Tasks (orange) - 9 nodes
+
+  // Tasks (orange) - 6 nodes (REDUCED from 9 - less dominant)
   { id: 't1', text: 'Planning Phase', category: 'Task', energy: 0.3, weight: 0.6 },
   { id: 't2', text: 'Research Needed', category: 'Task', energy: 0.32, weight: 0.65 },
   { id: 't3', text: 'Implementation', category: 'Task', energy: 0.29, weight: 0.55 },
   { id: 't4', text: 'Testing Required', category: 'Task', energy: 0.31, weight: 0.6 },
   { id: 't5', text: 'Review Process', category: 'Task', energy: 0.3, weight: 0.65 },
   { id: 't6', text: 'Documentation', category: 'Task', energy: 0.28, weight: 0.5 },
-  { id: 't7', text: 'Analysis Needed', category: 'Task', energy: 0.32, weight: 0.6 },
-  { id: 't8', text: 'Decision Point', category: 'Task', energy: 0.3, weight: 0.65 },
-  { id: 't9', text: 'Action Item', category: 'Task', energy: 0.29, weight: 0.55 },
-  
-  // Emotions (purple) - 5 nodes
+
+  // Emotions (purple) - 7 nodes (INCREASED from 5 - emotional depth)
   { id: 'e1', text: 'Motivation', category: 'Emotion', energy: 0.3, weight: 0.6 },
   { id: 'e2', text: 'Confidence', category: 'Emotion', energy: 0.32, weight: 0.65 },
   { id: 'e3', text: 'Curiosity', category: 'Emotion', energy: 0.29, weight: 0.55 },
   { id: 'e4', text: 'Determination', category: 'Emotion', energy: 0.31, weight: 0.6 },
   { id: 'e5', text: 'Excitement', category: 'Emotion', energy: 0.3, weight: 0.65 },
-  
-  // Reflections (cyan) - 5 nodes
+  { id: 'e6', text: 'Inspiration', category: 'Emotion', energy: 0.32, weight: 0.7 },
+  { id: 'e7', text: 'Wonder', category: 'Emotion', energy: 0.29, weight: 0.6 },
+
+  // Reflections (cyan) - 6 nodes (INCREASED from 5 - thoughtful presence)
   { id: 'r1', text: 'Learning Process', category: 'Reflection', energy: 0.3, weight: 0.6 },
   { id: 'r2', text: 'Pattern Recognition', category: 'Reflection', energy: 0.32, weight: 0.65 },
   { id: 'r3', text: 'Strategic Thinking', category: 'Reflection', energy: 0.29, weight: 0.55 },
   { id: 'r4', text: 'Self Awareness', category: 'Reflection', energy: 0.31, weight: 0.6 },
   { id: 'r5', text: 'Mental Model', category: 'Reflection', energy: 0.3, weight: 0.65 },
-  
-  // Insights (pale red) - 3 nodes
+  { id: 'r6', text: 'Deep Understanding', category: 'Reflection', energy: 0.32, weight: 0.7 },
+
+  // Insights (red) - 6 nodes (INCREASED from 3 - precious discoveries!)
   { id: 'in1', text: 'Key Realization', category: 'Insight', energy: 0.3, weight: 0.7 },
   { id: 'in2', text: 'Connection Found', category: 'Insight', energy: 0.32, weight: 0.75 },
   { id: 'in3', text: 'Breakthrough Moment', category: 'Insight', energy: 0.31, weight: 0.7 },
-  
-  // System (green) - 3 nodes
+  { id: 'in4', text: 'Aha Moment', category: 'Insight', energy: 0.33, weight: 0.8 },
+  { id: 'in5', text: 'Hidden Pattern', category: 'Insight', energy: 0.3, weight: 0.75 },
+  { id: 'in6', text: 'Creative Leap', category: 'Insight', energy: 0.32, weight: 0.7 },
+
+  // System (green) - 5 nodes (INCREASED from 3 - structural foundation)
   { id: 's1', text: 'Process Structure', category: 'System', energy: 0.3, weight: 0.65 },
   { id: 's2', text: 'Framework Logic', category: 'System', energy: 0.32, weight: 0.7 },
-  { id: 's3', text: 'Meta Cognition', category: 'System', energy: 0.31, weight: 0.65 }
+  { id: 's3', text: 'Meta Cognition', category: 'System', energy: 0.31, weight: 0.65 },
+  { id: 's4', text: 'System Design', category: 'System', energy: 0.3, weight: 0.7 },
+  { id: 's5', text: 'Architecture View', category: 'System', energy: 0.32, weight: 0.65 }
 ];
 
 // Sparse edge connections (15% density)
@@ -645,14 +655,14 @@ const VisualBrain = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     // Method for streaming tokens - Popcorn effect
     addToken: (token) => {
-      console.log('🎬 Gradual deployment starting for token:', token);
+      console.log('🧠 Brain pulse (Apple-grade):', token.substring(0, 30));
 
       if (nodeObjectsRef.current.length === 0) {
         return;
       }
 
-      // 15% of nodes per token
-      const numToActivate = Math.floor(nodeObjectsRef.current.length * 0.15);
+      // APPLE REFINEMENT: 30% of nodes per token (was 15% - more balanced)
+      const numToActivate = Math.floor(nodeObjectsRef.current.length * 0.3);
       const activatedIndices = new Set();
 
       while (activatedIndices.size < numToActivate) {
@@ -660,7 +670,7 @@ const VisualBrain = forwardRef((props, ref) => {
         activatedIndices.add(randomIndex);
       }
 
-      // Sort by distance from center (wave effect)
+      // Sort by distance from center (wave from center outward)
       const activatedNodes = Array.from(activatedIndices).map(idx => ({
         index: idx,
         node: nodeObjectsRef.current[idx]
@@ -670,18 +680,17 @@ const VisualBrain = forwardRef((props, ref) => {
         return a.node.position.length() - b.node.position.length();
       });
 
-      // CINEMATIC CHANGE: Spread activations over 2 seconds per token batch
-      // Creates gradual crescendo effect (250-300ms between each node)
-      const totalDeploymentTime = 2000; // 2 seconds per token batch
-      const staggerDelay = totalDeploymentTime / numToActivate;
+      // APPLE TEMPORAL PRECISION: Fixed 50ms stagger (gentle wave)
+      // Creates fluid ripple effect - neither too fast nor too slow
+      const staggerDelay = 50; // 50ms between each node activation
 
       activatedNodes.forEach((item, arrayIndex) => {
         setTimeout(() => {
           popNode(item.node);
-        }, arrayIndex * staggerDelay); // ~250-300ms between each (much slower!)
+        }, arrayIndex * staggerDelay);
       });
 
-      console.log('✨ Deploying', numToActivate, 'nodes over', totalDeploymentTime / 1000, 'seconds');
+      console.log('✨ Wave deploying', numToActivate, 'nodes with 50ms precision');
     },
 
     // Method for manual activations (uses same internal function)
