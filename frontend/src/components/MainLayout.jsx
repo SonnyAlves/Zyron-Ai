@@ -43,9 +43,23 @@ export default function MainLayout() {
   } = useStore()
 
   const handleSendMessage = async (messageText) => {
-    // Don't send if no conversation selected
+    console.log('🔵 handleSendMessage called with:', messageText)
+    console.log('🔵 currentConversationId:', currentConversationId)
+    console.log('🔵 currentWorkspaceId:', currentWorkspaceId)
+
+    // Auto-create conversation if none exists
+    if (!currentConversationId && currentWorkspaceId && user) {
+      console.log('📦 No conversation selected, auto-creating one...')
+      await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
+      console.log('✅ Conversation auto-created')
+      // Give it a tiny delay to ensure conversation is selected
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    // Double-check after auto-creation
     if (!currentConversationId) {
-      console.error('No conversation selected!')
+      console.error('❌ No conversation selected and auto-creation failed!')
+      alert('Veuillez créer une nouvelle conversation avant d\'envoyer un message.')
       return
     }
 

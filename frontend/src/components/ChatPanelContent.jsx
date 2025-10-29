@@ -19,7 +19,21 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
   }
 
   const handleSuggestionClick = (suggestion) => {
-    if (isThinking) return
+    console.log('🔵 Suggestion clicked:', suggestion)
+    console.log('🔵 isThinking:', isThinking)
+    console.log('🔵 onSendMessage exists?', !!onSendMessage)
+
+    if (isThinking) {
+      console.log('⚠️ Cannot send - AI is thinking')
+      return
+    }
+
+    if (!onSendMessage) {
+      console.error('❌ onSendMessage prop is undefined!')
+      return
+    }
+
+    console.log('✅ Calling onSendMessage with:', suggestion)
     onSendMessage(suggestion)
   }
 
