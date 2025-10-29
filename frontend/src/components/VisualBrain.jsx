@@ -25,6 +25,18 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+// Apple-grade easing functions for fluid animations
+const EASING = {
+  // Smooth exit - gentle deceleration
+  easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
+
+  // Smooth entrance
+  easeInCubic: (t) => t * t * t,
+
+  // Breathing - continuous sine wave
+  breathe: (t) => Math.sin(t * Math.PI * 2) * 0.5 + 0.5,
+};
+
 // Simplified node data for always-on brain (40-60 nodes)
 const INITIAL_BRAIN_NODES = [
   // Goals (yellow) - 8 nodes
@@ -241,21 +253,36 @@ const VisualBrain = forwardRef((props, ref) => {
     // Animation loop with breathing
     const animate = () => {
       animationIdRef.current = requestAnimationFrame(animate);
-      
+
       if (particlesRef.current) {
         particlesRef.current.rotation.y += 0.0003;
       }
-      
+
       const time = Date.now() * 0.001;
-      
-      // Breathing animation (6s cycle)
+
+      // Continuous breathing animation (8s cycle - Apple calmness)
       nodeObjectsRef.current.forEach((nodeObj) => {
-        const breathScale = 1 + Math.sin(time * (Math.PI / 3)) * 0.02; // 6s cycle
+        // Skip if popping OR flashing
+        if (nodeObj.userData.isPopping || nodeObj.userData.isFlashing) {
+          return;
+        }
+
+        // Slow, deep breath (8 second cycle)
+        const breathPhase = time * (Math.PI / 4); // 8s cycle
+        const breathScale = 1 + Math.sin(breathPhase) * 0.015; // ±1.5% subtle
+
         const baseScale = 0.6 + nodeObj.userData.energy * 0.3;
         nodeObj.scale.setScalar(baseScale * breathScale);
-        
+
+        // Gentle emissive pulse
+        const phaseOffset = nodeObj.userData.phaseOffset || 0;
+        const emissivePhase = Math.sin(breathPhase + phaseOffset) * 0.5 + 0.5;
+        nodeObj.material.emissiveIntensity = 0.3 + (emissivePhase * 0.2);
+
+        // Halo breathes
         if (nodeObj.userData.halo) {
           nodeObj.userData.halo.scale.setScalar(baseScale * 1.8 * breathScale);
+          nodeObj.userData.halo.material.opacity = 0.1 + (emissivePhase * 0.05);
         }
       });
       
@@ -337,7 +364,11 @@ const VisualBrain = forwardRef((props, ref) => {
     
     const sphere = new Mesh(geometry, material);
     sphere.position.copy(position);
-    sphere.userData = { ...node, originalEnergy: node.energy };
+    sphere.userData = {
+      ...node,
+      originalEnergy: node.energy,
+      phaseOffset: Math.random() * Math.PI * 2 // Random breathing phase
+    };
     
     const haloGeom = new SphereGeometry(size * 1.8, 32, 32);
     const haloMat = new MeshBasicMaterial({
@@ -395,14 +426,51 @@ const VisualBrain = forwardRef((props, ref) => {
 
       console.log('🎨 Animating node:', activation.nodeId, 'energy:', newEnergy, 'emissive:', 1.5 + (newEnergy * 2));
 
-      // SUPER AMPLIFIED glow - much more visible
-      nodeObj.material.emissiveIntensity = 1.5 + (newEnergy * 2); // Was 0.5-1.0, now 1.5-3.5
-      nodeObj.material.opacity = 0.5 + (newEnergy * 0.5); // Flash from 0.5 to 1.0
+      // ULTRA VISIBLE FLASH: Change entire node to WHITE temporarily
+      const originalColor = nodeObj.material.color.getHex();
+      const originalEmissive = nodeObj.material.emissive.getHex();
 
-      // AMPLIFIED halo
+      // Set flag to prevent breathing animation from overriding
+      nodeObj.userData.isFlashing = true;
+
+      // FLASH TO PURE WHITE
+      nodeObj.material.color.setHex(0xFFFFFF);
+      nodeObj.material.emissive.setHex(0xFFFFFF);
+      nodeObj.material.emissiveIntensity = 3.0;
+      nodeObj.material.opacity = 1.0;
+      nodeObj.material.needsUpdate = true;
+
+      // PULSE SCALE UP
+      nodeObj.scale.setScalar(2.5); // Grow 2.5x!
+
+      // FLASH halo
       if (nodeObj.userData.halo) {
-        nodeObj.userData.halo.material.opacity = 0.3 + (newEnergy * 0.6); // Was 0.15-0.4, now 0.3-0.9
+        nodeObj.userData.halo.material.opacity = 1.0; // Maximum visibility
+        nodeObj.userData.halo.scale.setScalar(4.0); // Huge halo!
+        nodeObj.userData.halo.material.needsUpdate = true;
       }
+
+      // Return to original after 300ms
+      setTimeout(() => {
+        nodeObj.material.color.setHex(originalColor);
+        nodeObj.material.emissive.setHex(originalEmissive);
+        nodeObj.material.emissiveIntensity = 0.3;
+        nodeObj.material.opacity = 0.7;
+        nodeObj.material.needsUpdate = true;
+
+        // Reset scale to normal
+        const baseScale = 0.6 + nodeObj.userData.energy * 0.3;
+        nodeObj.scale.setScalar(baseScale);
+
+        if (nodeObj.userData.halo) {
+          nodeObj.userData.halo.material.opacity = 0.15;
+          nodeObj.userData.halo.scale.setScalar(baseScale * 1.8);
+          nodeObj.userData.halo.material.needsUpdate = true;
+        }
+
+        // Re-enable breathing animation
+        nodeObj.userData.isFlashing = false;
+      }, 300);
 
       // AMPLIFIED pulse effect (2-3x larger)
       const baseScale = 0.6 + nodeObj.userData.weight * 0.3;
@@ -427,39 +495,193 @@ const VisualBrain = forwardRef((props, ref) => {
     console.log('✅ Applied activations to', activations.length, 'nodes');
   };
 
+  // Popcorn effect: Node pops and STAYS bright for seconds
+  const popNode = (node) => {
+    if (!node || node.userData.isPopping) return; // Prevent double-pop
+
+    node.userData.isPopping = true;
+    node.userData.isFlashing = true; // Disable breathing
+
+    const originalScale = node.userData.baseScale || 0.7;
+    const originalEmissiveIntensity = 0.3;
+
+    // CINEMATIC: 50% smaller nodes (7.5% to 12.5% growth, was 15-25%)
+    const growthFactor = 0.075 + (Math.random() * 0.05); // 7.5% to 12.5%
+    const targetScale = originalScale * (1 + growthFactor);
+
+    // Store for later phases
+    node.userData.targetScale = targetScale;
+    node.userData.growthFactor = growthFactor;
+
+    console.log('🍿 Node will grow by', Math.round(growthFactor * 100) + '%');
+
+    // PHASE 1: BUILD UP (Pop activation) - 400ms
+    let buildProgress = 0;
+    const buildDuration = 400;
+    const buildStart = Date.now();
+
+    const buildUp = () => {
+      const elapsed = Date.now() - buildStart;
+      buildProgress = Math.min(elapsed / buildDuration, 1);
+
+      if (buildProgress < 1) {
+        const eased = EASING.easeOutCubic(buildProgress);
+
+        // Scale to RANDOMIZED target (not uniform)
+        const currentScale = originalScale + ((targetScale - originalScale) * eased);
+        node.scale.setScalar(currentScale);
+
+        // Emissive scales with growth factor
+        const emissiveTarget = 1.5 + (growthFactor * 2); // Bigger nodes glow more
+        node.material.emissiveIntensity = originalEmissiveIntensity + (eased * emissiveTarget);
+
+        // Halo scales proportionally
+        if (node.userData.halo) {
+          const haloTarget = 0.5 + (growthFactor * 1.0);
+          node.userData.halo.material.opacity = 0.15 + (eased * haloTarget);
+          node.userData.halo.scale.setScalar(originalScale * (1.8 + eased * (growthFactor * 8)));
+          node.userData.halo.material.needsUpdate = true;
+        }
+
+        node.material.needsUpdate = true;
+        requestAnimationFrame(buildUp);
+      } else {
+        stayBright();
+      }
+    };
+
+    // PHASE 2: STAY BRIGHT - FIXED 10 SECONDS (static peak)
+    const stayBright = () => {
+      // Lock at peak brightness
+      node.scale.setScalar(targetScale);
+
+      const emissiveTarget = 1.5 + (growthFactor * 2);
+      node.material.emissiveIntensity = emissiveTarget;
+
+      if (node.userData.halo) {
+        const haloOpacity = 0.5 + (growthFactor * 1.0);
+        node.userData.halo.material.opacity = haloOpacity;
+        node.userData.halo.scale.setScalar(originalScale * (1.8 + growthFactor * 8));
+        node.userData.halo.material.needsUpdate = true;
+      }
+
+      node.material.needsUpdate = true;
+
+      // CINEMATIC: Fixed 10 seconds static hold (no randomization)
+      // Creates predictable peak brightness phase
+      console.log('🎯 Node will stay static for 10 seconds');
+
+      setTimeout(() => {
+        deflate();
+      }, 10000); // Exactly 10 seconds
+    };
+
+    // PHASE 3: DEFLATE - 15 SECONDS (ultra-smooth decrescendo)
+    const deflate = () => {
+      console.log('🌙 Starting 15-second gentle fade');
+
+      let deflateProgress = 0;
+      const deflateDuration = 15000; // 15 SECONDS (cinematic fade)
+      const deflateStart = Date.now();
+      const emissiveTarget = 1.5 + (growthFactor * 2);
+
+      const deflateAnim = () => {
+        const elapsed = Date.now() - deflateStart;
+        deflateProgress = Math.min(elapsed / deflateDuration, 1);
+
+        if (deflateProgress < 1) {
+          // Ultra-smooth sine ease out (natural sunset fade)
+          const eased = Math.sin(deflateProgress * Math.PI / 2);
+
+          // Scale back to original
+          const currentScale = targetScale - ((targetScale - originalScale) * eased);
+          node.scale.setScalar(currentScale);
+
+          // Emissive fades
+          const currentEmissive = emissiveTarget - ((emissiveTarget - originalEmissiveIntensity) * eased);
+          node.material.emissiveIntensity = currentEmissive;
+
+          // Halo deflates
+          if (node.userData.halo) {
+            const haloOpacity = 0.5 + (growthFactor * 1.0);
+            const currentHaloOpacity = haloOpacity - ((haloOpacity - 0.15) * eased);
+            const haloScale = originalScale * (1.8 + growthFactor * 8);
+            const currentHaloScale = haloScale - ((haloScale - originalScale * 1.8) * eased);
+
+            node.userData.halo.material.opacity = currentHaloOpacity;
+            node.userData.halo.scale.setScalar(currentHaloScale);
+            node.userData.halo.material.needsUpdate = true;
+          }
+
+          node.material.needsUpdate = true;
+          requestAnimationFrame(deflateAnim);
+        } else {
+          // FULLY DEFLATED - return to normal
+          node.scale.setScalar(originalScale);
+          node.material.emissiveIntensity = originalEmissiveIntensity;
+
+          if (node.userData.halo) {
+            node.userData.halo.material.opacity = 0.15;
+            node.userData.halo.scale.setScalar(originalScale * 1.8);
+            node.userData.halo.material.needsUpdate = true;
+          }
+
+          node.material.needsUpdate = true;
+          node.userData.isPopping = false;
+          node.userData.isFlashing = false;
+
+          console.log('✅ Node returned to normal after 15s fade');
+        }
+      };
+
+      requestAnimationFrame(deflateAnim);
+    };
+
+    // Start Phase 1
+    requestAnimationFrame(buildUp);
+  };
+
   // Expose activation method to parent
   useImperativeHandle(ref, () => ({
-    // Method for streaming tokens - activates random nodes
+    // Method for streaming tokens - Popcorn effect
     addToken: (token) => {
-      console.log('🧠 Visual Brain received token:', token);
-      console.log('🧠 nodeObjectsRef.current.length:', nodeObjectsRef.current.length);
+      console.log('🎬 Gradual deployment starting for token:', token);
 
       if (nodeObjectsRef.current.length === 0) {
-        console.warn('⚠️ Visual Brain has no nodes to activate!');
         return;
       }
 
-      // Activate 3-6 random nodes per token (more visible)
-      const activationCount = Math.floor(Math.random() * 4) + 3; // Was 1-3, now 3-6
-      const activations = [];
+      // 15% of nodes per token
+      const numToActivate = Math.floor(nodeObjectsRef.current.length * 0.15);
+      const activatedIndices = new Set();
 
-      for (let i = 0; i < activationCount; i++) {
-        const randomNode = nodeObjectsRef.current[Math.floor(Math.random() * nodeObjectsRef.current.length)];
-        if (randomNode && randomNode.userData.id) {
-          activations.push({
-            nodeId: randomNode.userData.id,
-            energyDelta: 0.1 + Math.random() * 0.15
-          });
-        }
+      while (activatedIndices.size < numToActivate) {
+        const randomIndex = Math.floor(Math.random() * nodeObjectsRef.current.length);
+        activatedIndices.add(randomIndex);
       }
 
-      // Apply activations
-      console.log('🧠 Generated', activations.length, 'activations:', activations);
-      if (activations.length > 0) {
-        applyActivationsInternal(activations);
-      } else {
-        console.warn('⚠️ No valid activations generated!');
-      }
+      // Sort by distance from center (wave effect)
+      const activatedNodes = Array.from(activatedIndices).map(idx => ({
+        index: idx,
+        node: nodeObjectsRef.current[idx]
+      }));
+
+      activatedNodes.sort((a, b) => {
+        return a.node.position.length() - b.node.position.length();
+      });
+
+      // CINEMATIC CHANGE: Spread activations over 2 seconds per token batch
+      // Creates gradual crescendo effect (250-300ms between each node)
+      const totalDeploymentTime = 2000; // 2 seconds per token batch
+      const staggerDelay = totalDeploymentTime / numToActivate;
+
+      activatedNodes.forEach((item, arrayIndex) => {
+        setTimeout(() => {
+          popNode(item.node);
+        }, arrayIndex * staggerDelay); // ~250-300ms between each (much slower!)
+      });
+
+      console.log('✨ Deploying', numToActivate, 'nodes over', totalDeploymentTime / 1000, 'seconds');
     },
 
     // Method for manual activations (uses same internal function)
