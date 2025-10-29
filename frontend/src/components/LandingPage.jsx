@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
 import { SignIn } from '@clerk/clerk-react';
-import GuestApp from './GuestApp';
 import AnimatedBackground from './AnimatedBackground';
 import './LandingPage.css';
 
-const LandingPage = () => {
+const LandingPage = ({ onGetStarted }) => {
   const [showSignIn, setShowSignIn] = useState(false);
-  const [startedGuest, setStartedGuest] = useState(false);
-
-  if (startedGuest) {
-    return <GuestApp />;
-  }
 
   return (
     <div className="landing-page">
@@ -52,7 +46,7 @@ const LandingPage = () => {
         <div className="landing-cta">
           <button
             className="cta-button primary"
-            onClick={() => setStartedGuest(true)}
+            onClick={onGetStarted}
           >
             Try Now - Free
           </button>
