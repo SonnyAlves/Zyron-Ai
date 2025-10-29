@@ -58,14 +58,22 @@ async def chat(message: dict):
             with client.messages.stream(
                 model="claude-sonnet-4-20250514",
                 max_tokens=1024,
-                messages=[{"role": "user", "content": user_message}]
+                messages=[{
+                    "role": "user",
+                    "content": user_message
+                }],
+                system="Format your responses with clear markdown structure: use ## for headings, - for bullet points, **bold** for emphasis, and proper line breaks between sections."
             ) as stream:
                 logger.info("✅ Stream created successfully")
                 chunk_count = 0
                 for text in stream.text_stream:
                     chunk_count += 1
+                    # CRITICAL FIX: Use JSON to properly escape the text
+                    # This handles newlines, quotes, and special characters
+                    import json
+                    escaped_text = json.dumps(text)
                     logger.info(f"📦 Chunk {chunk_count}: {text[:20]}...")
-                    yield f"data: {text}\n\n"
+                    yield f"data: {escaped_text}\n\n"
                 logger.info(f"✅ Stream completed with {chunk_count} chunks")
         except Exception as e:
             logger.error(f"❌ Stream error: {str(e)}", exc_info=True)
@@ -75,9 +83,5 @@ async def chat(message: dict):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001) 
-# Railway port configuration
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8001))
     uvicorn.run(app, host="0.0.0.0", port=port)

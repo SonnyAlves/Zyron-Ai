@@ -54,7 +54,10 @@ export default async function handler(req) {
           for await (const chunk of stream) {
             if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
               const text = chunk.delta.text;
-              controller.enqueue(encoder.encode(`data: ${text}\n\n`));
+              // CRITICAL FIX: Use JSON to properly escape newlines, quotes, and special characters
+              // This ensures consistent formatting with the backend
+              const escapedText = JSON.stringify(text);
+              controller.enqueue(encoder.encode(`data: ${escapedText}\n\n`));
             }
           }
           controller.close();
