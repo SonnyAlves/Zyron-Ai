@@ -78,5 +78,20 @@ export const useAppInitialization = () => {
     }
   }, [isInitialized, isLoaded, user]);
 
+  // Step 6: ABSOLUTE SAFETY TIMEOUT - Force show after 5 seconds NO MATTER WHAT
+  // This prevents infinite loading even if Clerk fails to load
+  useEffect(() => {
+    console.log('🚨 Starting ABSOLUTE safety timeout (5s) - will force show regardless of Clerk status');
+    const absoluteTimer = setTimeout(() => {
+      if (!isInitialized) {
+        console.error('🚨 ABSOLUTE TIMEOUT TRIGGERED - Forcing UI display even without Clerk!');
+        setForceShow(true);
+        setIsInitialized(true);
+      }
+    }, 5000); // 5 seconds absolute maximum
+
+    return () => clearTimeout(absoluteTimer);
+  }, []); // Empty deps - runs once on mount, NO CONDITIONS
+
   return { isInitialized: isInitialized || forceShow, user };
 };
