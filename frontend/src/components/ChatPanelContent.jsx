@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../store/useStore'
+import MessageContent from './MessageContent'
 
 export default function ChatPanelContent({ onSendMessage, isThinking }) {
   const [localMessage, setLocalMessage] = useState('')
@@ -186,23 +187,39 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
         )}
 
         {/* Messages - always display if there are any */}
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            style={{
-              width: '100%',
-              maxWidth: '700px',
-              padding: '12px 16px',
-              margin: '8px 0',
-              borderRadius: '8px',
-              background: msg.role === 'user' ? '#3B82F6' : '#F3F4F6',
-              color: msg.role === 'user' ? 'white' : '#1F2937',
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start'
-            }}
-          >
-            {msg.content}
-          </div>
-        ))}
+        {messages.map((msg, idx) => {
+          // INLINE CLEANING - Remove all encoding issues
+          const cleanText = (msg.content || '')
+            .replace(/"""/g, '"')      // Remove triple quotes
+            .replace(/""/g, '"')        // Remove double quotes
+            .replace(/\\n/g, '\n')      // Fix literal \n
+            .replace(/\\"/g, '"')       // Fix escaped quotes
+            .replace(/\*\*/g, '')       // Remove bold markers
+            .replace(/`/g, '')          // Remove code markers
+            .replace(/\\u([0-9a-fA-F]{4})/g, (match, code) =>
+              String.fromCharCode(parseInt(code, 16))
+            )                           // Decode Unicode sequences
+
+          return (
+            <div
+              key={idx}
+              style={{
+                width: '100%',
+                maxWidth: '700px',
+                padding: '12px 16px',
+                margin: '8px 0',
+                borderRadius: '8px',
+                background: msg.role === 'user' ? '#3B82F6' : '#F3F4F6',
+                color: msg.role === 'user' ? 'white' : '#1F2937',
+                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                whiteSpace: 'pre-wrap',
+                lineHeight: '1.7'
+              }}
+            >
+              {cleanText}
+            </div>
+          );
+        })}
 
         {/* Loading indicator */}
         {isThinking && (

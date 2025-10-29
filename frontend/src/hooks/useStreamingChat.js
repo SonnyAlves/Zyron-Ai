@@ -88,10 +88,33 @@ export function useStreamingChat(apiUrl = 'http://localhost:8001', maxRetries = 
               for (let i = 0; i < lines.length - 1; i++) {
                 const line = lines[i]
                 if (line.startsWith('data: ')) {
-                  const text = line.slice(6)
-                  if (text) {
-                    fullContent += text
-                    onChunk?.(text)
+                  // Parse JSON to get the properly decoded text
+                  const jsonStr = line.slice(6)
+                  try {
+                    const text = JSON.parse(jsonStr)
+                    // DEBUG: Log SSE parsing details
+                    if (text && i < 3) { // Only log first 3 chunks to avoid spam
+                      console.log(`🔍 SSE Chunk ${i}:`, {
+                        rawJsonStr: jsonStr.substring(0, 100),
+                        parsedText: text.substring(0, 100),
+                        hasLiteralBackslashN: text.includes('\\n'),
+                        hasRealNewline: text.includes('\n'),
+                        hasLiteralBackslashU: text.includes('\\u'),
+                      })
+                    }
+                    if (text) {
+                      fullContent += text
+                      onChunk?.(text)
+                    }
+                  } catch (e) {
+                    // Fallback for non-JSON data
+                    console.warn('⚠️  JSON.parse failed, using raw text:', e.message)
+                    console.log('📦 Raw jsonStr:', jsonStr.substring(0, 100))
+                    const text = jsonStr
+                    if (text) {
+                      fullContent += text
+                      onChunk?.(text)
+                    }
                   }
                 }
               }
@@ -99,10 +122,21 @@ export function useStreamingChat(apiUrl = 'http://localhost:8001', maxRetries = 
 
             // Process remaining buffer
             if (buffer.startsWith('data: ')) {
-              const text = buffer.slice(6)
-              if (text) {
-                fullContent += text
-                onChunk?.(text)
+              // Parse JSON to get the properly decoded text
+              const jsonStr = buffer.slice(6)
+              try {
+                const text = JSON.parse(jsonStr)
+                if (text) {
+                  fullContent += text
+                  onChunk?.(text)
+                }
+              } catch (e) {
+                // Fallback for non-JSON data
+                const text = jsonStr
+                if (text) {
+                  fullContent += text
+                  onChunk?.(text)
+                }
               }
             }
 
@@ -223,20 +257,42 @@ export function useSimpleStreaming(apiUrl = 'http://localhost:8001') {
 
           for (let i = 0; i < lines.length - 1; i++) {
             if (lines[i].startsWith('data: ')) {
-              const text = lines[i].slice(6)
-              if (text) {
-                content += text
-                onChunk?.(text)
+              // Parse JSON to get the properly decoded text
+              const jsonStr = lines[i].slice(6)
+              try {
+                const text = JSON.parse(jsonStr)
+                if (text) {
+                  content += text
+                  onChunk?.(text)
+                }
+              } catch (e) {
+                // Fallback for non-JSON data
+                const text = jsonStr
+                if (text) {
+                  content += text
+                  onChunk?.(text)
+                }
               }
             }
           }
         }
 
         if (buffer.startsWith('data: ')) {
-          const text = buffer.slice(6)
-          if (text) {
-            content += text
-            onChunk?.(text)
+          // Parse JSON to get the properly decoded text
+          const jsonStr = buffer.slice(6)
+          try {
+            const text = JSON.parse(jsonStr)
+            if (text) {
+              content += text
+              onChunk?.(text)
+            }
+          } catch (e) {
+            // Fallback for non-JSON data
+            const text = jsonStr
+            if (text) {
+              content += text
+              onChunk?.(text)
+            }
           }
         }
 

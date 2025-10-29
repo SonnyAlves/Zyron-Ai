@@ -1,11 +1,17 @@
 import { useState, useRef, useCallback, Suspense, lazy } from 'react'
 import { useStreamingChat } from '../hooks/useStreamingChat'
 import { useClerk } from '@clerk/clerk-react'
+import MessageContent from './MessageContent'
 
 const VisualBrain = lazy(() => import('./VisualBrain'))
 
 // Use Vercel Serverless Function in production, local backend in development
 const API_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8001')
+
+// DEBUG: Log API URL being used
+console.log('🔧 API_URL configured:', API_URL)
+console.log('🔧 VITE_BACKEND_URL env:', import.meta.env.VITE_BACKEND_URL)
+console.log('🔧 Is production?', import.meta.env.PROD)
 
 /**
  * Guest chat layout with message limit
@@ -307,22 +313,38 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
             )}
 
             {/* Messages */}
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                style={{
-                  padding: '12px 16px',
-                  marginBottom: '12px',
-                  borderRadius: '8px',
-                  background: msg.role === 'user' ? '#3B82F6' : '#F3F4F6',
-                  color: msg.role === 'user' ? 'white' : '#1F2937',
-                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%'
-                }}
-              >
-                {msg.content}
-              </div>
-            ))}
+            {messages.map((msg) => {
+              // INLINE CLEANING - Remove all encoding issues
+              const cleanText = (msg.content || '')
+                .replace(/"""/g, '"')      // Remove triple quotes
+                .replace(/""/g, '"')        // Remove double quotes
+                .replace(/\\n/g, '\n')      // Fix literal \n
+                .replace(/\\"/g, '"')       // Fix escaped quotes
+                .replace(/\*\*/g, '')       // Remove bold markers
+                .replace(/`/g, '')          // Remove code markers
+                .replace(/\\u([0-9a-fA-F]{4})/g, (match, code) =>
+                  String.fromCharCode(parseInt(code, 16))
+                )                           // Decode Unicode sequences
+
+              return (
+                <div
+                  key={msg.id}
+                  style={{
+                    padding: '12px 16px',
+                    marginBottom: '12px',
+                    borderRadius: '8px',
+                    background: msg.role === 'user' ? '#3B82F6' : '#F3F4F6',
+                    color: msg.role === 'user' ? 'white' : '#1F2937',
+                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '80%',
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.7'
+                  }}
+                >
+                  {cleanText}
+                </div>
+              );
+            })}
 
             {/* Error message */}
             {error && (
