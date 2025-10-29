@@ -18,6 +18,11 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
     setLocalMessage('')
   }
 
+  const handleSuggestionClick = (suggestion) => {
+    if (isThinking) return
+    onSendMessage(suggestion)
+  }
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -57,8 +62,8 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
           zIndex: 10
         }}
       >
-        {/* Welcome Content */}
-        {messages.length === 0 && (
+        {/* Welcome Content - only show when no messages AND not thinking */}
+        {messages.length === 0 && !isThinking && (
           <div style={{
             textAlign: 'center',
             maxWidth: '600px',
@@ -88,9 +93,7 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button
-                onClick={() => {
-                  setLocalMessage("Explique-moi l'IA")
-                }}
+                onClick={() => handleSuggestionClick("Explique-moi l'IA")}
                 style={{
                   padding: '16px',
                   border: '1px solid #e5e5e5',
@@ -115,9 +118,7 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
                 Explique-moi l'IA
               </button>
               <button
-                onClick={() => {
-                  setLocalMessage("Aide-moi à coder")
-                }}
+                onClick={() => handleSuggestionClick("Aide-moi à coder")}
                 style={{
                   padding: '16px',
                   border: '1px solid #e5e5e5',
@@ -142,9 +143,7 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
                 Aide-moi à coder
               </button>
               <button
-                onClick={() => {
-                  setLocalMessage("Inspire-moi")
-                }}
+                onClick={() => handleSuggestionClick("Inspire-moi")}
                 style={{
                   padding: '16px',
                   border: '1px solid #e5e5e5',
@@ -172,7 +171,7 @@ export default function ChatPanelContent({ onSendMessage, isThinking }) {
           </div>
         )}
 
-        {/* Messages */}
+        {/* Messages - always display if there are any */}
         {messages.map((msg, idx) => (
           <div
             key={idx}
