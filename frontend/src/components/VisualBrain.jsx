@@ -208,10 +208,10 @@ const VisualBrain = forwardRef((props, ref) => {
     light2.position.set(-15, -10, -15);
     scene.add(light2);
 
-    // Particles
+    // Particles (2400 particles - 20% increase for richer spatial effect)
     const particlesGeom = new BufferGeometry();
-    const particlePositions = new Float32Array(2000 * 3);
-    for(let i = 0; i < 2000 * 3; i++) {
+    const particlePositions = new Float32Array(2400 * 3);
+    for(let i = 0; i < 2400 * 3; i++) {
       particlePositions[i] = (seededRandom(i * 50) - 0.5) * 100;
     }
     particlesGeom.setAttribute('position', new BufferAttribute(particlePositions, 3));
