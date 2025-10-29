@@ -57,8 +57,16 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
       userMessage,
       // onChunk: track tokens for visual brain
       (token) => {
+        console.log('🎯 TOKEN RECEIVED:', token.substring(0, 50))
+        console.log('🧠 visualBrainRef.current exists?', !!visualBrainRef.current)
+        console.log('🧠 addToken method exists?', !!visualBrainRef.current?.addToken)
         setTokens((prev) => [...prev, token])
-        visualBrainRef.current?.addToken(token)
+        if (visualBrainRef.current) {
+          console.log('✅ Calling addToken on Visual Brain')
+          visualBrainRef.current.addToken(token)
+        } else {
+          console.log('❌ Visual Brain ref is null!')
+        }
       },
       // onComplete: add assistant message
       (fullContent) => {
@@ -103,8 +111,15 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     await sendMessage(
       suggestion,
       (token) => {
+        console.log('🎯 [RETRY] TOKEN RECEIVED:', token.substring(0, 50))
+        console.log('🧠 [RETRY] visualBrainRef.current exists?', !!visualBrainRef.current)
         setTokens((prev) => [...prev, token])
-        visualBrainRef.current?.addToken(token)
+        if (visualBrainRef.current) {
+          console.log('✅ [RETRY] Calling addToken on Visual Brain')
+          visualBrainRef.current.addToken(token)
+        } else {
+          console.log('❌ [RETRY] Visual Brain ref is null!')
+        }
       },
       (fullContent) => {
         const assistantMsg = {
