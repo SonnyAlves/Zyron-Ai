@@ -333,9 +333,75 @@ export default function MainLayout() {
   // Show loading screen during initialization
   if (!isInitialized) {
     return (
-      <div className="loading-screen">
-        <div className="spinner" />
-        <p>Chargement de vos données...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: '#0F1419',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center', maxWidth: '400px', padding: '20px' }}>
+          {/* Spinner */}
+          <div style={{
+            width: '48px',
+            height: '48px',
+            margin: '0 auto 24px',
+            border: '4px solid rgba(255, 255, 255, 0.1)',
+            borderTopColor: '#667eea',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+
+          {/* Title */}
+          <div style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            marginBottom: '12px',
+            color: 'white'
+          }}>
+            Chargement de vos données...
+          </div>
+
+          {/* Subtitle */}
+          <div style={{
+            fontSize: '14px',
+            color: 'rgba(255, 255, 255, 0.5)',
+            marginBottom: '24px'
+          }}>
+            Configuration de votre workspace en cours
+          </div>
+
+          {/* Refresh button (if loading takes too long) */}
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '10px 20px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.15)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            Rafraîchir la page
+          </button>
+
+          {/* CSS animation for spinner */}
+          <style>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
       </div>
     )
   }
