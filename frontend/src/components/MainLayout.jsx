@@ -50,20 +50,42 @@ export default function MainLayout() {
     // Auto-create conversation if none exists
     if (!currentConversationId && currentWorkspaceId && user) {
       console.log('📦 No conversation selected, auto-creating one...')
-      await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
-      console.log('✅ Conversation auto-created')
-      // Give it a tiny delay to ensure conversation is selected
-      await new Promise(resolve => setTimeout(resolve, 100))
+      try {
+        const newConv = await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
+        console.log('✅ Conversation auto-created:', newConv)
+
+        // Wait for Zustand state to propagate
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        // Get fresh state from store
+        const freshState = useStore.getState()
+        console.log('🔄 Fresh currentConversationId after creation:', freshState.currentConversationId)
+
+        // If still null, something went wrong
+        if (!freshState.currentConversationId) {
+          console.error('❌ Conversation created but not selected!')
+          alert('Erreur lors de la création de la conversation. Veuillez réessayer.')
+          return
+        }
+      } catch (error) {
+        console.error('❌ Failed to create conversation:', error)
+        alert('Erreur lors de la création de la conversation. Veuillez réessayer.')
+        return
+      }
     }
 
+    // Get fresh state one more time before proceeding
+    const finalState = useStore.getState()
+    const finalConversationId = finalState.currentConversationId
+
     // Double-check after auto-creation
-    if (!currentConversationId) {
-      console.error('❌ No conversation selected and auto-creation failed!')
+    if (!finalConversationId) {
+      console.error('❌ No conversation selected!')
       alert('Veuillez créer une nouvelle conversation avant d\'envoyer un message.')
       return
     }
 
-    console.log('🚀 Sending message:', messageText)
+    console.log('🚀 Sending message to conversation:', finalConversationId)
     setMessage(messageText)
 
     try {
@@ -73,7 +95,7 @@ export default function MainLayout() {
 
       // 1. Add user message to store IMMEDIATELY
       console.log('📝 Adding user message to store...')
-      await addMessage(currentConversationId, 'user', messageText)
+      await addMessage(finalConversationId, 'user', messageText)
       console.log('✅ User message added to store')
 
       // 2. Call API and stream response
@@ -130,14 +152,14 @@ export default function MainLayout() {
 
       // 3. Add assistant response to store
       console.log('📝 Adding assistant response to store...')
-      await addMessage(currentConversationId, 'assistant', fullResponse)
+      await addMessage(finalConversationId, 'assistant', fullResponse)
       console.log('✅ Assistant response added to store')
 
     } catch (error) {
       console.error('❌ Error:', error)
       setResponse(`Error: ${error.message}`)
       // Add error message to store
-      await addMessage(currentConversationId, 'assistant', `Error: ${error.message}`)
+      await addMessage(finalConversationId, 'assistant', `Error: ${error.message}`)
     } finally {
       setIsThinking(false)
     }
