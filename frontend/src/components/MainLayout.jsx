@@ -30,6 +30,7 @@ export default function MainLayout() {
     currentWorkspaceId,
     conversations,
     currentConversationId,
+    messages,
     createWorkspace,
     updateWorkspace,
     deleteWorkspace,
@@ -37,15 +38,31 @@ export default function MainLayout() {
     createConversation,
     setCurrentConversation,
     deleteConversation,
+    addMessage,
+    loadMessages,
   } = useStore()
 
   const handleSendMessage = async (messageText) => {
+    // Don't send if no conversation selected
+    if (!currentConversationId) {
+      console.error('No conversation selected!')
+      return
+    }
+
+    console.log('🚀 Sending message:', messageText)
     setMessage(messageText)
+
     try {
       setIsThinking(true)
       setResponse('')
       setTokens([])
 
+      // 1. Add user message to store IMMEDIATELY
+      console.log('📝 Adding user message to store...')
+      await addMessage(currentConversationId, 'user', messageText)
+      console.log('✅ User message added to store')
+
+      // 2. Call API and stream response
       const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
@@ -61,6 +78,7 @@ export default function MainLayout() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      let fullResponse = ''
 
       while (true) {
         const { done, value } = await reader.read()
@@ -75,8 +93,11 @@ export default function MainLayout() {
           if (line.startsWith('data: ')) {
             const text = line.slice(6)
             if (text) {
+              fullResponse += text
               setResponse((prev) => prev + text)
               setTokens((prev) => [...prev, text])
+              // Activate Visual Brain nodes for each token
+              visualBrainRef.current?.addToken(text)
             }
           }
         }
@@ -85,13 +106,24 @@ export default function MainLayout() {
       if (buffer.startsWith('data: ')) {
         const text = buffer.slice(6)
         if (text) {
+          fullResponse += text
           setResponse((prev) => prev + text)
           setTokens((prev) => [...prev, text])
+          // Activate Visual Brain nodes for remaining buffer
+          visualBrainRef.current?.addToken(text)
         }
       }
+
+      // 3. Add assistant response to store
+      console.log('📝 Adding assistant response to store...')
+      await addMessage(currentConversationId, 'assistant', fullResponse)
+      console.log('✅ Assistant response added to store')
+
     } catch (error) {
-      console.error('Error:', error)
+      console.error('❌ Error:', error)
       setResponse(`Error: ${error.message}`)
+      // Add error message to store
+      await addMessage(currentConversationId, 'assistant', `Error: ${error.message}`)
     } finally {
       setIsThinking(false)
     }
@@ -125,10 +157,16 @@ export default function MainLayout() {
   }
 
   const handleSelectConversation = async (conversationId) => {
+    console.log('🔄 Selecting conversation:', conversationId)
     setCurrentConversation(conversationId)
     setMessage('')
     setResponse('')
     setTokens([])
+
+    // Load messages for this conversation
+    await loadMessages(conversationId)
+    console.log('✅ Messages loaded for conversation:', conversationId)
+
     // Don't auto-close sidebar on desktop - only on mobile
     if (window.innerWidth < 768) {
       setConversationSidebarOpen(false)
@@ -253,6 +291,14 @@ export default function MainLayout() {
       }
     }
   }, [])
+
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (currentConversationId) {
+      console.log('🔄 Auto-loading messages for conversation:', currentConversationId)
+      loadMessages(currentConversationId)
+    }
+  }, [currentConversationId])
 
   // Keyboard shortcuts: R (reset width), Escape (close sidebars)
   useEffect(() => {

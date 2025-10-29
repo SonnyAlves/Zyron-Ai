@@ -375,50 +375,82 @@ const VisualBrain = forwardRef((props, ref) => {
     edgeObjectsRef.current.push(line);
   };
 
+  // Helper function to apply activations
+  const applyActivationsInternal = (activations) => {
+    if (!activations || activations.length === 0) return;
+
+    activations.forEach(activation => {
+      const nodeObj = nodeObjectsRef.current.find(n => n.userData.id === activation.nodeId);
+      if (!nodeObj) return;
+
+      // Increase energy (activation effect)
+      const energyIncrease = activation.energyDelta || 0.15;
+      const newEnergy = Math.min(nodeObj.userData.energy + energyIncrease, 1.0);
+      nodeObj.userData.energy = newEnergy;
+
+      // Animate glow/emissive intensity
+      nodeObj.material.emissiveIntensity = 0.5 + (newEnergy * 0.5);
+      nodeObj.material.opacity = 0.7 + (newEnergy * 0.3);
+
+      // Animate halo
+      if (nodeObj.userData.halo) {
+        nodeObj.userData.halo.material.opacity = 0.15 + (newEnergy * 0.25);
+      }
+
+      // Pulse effect (animate to larger size temporarily)
+      const baseScale = 0.6 + nodeObj.userData.weight * 0.3;
+      const targetScale = baseScale * (1 + energyIncrease * 2);
+
+      // Simple tween-like animation
+      let pulseProgress = 0;
+      const pulseAnimation = setInterval(() => {
+        pulseProgress += 0.05;
+        if (pulseProgress >= 1) {
+          clearInterval(pulseAnimation);
+          return;
+        }
+
+        // Ease out effect
+        const eased = 1 - Math.pow(1 - pulseProgress, 3);
+        const currentScale = targetScale + (baseScale - targetScale) * eased;
+        nodeObj.scale.setScalar(currentScale);
+      }, 16); // ~60fps
+    });
+
+    console.log('✅ Applied activations to', activations.length, 'nodes');
+  };
+
   // Expose activation method to parent
   useImperativeHandle(ref, () => ({
-    applyActivations: (activations) => {
-      if (!activations || activations.length === 0) return;
-      
-      activations.forEach(activation => {
-        const nodeObj = nodeObjectsRef.current.find(n => n.userData.id === activation.nodeId);
-        if (!nodeObj) return;
-        
-        // Increase energy (activation effect)
-        const energyIncrease = activation.energyDelta || 0.15;
-        const newEnergy = Math.min(nodeObj.userData.energy + energyIncrease, 1.0);
-        nodeObj.userData.energy = newEnergy;
+    // Method for streaming tokens - activates random nodes
+    addToken: (token) => {
+      console.log('🧠 Visual Brain received token:', token);
 
-        // Animate glow/emissive intensity
-        nodeObj.material.emissiveIntensity = 0.5 + (newEnergy * 0.5);
-        nodeObj.material.opacity = 0.7 + (newEnergy * 0.3);
-        
-        // Animate halo
-        if (nodeObj.userData.halo) {
-          nodeObj.userData.halo.material.opacity = 0.15 + (newEnergy * 0.25);
+      if (nodeObjectsRef.current.length === 0) return;
+
+      // Activate 1-3 random nodes per token
+      const activationCount = Math.floor(Math.random() * 3) + 1;
+      const activations = [];
+
+      for (let i = 0; i < activationCount; i++) {
+        const randomNode = nodeObjectsRef.current[Math.floor(Math.random() * nodeObjectsRef.current.length)];
+        if (randomNode && randomNode.userData.id) {
+          activations.push({
+            nodeId: randomNode.userData.id,
+            energyDelta: 0.1 + Math.random() * 0.15
+          });
         }
-        
-        // Pulse effect (animate to larger size temporarily)
-        const baseScale = 0.6 + nodeObj.userData.weight * 0.3;
-        const targetScale = baseScale * (1 + energyIncrease * 2);
-        
-        // Simple tween-like animation
-        let pulseProgress = 0;
-        const pulseAnimation = setInterval(() => {
-          pulseProgress += 0.05;
-          if (pulseProgress >= 1) {
-            clearInterval(pulseAnimation);
-            return;
-          }
-          
-          // Ease out effect
-          const eased = 1 - Math.pow(1 - pulseProgress, 3);
-          const currentScale = targetScale + (baseScale - targetScale) * eased;
-          nodeObj.scale.setScalar(currentScale);
-        }, 16); // ~60fps
-      });
-      
-      console.log('Applied activations:', activations);
+      }
+
+      // Apply activations
+      if (activations.length > 0) {
+        applyActivationsInternal(activations);
+      }
+    },
+
+    // Method for manual activations (uses same internal function)
+    applyActivations: (activations) => {
+      applyActivationsInternal(activations);
     }
   }));
 

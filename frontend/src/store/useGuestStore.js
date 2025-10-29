@@ -21,14 +21,34 @@ export const useGuestStore = create(
       // Ajouter un message guest
       addGuestMessage: (message) => {
         const currentCount = get().messageCount;
-        if (currentCount >= MAX_GUEST_MESSAGES) {
+        console.log('📝 addGuestMessage called:', {
+          role: message.role,
+          content: message.content?.substring(0, 50) + '...',
+          currentCount,
+          currentMessages: get().guestMessages.length,
+          limit: MAX_GUEST_MESSAGES
+        });
+
+        // Only count USER messages towards the limit (not assistant responses)
+        if (message.role === 'user' && currentCount >= MAX_GUEST_MESSAGES) {
+          console.warn('⚠️ User message limit reached!', currentCount);
           return false; // Limite atteinte
         }
 
-        set((state) => ({
-          guestMessages: [...state.guestMessages, message],
-          messageCount: state.messageCount + 1,
-        }));
+        set((state) => {
+          const newMessages = [...state.guestMessages, message];
+          // Only increment counter for USER messages
+          const newCount = message.role === 'user' ? state.messageCount + 1 : state.messageCount;
+          console.log('✅ Message added to store:', {
+            role: message.role,
+            totalMessages: newMessages.length,
+            userMessageCount: newCount
+          });
+          return {
+            guestMessages: newMessages,
+            messageCount: newCount,
+          };
+        });
         return true;
       },
 
