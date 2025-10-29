@@ -79,10 +79,9 @@ export default function App() {
       <GuestChatLayout
         onBeforeSend={handleBeforeSend}
         remainingMessages={remainingMessages}
-        onSignupClick={() => setShowSignupPopup(true)}
       />
 
-      {/* Signup modal for guests */}
+      {/* Signup modal for guests (when they hit the limit) */}
       {showSignupPopup && (
         <SignupModal
           onClose={() => setShowSignupPopup(false)}
