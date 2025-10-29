@@ -48,8 +48,27 @@ export const useStore = create((set, get) => ({
         });
       }
     } catch (error) {
-      console.error('Error loading workspaces:', error);
-      set({ error: error.message, loading: false });
+      console.error('❌ Error loading workspaces:', error);
+
+      // FALLBACK: Créer un workspace local en mémoire si Supabase échoue
+      console.warn('⚠️ Supabase failed, creating local fallback workspace...');
+      const fallbackWorkspace = {
+        id: `local-workspace-${Date.now()}`,
+        user_id: userId,
+        name: 'Mon Workspace (Local)',
+        color: '#3B82F6',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      set({
+        workspaces: [fallbackWorkspace],
+        currentWorkspaceId: fallbackWorkspace.id,
+        error: 'Mode hors ligne - Les données ne sont pas sauvegardées',
+        loading: false
+      });
+
+      console.log('✅ Local fallback workspace created:', fallbackWorkspace.id);
     }
   },
 
@@ -114,8 +133,14 @@ export const useStore = create((set, get) => ({
         loading: false
       });
     } catch (error) {
-      console.error('Error loading conversations:', error);
-      set({ error: error.message, loading: false });
+      console.error('❌ Error loading conversations:', error);
+      // FALLBACK: Start with empty conversations (local mode)
+      console.warn('⚠️ Supabase failed, starting with empty conversations (local mode)');
+      set({
+        conversations: [],
+        currentConversationId: null,
+        loading: false
+      });
     }
   },
 
@@ -129,8 +154,27 @@ export const useStore = create((set, get) => ({
       }));
       return newConv;
     } catch (error) {
-      console.error('Error creating conversation:', error);
-      set({ error: error.message });
+      console.error('❌ Error creating conversation:', error);
+
+      // FALLBACK: Créer une conversation locale si Supabase échoue
+      console.warn('⚠️ Supabase failed, creating local fallback conversation...');
+      const fallbackConv = {
+        id: `local-conv-${Date.now()}`,
+        workspace_id: workspaceId,
+        user_id: userId,
+        title: title,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      set(state => ({
+        conversations: [fallbackConv, ...state.conversations],
+        currentConversationId: fallbackConv.id,
+        messages: [], // Reset messages
+      }));
+
+      console.log('✅ Local fallback conversation created:', fallbackConv.id);
+      return fallbackConv;
     }
   },
 
@@ -178,8 +222,10 @@ export const useStore = create((set, get) => ({
       const messages = await messagesService.fetchByConversation(conversationId);
       set({ messages, loading: false });
     } catch (error) {
-      console.error('Error loading messages:', error);
-      set({ error: error.message, loading: false });
+      console.error('❌ Error loading messages:', error);
+      // FALLBACK: Start with empty messages (local mode)
+      console.warn('⚠️ Supabase failed, starting with empty messages (local mode)');
+      set({ messages: [], loading: false });
     }
   },
 
@@ -208,8 +254,37 @@ export const useStore = create((set, get) => ({
 
       return newMessage;
     } catch (error) {
-      console.error('Error adding message:', error);
-      set({ error: error.message });
+      console.error('❌ Error adding message:', error);
+
+      // FALLBACK: Créer un message local si Supabase échoue
+      console.warn('⚠️ Supabase failed, creating local fallback message...');
+      const fallbackMessage = {
+        id: `local-msg-${Date.now()}`,
+        conversation_id: conversationId,
+        role: role,
+        content: content,
+        created_at: new Date().toISOString(),
+      };
+
+      // Add to messages list
+      set(prevState => ({
+        messages: [...prevState.messages, fallbackMessage],
+      }));
+
+      // Auto-update conversation title for first user message (local only)
+      const state = get();
+      const isFirstUserMessage = state.messages.filter(m => m.role === 'user').length === 1 && role === 'user';
+      if (isFirstUserMessage) {
+        const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+        set(prevState => ({
+          conversations: prevState.conversations.map(c =>
+            c.id === conversationId ? { ...c, title } : c
+          ),
+        }));
+      }
+
+      console.log('✅ Local fallback message created:', fallbackMessage.id);
+      return fallbackMessage;
     }
   },
 
