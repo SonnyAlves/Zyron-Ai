@@ -133,6 +133,9 @@ export default function MainLayout() {
               setResponse((prev) => prev + text)
               setTokens((prev) => [...prev, text])
               // Activate Visual Brain nodes for each token
+              console.log('🔵 About to call addToken with:', text)
+              console.log('🔵 visualBrainRef.current exists?', !!visualBrainRef.current)
+              console.log('🔵 visualBrainRef.current.addToken exists?', !!visualBrainRef.current?.addToken)
               visualBrainRef.current?.addToken(text)
             }
           }

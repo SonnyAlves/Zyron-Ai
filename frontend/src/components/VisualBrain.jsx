@@ -377,29 +377,36 @@ const VisualBrain = forwardRef((props, ref) => {
 
   // Helper function to apply activations
   const applyActivationsInternal = (activations) => {
+    console.log('🎨 applyActivationsInternal called with', activations?.length || 0, 'activations');
     if (!activations || activations.length === 0) return;
 
     activations.forEach(activation => {
+      console.log('🎨 Processing activation for node:', activation.nodeId, 'energyDelta:', activation.energyDelta);
       const nodeObj = nodeObjectsRef.current.find(n => n.userData.id === activation.nodeId);
-      if (!nodeObj) return;
+      if (!nodeObj) {
+        console.warn('⚠️ Node not found:', activation.nodeId);
+        return;
+      }
 
-      // Increase energy (activation effect)
-      const energyIncrease = activation.energyDelta || 0.15;
+      // Increase energy (activation effect) - AMPLIFIED for visibility
+      const energyIncrease = activation.energyDelta * 3 || 0.5; // 3x stronger
       const newEnergy = Math.min(nodeObj.userData.energy + energyIncrease, 1.0);
       nodeObj.userData.energy = newEnergy;
 
-      // Animate glow/emissive intensity
-      nodeObj.material.emissiveIntensity = 0.5 + (newEnergy * 0.5);
-      nodeObj.material.opacity = 0.7 + (newEnergy * 0.3);
+      console.log('🎨 Animating node:', activation.nodeId, 'energy:', newEnergy, 'emissive:', 1.5 + (newEnergy * 2));
 
-      // Animate halo
+      // SUPER AMPLIFIED glow - much more visible
+      nodeObj.material.emissiveIntensity = 1.5 + (newEnergy * 2); // Was 0.5-1.0, now 1.5-3.5
+      nodeObj.material.opacity = 0.5 + (newEnergy * 0.5); // Flash from 0.5 to 1.0
+
+      // AMPLIFIED halo
       if (nodeObj.userData.halo) {
-        nodeObj.userData.halo.material.opacity = 0.15 + (newEnergy * 0.25);
+        nodeObj.userData.halo.material.opacity = 0.3 + (newEnergy * 0.6); // Was 0.15-0.4, now 0.3-0.9
       }
 
-      // Pulse effect (animate to larger size temporarily)
+      // AMPLIFIED pulse effect (2-3x larger)
       const baseScale = 0.6 + nodeObj.userData.weight * 0.3;
-      const targetScale = baseScale * (1 + energyIncrease * 2);
+      const targetScale = baseScale * (2 + energyIncrease); // Was 1.2-1.5x, now 2-3x
 
       // Simple tween-like animation
       let pulseProgress = 0;
@@ -425,11 +432,15 @@ const VisualBrain = forwardRef((props, ref) => {
     // Method for streaming tokens - activates random nodes
     addToken: (token) => {
       console.log('🧠 Visual Brain received token:', token);
+      console.log('🧠 nodeObjectsRef.current.length:', nodeObjectsRef.current.length);
 
-      if (nodeObjectsRef.current.length === 0) return;
+      if (nodeObjectsRef.current.length === 0) {
+        console.warn('⚠️ Visual Brain has no nodes to activate!');
+        return;
+      }
 
-      // Activate 1-3 random nodes per token
-      const activationCount = Math.floor(Math.random() * 3) + 1;
+      // Activate 3-6 random nodes per token (more visible)
+      const activationCount = Math.floor(Math.random() * 4) + 3; // Was 1-3, now 3-6
       const activations = [];
 
       for (let i = 0; i < activationCount; i++) {
@@ -443,8 +454,11 @@ const VisualBrain = forwardRef((props, ref) => {
       }
 
       // Apply activations
+      console.log('🧠 Generated', activations.length, 'activations:', activations);
       if (activations.length > 0) {
         applyActivationsInternal(activations);
+      } else {
+        console.warn('⚠️ No valid activations generated!');
       }
     },
 
