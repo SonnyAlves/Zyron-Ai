@@ -4,7 +4,8 @@ import { useClerk } from '@clerk/clerk-react'
 
 const VisualBrain = lazy(() => import('./VisualBrain'))
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+// Use Vercel Serverless Function in production, local backend in development
+const API_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8001')
 
 /**
  * Guest chat layout with message limit
