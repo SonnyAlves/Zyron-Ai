@@ -8,7 +8,8 @@ import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
 // import './MainLayout.css' // ❌ DISABLED - Using inline styles only
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+// Use Vercel Serverless Function in production, local backend in development
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8001')
 
 export default function MainLayout() {
   const { isInitialized, user } = useAppInitialization()
