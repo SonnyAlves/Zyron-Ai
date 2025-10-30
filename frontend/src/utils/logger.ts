@@ -13,9 +13,13 @@
 const IS_DEV = import.meta.env.DEV;
 const IS_PROD = import.meta.env.PROD;
 
+// Code name for this version
+const CODE_NAME = 'Jarvis';
+
 // Version info (will be injected at build time)
 const VERSION_INFO = {
-  version: import.meta.env.VITE_APP_VERSION || '1.0.0',
+  version: import.meta.env.VITE_APP_VERSION || '1.1.7',
+  codeName: CODE_NAME,
   commit: import.meta.env.VITE_GIT_COMMIT_SHA || 'unknown',
   branch: import.meta.env.VITE_GIT_BRANCH || 'unknown',
   buildTime: import.meta.env.VITE_BUILD_TIME || 'unknown',
@@ -111,9 +115,9 @@ export const displayVersionInfo = () => {
     'padding: 4px',
   ].join(';');
 
-  console.log('%c🧠 Zyron AI', styles);
+  console.log(`%c🧠 Zyron AI - ${VERSION_INFO.codeName}`, styles);
   console.log('%cVersion Info:', infoStyles);
-  console.log(`  📦 Version: ${VERSION_INFO.version}`);
+  console.log(`  📦 Version: ${VERSION_INFO.version} (${VERSION_INFO.codeName})`);
   console.log(`  🔀 Branch: ${VERSION_INFO.branch}`);
   console.log(`  📝 Commit: ${VERSION_INFO.commit.substring(0, 8)}`);
   console.log(`  🕐 Build: ${VERSION_INFO.buildTime}`);
