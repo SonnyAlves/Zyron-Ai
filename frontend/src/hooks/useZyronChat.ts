@@ -9,9 +9,11 @@
 import { useState, useCallback } from 'react';
 import type { Node, Edge, Message } from '../types/nodes';
 import { apiService } from '../services/apiService';
+import { createLogger } from '../utils/logger';
 
 // User temporaire pour tests
 const TEMP_USER = { id: 'test-user-123' };
+const logger = createLogger('useZyronChat');
 
 export const useZyronChat = () => {
   const user = TEMP_USER; // Remplace Clerk
@@ -27,17 +29,12 @@ export const useZyronChat = () => {
     // Optimistically add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
-    // DEBUG: Log what we're sending
     const payload = {
       message: userMessage,
       user_id: user.id,
       conversation_id: conversationId,
     };
-    console.log('🔍 DEBUG - user object:', user);
-    console.log('🔍 DEBUG - user.id:', user.id);
-    console.log('🔍 DEBUG - conversationId:', conversationId);
-    console.log('🔍 DEBUG - Full payload:', payload);
-    console.log('🔍 DEBUG - Stringified:', JSON.stringify(payload));
+    logger.debug('Sending message', payload);
 
     try {
       const data = await apiService.sendChatMessage(payload);
@@ -73,7 +70,7 @@ export const useZyronChat = () => {
       }
 
     } catch (error) {
-      console.error('Chat error:', error);
+      logger.error('Chat error:', error);
       // Remove optimistic message on error
       setMessages(prev => prev.slice(0, -1));
       alert('Erreur de connexion au serveur');
@@ -89,8 +86,9 @@ export const useZyronChat = () => {
       setNodes(graphData.nodes || []);
       setEdges(graphData.edges || []);
       setConversationId(convId);
+      logger.success('Conversation loaded');
     } catch (error) {
-      console.error('Failed to load conversation:', error);
+      logger.error('Failed to load conversation:', error);
     }
   }, []);
 

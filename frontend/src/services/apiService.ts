@@ -11,6 +11,10 @@
  *   const response = await apiService.sendChatMessage({ message: 'Hello', user_id: '123' })
  */
 
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('ApiService');
+
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
@@ -24,7 +28,7 @@ const getApiUrl = (): string => {
 
   // If no API URL is set, use localhost in development
   if (!apiUrl) {
-    console.warn('⚠️ VITE_API_URL not set, falling back to http://localhost:8000');
+    logger.warn('VITE_API_URL not set, falling back to http://localhost:8000');
     return 'http://localhost:8000';
   }
 
@@ -34,9 +38,7 @@ const getApiUrl = (): string => {
 const API_URL = getApiUrl();
 
 // Log the API URL in development
-if (import.meta.env.DEV) {
-  console.log('🔧 API URL configured:', API_URL);
-}
+logger.info('API URL configured:', API_URL);
 
 // =============================================================================
 // TYPES
@@ -80,8 +82,7 @@ class ApiService {
   async sendChatMessage(payload: ChatMessagePayload): Promise<ChatResponse> {
     const url = `${this.baseUrl}/chat`;
 
-    console.log('📤 Sending chat message to:', url);
-    console.log('📤 Payload:', payload);
+    logger.debug('Sending chat message to:', url, payload);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -96,7 +97,7 @@ class ApiService {
     }
 
     const data = await response.json();
-    console.log('✅ Chat response received');
+    logger.debug('Chat response received');
 
     return data;
   }
@@ -108,8 +109,7 @@ class ApiService {
   async sendChatMessageStream(payload: ChatMessagePayload): Promise<Response> {
     const url = `${this.baseUrl}/chat`;
 
-    console.log('📤 Sending streaming chat message to:', url);
-    console.log('📤 Payload:', payload);
+    logger.debug('Sending streaming chat message to:', url, payload);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -123,7 +123,7 @@ class ApiService {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    console.log('✅ Stream response received');
+    logger.debug('Stream response received');
 
     return response;
   }
@@ -134,7 +134,7 @@ class ApiService {
   async loadConversationGraph(conversationId: string): Promise<ConversationGraph> {
     const url = `${this.baseUrl}/conversation/${conversationId}/graph`;
 
-    console.log('📤 Loading conversation graph:', conversationId);
+    logger.debug('Loading conversation graph:', conversationId);
 
     const response = await fetch(url);
 
@@ -143,7 +143,7 @@ class ApiService {
     }
 
     const data = await response.json();
-    console.log('✅ Conversation graph loaded');
+    logger.success('Conversation graph loaded');
 
     return data;
   }

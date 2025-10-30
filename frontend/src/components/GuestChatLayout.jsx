@@ -2,6 +2,9 @@ import { useState, useRef, useCallback } from 'react'
 import { useZyronChat } from '../hooks/useZyronChat'
 import VisualBrain from './VisualBrain'
 import './GuestChatLayout.css'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('GuestChat')
 
 /**
  * Guest chat layout with message limit
@@ -43,17 +46,17 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     setInputValue('')
 
     try {
-      console.log('📤 Sending message to backend with persistence...')
+      logger.debug('Sending message')
       await sendMessage(userMessage)
-      console.log('✅ Message sent successfully!')
+      logger.success('Message sent')
 
       // Trigger Visual Brain animation
       if (visualBrainRef.current) {
-        console.log('🎬 Triggering Visual Brain popcorn effect')
+        logger.debug('Visual Brain triggered')
         visualBrainRef.current.addToken(userMessage)
       }
     } catch (error) {
-      console.error('❌ Error sending message:', error)
+      logger.error('Send message failed', error)
     }
   }, [inputValue, isLoading, onBeforeSend, sendMessage])
 
@@ -70,17 +73,17 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     setInputValue('')
 
     try {
-      console.log('📤 Sending suggestion to backend with persistence...')
+      logger.debug('Sending suggestion')
       await sendMessage(suggestion)
-      console.log('✅ Suggestion sent successfully!')
+      logger.success('Suggestion sent')
 
       // Trigger Visual Brain animation
       if (visualBrainRef.current) {
-        console.log('🎬 Triggering Visual Brain popcorn effect')
+        logger.debug('Visual Brain triggered')
         visualBrainRef.current.addToken(suggestion)
       }
     } catch (error) {
-      console.error('❌ Error sending suggestion:', error)
+      logger.error('Send suggestion failed', error)
     }
   }, [isLoading, onBeforeSend, sendMessage])
 
@@ -358,14 +361,14 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
               />
               {isLoading ? (
                 <button
-                  onClick={abort}
+                  disabled
                   style={{
                     padding: '12px 20px',
-                    background: '#EF4444',
+                    background: '#d0d0d0',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
-                    cursor: 'pointer',
+                    cursor: 'not-allowed',
                     fontSize: '14px',
                     fontWeight: '500'
                   }}
