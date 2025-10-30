@@ -7,7 +7,7 @@
     "test:rls": "node test-rls.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.76.1",
+    "@supabase/supabase-js": "^2.77.0",
     "dotenv": "^16.4.1"
   }
 }
