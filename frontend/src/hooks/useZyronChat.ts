@@ -7,9 +7,8 @@
  * 2. Renomme useZyronChat.temp.ts en useZyronChat.ts
  */
 import { useState, useCallback } from 'react';
-import type { Node, Edge, Message, GraphUpdate } from '../types/nodes';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import type { Node, Edge, Message } from '../types/nodes';
+import { apiService } from '../services/apiService';
 
 // User temporaire pour tests
 const TEMP_USER = { id: 'test-user-123' };
@@ -28,22 +27,20 @@ export const useZyronChat = () => {
     // Optimistically add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
+    // DEBUG: Log what we're sending
+    const payload = {
+      message: userMessage,
+      user_id: user.id,
+      conversation_id: conversationId,
+    };
+    console.log('🔍 DEBUG - user object:', user);
+    console.log('🔍 DEBUG - user.id:', user.id);
+    console.log('🔍 DEBUG - conversationId:', conversationId);
+    console.log('🔍 DEBUG - Full payload:', payload);
+    console.log('🔍 DEBUG - Stringified:', JSON.stringify(payload));
+
     try {
-      const response = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          user_id: user.id,
-          conversation_id: conversationId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await apiService.sendChatMessage(payload);
 
       // Update conversation ID
       setConversationId(data.conversation_id);
@@ -51,26 +48,28 @@ export const useZyronChat = () => {
       // Add assistant message
       setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
 
-      // Update graph
-      const update: GraphUpdate = data.graph_update;
+      // Update graph (if provided)
+      if (data.graph_update) {
+        const update = data.graph_update;
 
-      // Add new nodes
-      if (update.new_nodes?.length > 0) {
-        setNodes(prev => [...prev, ...update.new_nodes]);
-      }
+        // Add new nodes
+        if (update.new_nodes && update.new_nodes.length > 0) {
+          setNodes(prev => [...prev, ...update.new_nodes!]);
+        }
 
-      // Activate existing nodes
-      if (update.activate_nodes?.length > 0) {
-        setNodes(prev => prev.map(node =>
-          update.activate_nodes.includes(node.id)
-            ? { ...node, energy: 0.9 }
-            : node
-        ));
-      }
+        // Activate existing nodes
+        if (update.activate_nodes && update.activate_nodes.length > 0) {
+          setNodes(prev => prev.map(node =>
+            update.activate_nodes!.includes(node.id)
+              ? { ...node, energy: 0.9 }
+              : node
+          ));
+        }
 
-      // Add new edges
-      if (update.new_edges?.length > 0) {
-        setEdges(prev => [...prev, ...update.new_edges]);
+        // Add new edges
+        if (update.new_edges && update.new_edges.length > 0) {
+          setEdges(prev => [...prev, ...update.new_edges!]);
+        }
       }
 
     } catch (error) {
@@ -85,10 +84,7 @@ export const useZyronChat = () => {
 
   const loadConversation = useCallback(async (convId: string) => {
     try {
-      const graphRes = await fetch(`${API_URL}/conversation/${convId}/graph`);
-      if (!graphRes.ok) throw new Error('Failed to load graph');
-
-      const graphData = await graphRes.json();
+      const graphData = await apiService.loadConversationGraph(convId);
 
       setNodes(graphData.nodes || []);
       setEdges(graphData.edges || []);

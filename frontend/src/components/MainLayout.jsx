@@ -6,10 +6,8 @@ import ChatPanelContent from './ChatPanelContent'
 import WorkspaceSidebar from './WorkspaceSidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
+import { apiService } from '../services/apiService'
 // import './MainLayout.css' // ❌ DISABLED - Using inline styles only
-
-// Use Vercel Serverless Function in production, local backend in development
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8001')
 
 export default function MainLayout() {
   const { isInitialized, user } = useAppInitialization()
@@ -18,7 +16,8 @@ export default function MainLayout() {
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
   const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
-  const [conversationSidebarOpen, setConversationSidebarOpen] = useState(true)  // Sidebar visible by default
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768) // Detect mobile
+  const [conversationSidebarOpen, setConversationSidebarOpen] = useState(window.innerWidth > 768)  // Sidebar closed on mobile, open on desktop
   const [visualBrainWidth, setVisualBrainWidth] = useState(835) // Resizable width, default 835px (balanced with chat)
   const [isResizing, setIsResizing] = useState(false)
   const isDragging = useRef(false) // Track if user is dragging (ref to avoid re-renders)
@@ -99,14 +98,16 @@ export default function MainLayout() {
       await addMessage(finalConversationId, 'user', messageText)
       console.log('✅ User message added to store')
 
-      // 2. Call API and stream response
-      const res = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: messageText }),
-      })
+      // 2. Call API and stream response (with user_id and conversation_id for persistence)
+      const payload = {
+        message: messageText,
+        user_id: user?.id,
+        conversation_id: finalConversationId,
+      }
+
+      console.log('📤 Sending payload to API:', payload)
+
+      const res = await apiService.sendChatMessageStream(payload)
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`)
@@ -340,6 +341,21 @@ export default function MainLayout() {
     }
   }, [currentConversationId])
 
+  // Mobile detection - listen to resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
+    }
+  }, [])
+
   // Keyboard shortcuts: R (reset width), Escape (close sidebars)
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -496,12 +512,12 @@ export default function MainLayout() {
         </>
       )}
 
-      {/* MAIN CONTENT - 3 COLUMNS FORCED */}
-      <div style={{
+      {/* MAIN CONTENT - 3 COLUMNS (responsive) */}
+      <div className="main-content-wrapper" style={{
         flex: 1,
         display: 'flex',
         overflow: 'hidden',
-        marginTop: '64px'
+        marginTop: isMobile ? '56px' : '64px'
       }}>
         {/* Column 1: Sidebar - 280px or hidden */}
         {conversationSidebarOpen && (
@@ -526,13 +542,14 @@ export default function MainLayout() {
           </div>
         )}
 
-        {/* Column 2: Chat - Flexible */}
-        <div style={{
+        {/* Column 2: Chat - Flexible (full width on mobile) */}
+        <div className="chat-column" style={{
           flex: 1,
           height: '100%',
           minWidth: 0,
           overflow: 'auto',
-          background: 'white'
+          background: 'white',
+          width: isMobile ? '100%' : 'auto'
         }}>
           <ChatPanelContent
             message={message}
@@ -542,54 +559,58 @@ export default function MainLayout() {
           />
         </div>
 
-        {/* RESIZE HANDLE - Draggable divider */}
-        <div
-          onMouseDown={handleMouseDown}
-          style={{
-            width: '4px',
-            cursor: 'col-resize',
-            background: isResizing ? '#667eea' : '#e5e5e5',
-            transition: isResizing ? 'none' : 'background 0.2s',
-            flexShrink: 0,
-            position: 'relative',
-            zIndex: 10,
-            userSelect: 'none'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = '#667eea'}
-          onMouseLeave={(e) => !isResizing && (e.currentTarget.style.background = '#e5e5e5')}
-        >
-          {/* Drag indicator (subtle hint) */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '20px',
-            height: '40px',
-            background: 'rgba(102, 126, 234, 0.2)',
-            borderRadius: '4px',
-            pointerEvents: 'none',
-            opacity: isResizing ? 1 : 0,
-            transition: 'opacity 0.2s'
-          }} />
-        </div>
+        {/* RESIZE HANDLE - Hidden on mobile */}
+        {!isMobile && (
+          <div
+            onMouseDown={handleMouseDown}
+            style={{
+              width: '4px',
+              cursor: 'col-resize',
+              background: isResizing ? '#667eea' : '#e5e5e5',
+              transition: isResizing ? 'none' : 'background 0.2s',
+              flexShrink: 0,
+              position: 'relative',
+              zIndex: 10,
+              userSelect: 'none'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#667eea'}
+            onMouseLeave={(e) => !isResizing && (e.currentTarget.style.background = '#e5e5e5')}
+          >
+            {/* Drag indicator (subtle hint) */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '20px',
+              height: '40px',
+              background: 'rgba(102, 126, 234, 0.2)',
+              borderRadius: '4px',
+              pointerEvents: 'none',
+              opacity: isResizing ? 1 : 0,
+              transition: 'opacity 0.2s'
+            }} />
+          </div>
+        )}
 
-        {/* Column 3: Visual Brain - Auto-expands when sidebar closes */}
-        <div style={{
-          width: `${visualBrainWidth}px`,
-          height: '100%',
-          flexShrink: 0,
-          overflow: 'hidden',
-          background: '#F7F7F7',
-          transition: isResizing ? 'none' : 'width 0.3s ease'
-        }}>
-          <VisualBrain
-            ref={visualBrainRef}
-            isThinking={isThinking}
-            tokens={tokens}
-            onNodeClick={(node) => console.log('Node clicked:', node)}
-          />
-        </div>
+        {/* Column 3: Visual Brain - Hidden on mobile */}
+        {!isMobile && (
+          <div style={{
+            width: `${visualBrainWidth}px`,
+            height: '100%',
+            flexShrink: 0,
+            overflow: 'hidden',
+            background: '#F7F7F7',
+            transition: isResizing ? 'none' : 'width 0.3s ease'
+          }}>
+            <VisualBrain
+              ref={visualBrainRef}
+              isThinking={isThinking}
+              tokens={tokens}
+              onNodeClick={(node) => console.log('Node clicked:', node)}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

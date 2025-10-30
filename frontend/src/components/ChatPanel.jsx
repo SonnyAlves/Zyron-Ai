@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, memo, useCallback } from 'react'
 import './ChatPanel.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+import { apiService } from '../services/apiService'
 
 function ChatPanel() {
   const [message, setMessage] = useState('')
@@ -43,13 +42,11 @@ function ChatPanel() {
       setResponse('')
       setError(null)
 
-      const res = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-      })
+      const payload = {
+        message: message,
+      }
+
+      const res = await apiService.sendChatMessageStream(payload)
 
       if (!res.ok) {
         throw new Error(`Le backend ne répond pas (HTTP ${res.status})`)

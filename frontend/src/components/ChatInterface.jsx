@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import VisualBrain from './VisualBrain/VisualBrain'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+import { apiService } from '../services/apiService'
 
 export default function ChatInterface() {
   const [message, setMessage] = useState('')
@@ -47,13 +46,11 @@ export default function ChatInterface() {
       setError(null)
       tokenCounterRef.current = 0
 
-      const res = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-      })
+      const payload = {
+        message: message,
+      }
+
+      const res = await apiService.sendChatMessageStream(payload)
 
       if (!res.ok) {
         throw new Error(`Le backend ne répond pas (HTTP ${res.status})`)
