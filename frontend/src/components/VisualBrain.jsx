@@ -131,17 +131,25 @@ const INITIAL_CONNECTIONS = [
   { from: 's3', to: 'r4', strength: 0.28 }
 ];
 
+// Updated colors for Visual Brain node types (from backend schema)
 const COLORS = {
-  Goal: '#FFD93D',      // Soft yellow
-  Idea: '#4A90E2',      // Professional blue
-  Task: '#F5A623',      // Warm orange
-  Emotion: '#BD8BFF',   // Soft purple
-  Reflection: '#56CCF2', // Light cyan
-  Insight: '#EB5757',   // Coral red
-  System: '#27AE60'     // Fresh green
+  GOAL: '#F59E0B',      // Amber/Orange - Ambition, vision
+  IDEA: '#3B82F6',      // Blue - Exploration, concepts
+  TASK: '#10B981',      // Green - Action, practical steps
+  QUESTION: '#06B6D4',  // Cyan - Uncertainty, choices
+  INSIGHT: '#EF4444',   // Red - Realization, breakthrough
+
+  // Legacy support (for mock nodes during transition)
+  Goal: '#F59E0B',
+  Idea: '#3B82F6',
+  Task: '#10B981',
+  Emotion: '#BD8BFF',
+  Reflection: '#06B6D4',
+  Insight: '#EF4444',
+  System: '#10B981'
 };
 
-const VisualBrain = forwardRef((props, ref) => {
+const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClick }, ref) => {
   const canvasRef = useRef(null);
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
@@ -152,16 +160,61 @@ const VisualBrain = forwardRef((props, ref) => {
   const particlesRef = useRef(null);
   const animationIdRef = useRef(null);
 
+  // State for managing brain nodes (real data from backend)
+  const [brainNodes, setBrainNodes] = useState(INITIAL_BRAIN_NODES); // Start with mock
+  const [brainEdges, setBrainEdges] = useState(INITIAL_CONNECTIONS);
+
+  // Sync props with state - use real data when available
+  useEffect(() => {
+    if (nodes.length > 0) {
+      console.log('🧠 Visual Brain: Received', nodes.length, 'real nodes from backend');
+
+      // Map backend nodes to Visual Brain format
+      const mappedNodes = nodes.map(node => ({
+        id: node.id,
+        text: node.label,
+        category: node.type, // GOAL, IDEA, TASK, QUESTION, INSIGHT
+        energy: node.energy,
+        weight: node.energy // Use energy as weight for size
+      }));
+
+      setBrainNodes(mappedNodes);
+    }
+  }, [nodes]);
+
+  useEffect(() => {
+    if (edges.length > 0) {
+      console.log('🧠 Visual Brain: Received', edges.length, 'real edges from backend');
+
+      // Map backend edges to Visual Brain format
+      const mappedEdges = edges.map(edge => ({
+        from: edge.from_node_id,
+        to: edge.to_node_id,
+        strength: edge.strength
+      }));
+
+      setBrainEdges(mappedEdges);
+    }
+  }, [edges]);
+
   // Seeded random for consistent positions
   const seededRandom = (seed) => {
     const x = Math.sin(seed) * 10000;
     return x - Math.floor(x);
   };
 
-  // Generate positions
+  // Generate positions (dynamically based on brainNodes)
   const nodePositions = useMemo(() => {
     const positions = {};
     const offsets = {
+      // New Visual Brain types
+      'GOAL': { x: 0, y: 8, z: 0 },        // Top - high-level ambitions
+      'IDEA': { x: -8, y: 3, z: 0 },       // Left - creative exploration
+      'TASK': { x: -5.5, y: -3, z: -5.5 }, // Bottom-left - action items
+      'QUESTION': { x: 5.5, y: -3, z: -5.5 }, // Bottom-right - scattered uncertainty
+      'INSIGHT': { x: 8, y: 3, z: 0 },     // Right - breakthrough moments
+
+      // Legacy support (for mock nodes during transition)
       'Goal': { x: 8, y: 3, z: 0 },
       'Idea': { x: -8, y: 3, z: 0 },
       'Task': { x: 0, y: -5.5, z: 4 },
@@ -170,22 +223,22 @@ const VisualBrain = forwardRef((props, ref) => {
       'Insight': { x: 0, y: 0, z: 0 },
       'System': { x: 0, y: 8, z: 0 }
     };
-    
-    INITIAL_BRAIN_NODES.forEach((node, idx) => {
-      const offset = offsets[node.category];
+
+    brainNodes.forEach((node, idx) => {
+      const offset = offsets[node.category] || { x: 0, y: 0, z: 0 };
       const spread = 4;
       const angle = seededRandom(idx * 100) * Math.PI * 2;
       const dist = seededRandom(idx * 101) * spread;
-      
+
       positions[node.id] = {
         x: offset.x + Math.cos(angle) * dist,
         y: offset.y + (seededRandom(idx * 102) - 0.5) * 2.5,
         z: offset.z + Math.sin(angle) * dist
       };
     });
-    
+
     return positions;
-  }, []);
+  }, [brainNodes]);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -250,13 +303,13 @@ const VisualBrain = forwardRef((props, ref) => {
     // Fog
     scene.fog = new FogExp2(0x1a1a2e, 0.015);
 
-    // Create nodes
-    INITIAL_BRAIN_NODES.forEach(node => {
+    // Create nodes (using dynamic brainNodes)
+    brainNodes.forEach(node => {
       createNode(node, scene);
     });
 
-    // Create edges
-    INITIAL_CONNECTIONS.forEach(conn => {
+    // Create edges (using dynamic brainEdges)
+    brainEdges.forEach(conn => {
       createEdge(conn, scene);
     });
 
@@ -353,8 +406,27 @@ const VisualBrain = forwardRef((props, ref) => {
       }
       controls.dispose();
       renderer.dispose();
+
+      // Clean up node and edge objects
+      nodeObjectsRef.current.forEach(node => {
+        if (node.userData.halo) {
+          scene.remove(node.userData.halo);
+          node.userData.halo.geometry?.dispose();
+          node.userData.halo.material?.dispose();
+        }
+        scene.remove(node);
+        node.geometry?.dispose();
+        node.material?.dispose();
+      });
+      edgeObjectsRef.current.forEach(edge => {
+        scene.remove(edge);
+        edge.geometry?.dispose();
+        edge.material?.dispose();
+      });
+      nodeObjectsRef.current = [];
+      edgeObjectsRef.current = [];
     };
-  }, []);
+  }, [brainNodes, brainEdges, nodePositions]);
 
   const createNode = (node, scene) => {
     const pos = nodePositions[node.id];
