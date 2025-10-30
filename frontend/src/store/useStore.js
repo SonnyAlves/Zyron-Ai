@@ -1,137 +1,41 @@
 import { create } from 'zustand';
 import {
-  workspacesService,
   conversationsService,
   messagesService,
-  graphNodesService,
-  graphEdgesService,
 } from '../services/supabaseService';
 
+/**
+ * SIMPLIFIED ZUSTAND STORE
+ * No workspaces - Direct user → conversations → messages
+ * Compatible with Python backend + Supabase simplified schema
+ */
 export const useStore = create((set, get) => ({
   // ============================================
   // STATE
   // ============================================
-  workspaces: [],
-  currentWorkspaceId: null,
   conversations: [],
   currentConversationId: null,
   messages: [],
-  graphNodes: [],
-  graphEdges: [],
   loading: false,
   error: null,
 
   // ============================================
-  // WORKSPACES ACTIONS
-  // ============================================
-  loadWorkspaces: async (userId) => {
-    set({ loading: true, error: null });
-    try {
-      const workspaces = await workspacesService.fetchAll(userId);
-
-      // Si aucun workspace, en créer un par défaut
-      if (workspaces.length === 0) {
-        const defaultWorkspace = await workspacesService.create(userId, {
-          name: 'Mon Workspace',
-          color: '#3B82F6',
-        });
-        set({
-          workspaces: [defaultWorkspace],
-          currentWorkspaceId: defaultWorkspace.id,
-          loading: false
-        });
-      } else {
-        set({
-          workspaces,
-          currentWorkspaceId: workspaces[0].id,
-          loading: false
-        });
-      }
-    } catch (error) {
-      console.error('❌ Error loading workspaces:', error);
-
-      // FALLBACK: Créer un workspace local en mémoire si Supabase échoue
-      console.warn('⚠️ Supabase failed, creating local fallback workspace...');
-      const fallbackWorkspace = {
-        id: `local-workspace-${Date.now()}`,
-        user_id: userId,
-        name: 'Mon Workspace (Local)',
-        color: '#3B82F6',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      set({
-        workspaces: [fallbackWorkspace],
-        currentWorkspaceId: fallbackWorkspace.id,
-        error: 'Mode hors ligne - Les données ne sont pas sauvegardées',
-        loading: false
-      });
-
-      console.log('✅ Local fallback workspace created:', fallbackWorkspace.id);
-    }
-  },
-
-  createWorkspace: async (userId, workspaceData) => {
-    try {
-      const newWorkspace = await workspacesService.create(userId, workspaceData);
-      set(state => ({
-        workspaces: [newWorkspace, ...state.workspaces],
-        currentWorkspaceId: newWorkspace.id,
-      }));
-      return newWorkspace;
-    } catch (error) {
-      console.error('Error creating workspace:', error);
-      set({ error: error.message });
-    }
-  },
-
-  updateWorkspace: async (workspaceId, updates) => {
-    try {
-      const updated = await workspacesService.update(workspaceId, updates);
-      set(state => ({
-        workspaces: state.workspaces.map(w =>
-          w.id === workspaceId ? updated : w
-        ),
-      }));
-    } catch (error) {
-      console.error('Error updating workspace:', error);
-      set({ error: error.message });
-    }
-  },
-
-  deleteWorkspace: async (workspaceId) => {
-    try {
-      await workspacesService.delete(workspaceId);
-      set(state => {
-        const remaining = state.workspaces.filter(w => w.id !== workspaceId);
-        return {
-          workspaces: remaining,
-          currentWorkspaceId: remaining.length > 0 ? remaining[0].id : null,
-        };
-      });
-    } catch (error) {
-      console.error('Error deleting workspace:', error);
-      set({ error: error.message });
-    }
-  },
-
-  setCurrentWorkspace: (workspaceId) => {
-    set({ currentWorkspaceId: workspaceId });
-  },
-
-  // ============================================
   // CONVERSATIONS ACTIONS
   // ============================================
-  loadConversations: async (workspaceId) => {
+
+  /**
+   * Load all conversations for a user
+   */
+  loadConversations: async (userId) => {
     set({ loading: true, error: null });
     try {
-      const conversations = await conversationsService.fetchByWorkspace(workspaceId);
+      const conversations = await conversationsService.fetchByUser(userId);
       set({
         conversations,
         currentConversationId: conversations.length > 0 ? conversations[0].id : null,
         loading: false
       });
+      console.log(`✅ Loaded ${conversations.length} conversations for user ${userId}`);
     } catch (error) {
       console.error('❌ Error loading conversations:', error);
       // FALLBACK: Start with empty conversations (local mode)
@@ -139,19 +43,24 @@ export const useStore = create((set, get) => ({
       set({
         conversations: [],
         currentConversationId: null,
-        loading: false
+        loading: false,
+        error: 'Mode hors ligne - Les données ne sont pas sauvegardées'
       });
     }
   },
 
-  createConversation: async (workspaceId, userId, title) => {
+  /**
+   * Create a new conversation
+   */
+  createConversation: async (userId, title = 'Nouvelle conversation') => {
     try {
-      const newConv = await conversationsService.create(workspaceId, userId, title);
+      const newConv = await conversationsService.create(userId, title);
       set(state => ({
         conversations: [newConv, ...state.conversations],
         currentConversationId: newConv.id,
         messages: [], // Reset messages
       }));
+      console.log('✅ Conversation created:', newConv.id);
       return newConv;
     } catch (error) {
       console.error('❌ Error creating conversation:', error);
@@ -160,7 +69,6 @@ export const useStore = create((set, get) => ({
       console.warn('⚠️ Supabase failed, creating local fallback conversation...');
       const fallbackConv = {
         id: `local-conv-${Date.now()}`,
-        workspace_id: workspaceId,
         user_id: userId,
         title: title,
         created_at: new Date().toISOString(),
@@ -178,6 +86,9 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  /**
+   * Update conversation title
+   */
   updateConversation: async (conversationId, updates) => {
     try {
       const updated = await conversationsService.update(conversationId, updates);
@@ -186,15 +97,26 @@ export const useStore = create((set, get) => ({
           c.id === conversationId ? updated : c
         ),
       }));
+      console.log('✅ Conversation updated:', conversationId);
     } catch (error) {
-      console.error('Error updating conversation:', error);
+      console.error('❌ Error updating conversation:', error);
       set({ error: error.message });
     }
   },
 
+  /**
+   * Delete a conversation
+   */
   deleteConversation: async (conversationId) => {
     try {
-      await conversationsService.delete(conversationId);
+      // Check if it's a local conversation (starts with "local-")
+      if (conversationId.startsWith('local-')) {
+        // Just remove from state, no API call
+        console.log('🗑️ Deleting local conversation:', conversationId);
+      } else {
+        await conversationsService.delete(conversationId);
+      }
+
       set(state => {
         const remaining = state.conversations.filter(c => c.id !== conversationId);
         return {
@@ -203,24 +125,41 @@ export const useStore = create((set, get) => ({
           messages: [],
         };
       });
+      console.log('✅ Conversation deleted:', conversationId);
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      console.error('❌ Error deleting conversation:', error);
       set({ error: error.message });
     }
   },
 
+  /**
+   * Set current conversation
+   */
   setCurrentConversation: (conversationId) => {
     set({ currentConversationId: conversationId });
+    console.log('📌 Current conversation set to:', conversationId);
   },
 
   // ============================================
   // MESSAGES ACTIONS
   // ============================================
+
+  /**
+   * Load messages for a conversation
+   */
   loadMessages: async (conversationId) => {
+    // Check if it's a local conversation
+    if (conversationId.startsWith('local-')) {
+      console.log('📦 Local conversation - skipping load from Supabase');
+      set({ messages: [], loading: false });
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       const messages = await messagesService.fetchByConversation(conversationId);
       set({ messages, loading: false });
+      console.log(`✅ Loaded ${messages.length} messages for conversation ${conversationId}`);
     } catch (error) {
       console.error('❌ Error loading messages:', error);
       // FALLBACK: Start with empty messages (local mode)
@@ -229,7 +168,27 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  /**
+   * Add message to Supabase (for when backend doesn't persist)
+   * Used only if you need manual persistence
+   */
   addMessage: async (conversationId, role, content) => {
+    // Check if it's a local conversation
+    if (conversationId.startsWith('local-')) {
+      console.log('📦 Local conversation - adding message to local state only');
+      const fallbackMessage = {
+        id: `local-msg-${Date.now()}-${Math.random()}`,
+        conversation_id: conversationId,
+        role: role,
+        content: content,
+        created_at: new Date().toISOString(),
+      };
+      set(prevState => ({
+        messages: [...prevState.messages, fallbackMessage],
+      }));
+      return fallbackMessage;
+    }
+
     try {
       const newMessage = await messagesService.create(conversationId, role, content);
 
@@ -252,6 +211,7 @@ export const useStore = create((set, get) => ({
         }));
       }
 
+      console.log('✅ Message added to Supabase:', newMessage.id);
       return newMessage;
     } catch (error) {
       console.error('❌ Error adding message:', error);
@@ -259,7 +219,7 @@ export const useStore = create((set, get) => ({
       // FALLBACK: Créer un message local si Supabase échoue
       console.warn('⚠️ Supabase failed, creating local fallback message...');
       const fallbackMessage = {
-        id: `local-msg-${Date.now()}`,
+        id: `local-msg-${Date.now()}-${Math.random()}`,
         conversation_id: conversationId,
         role: role,
         content: content,
@@ -317,6 +277,7 @@ export const useStore = create((set, get) => ({
       }));
     }
 
+    console.log('📝 Message added to local state');
     return newMessage;
   },
 
@@ -337,44 +298,27 @@ export const useStore = create((set, get) => ({
   },
 
   // ============================================
-  // GRAPH ACTIONS
+  // UTILITY ACTIONS
   // ============================================
-  loadGraph: async (workspaceId) => {
-    try {
-      const [nodes, edges] = await Promise.all([
-        graphNodesService.fetchByWorkspace(workspaceId),
-        graphEdgesService.fetchByWorkspace(workspaceId),
-      ]);
-      set({ graphNodes: nodes, graphEdges: edges });
-    } catch (error) {
-      console.error('Error loading graph:', error);
-      set({ error: error.message });
-    }
+
+  /**
+   * Reset all state (for logout)
+   */
+  reset: () => {
+    set({
+      conversations: [],
+      currentConversationId: null,
+      messages: [],
+      loading: false,
+      error: null,
+    });
+    console.log('🔄 Store reset');
   },
 
-  addGraphNode: async (workspaceId, nodeData) => {
-    try {
-      const newNode = await graphNodesService.create(workspaceId, nodeData);
-      set(state => ({
-        graphNodes: [...state.graphNodes, newNode],
-      }));
-      return newNode;
-    } catch (error) {
-      console.error('Error adding graph node:', error);
-      set({ error: error.message });
-    }
-  },
-
-  addGraphEdge: async (workspaceId, sourceId, targetId, edgeData) => {
-    try {
-      const newEdge = await graphEdgesService.create(workspaceId, sourceId, targetId, edgeData);
-      set(state => ({
-        graphEdges: [...state.graphEdges, newEdge],
-      }));
-      return newEdge;
-    } catch (error) {
-      console.error('Error adding graph edge:', error);
-      set({ error: error.message });
-    }
+  /**
+   * Clear error
+   */
+  clearError: () => {
+    set({ error: null });
   },
 }));

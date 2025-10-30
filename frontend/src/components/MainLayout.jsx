@@ -3,7 +3,6 @@ import VisualBrain from './VisualBrain' // ✅ RESTORED - Real Three.js componen
 import Header from './Header'
 import Sidebar from './Sidebar/Sidebar'
 import ChatPanelContent from './ChatPanelContent'
-import WorkspaceSidebar from './WorkspaceSidebar'
 import { useAppInitialization } from '../hooks/useAppInitialization'
 import { useStore } from '../store/useStore'
 import { apiService } from '../services/apiService'
@@ -15,7 +14,6 @@ export default function MainLayout() {
   const [tokens, setTokens] = useState([])
   const [response, setResponse] = useState('')
   const [message, setMessage] = useState('')
-  const [workspaceSidebarOpen, setWorkspaceSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768) // Detect mobile
   const [conversationSidebarOpen, setConversationSidebarOpen] = useState(window.innerWidth > 768)  // Sidebar closed on mobile, open on desktop
   const [visualBrainWidth, setVisualBrainWidth] = useState(835) // Resizable width, default 835px (balanced with chat)
@@ -24,17 +22,11 @@ export default function MainLayout() {
   const dragTimeout = useRef(null) // Timeout to re-enable auto-resize after drag
   const visualBrainRef = useRef(null)
 
-  // Zustand store
+  // Zustand store (SIMPLIFIED - No workspaces)
   const {
-    workspaces,
-    currentWorkspaceId,
     conversations,
     currentConversationId,
     messages,
-    createWorkspace,
-    updateWorkspace,
-    deleteWorkspace,
-    setCurrentWorkspace,
     createConversation,
     setCurrentConversation,
     deleteConversation,
@@ -46,13 +38,12 @@ export default function MainLayout() {
   const handleSendMessage = async (messageText) => {
     console.log('🔵 handleSendMessage called with:', messageText)
     console.log('🔵 currentConversationId:', currentConversationId)
-    console.log('🔵 currentWorkspaceId:', currentWorkspaceId)
 
     // Auto-create conversation if none exists
-    if (!currentConversationId && currentWorkspaceId && user) {
+    if (!currentConversationId && user) {
       console.log('📦 No conversation selected, auto-creating one...')
       try {
-        const newConv = await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
+        const newConv = await createConversation(user.id, 'Nouvelle conversation')
         console.log('✅ Conversation auto-created:', newConv)
 
         // Wait for Zustand state to propagate
@@ -207,23 +198,10 @@ export default function MainLayout() {
     }
   }
 
-  // Workspace handlers
-  const handleCreateWorkspace = async (workspaceData) => {
-    if (user) {
-      await createWorkspace(user.id, workspaceData)
-      setWorkspaceSidebarOpen(false)
-    }
-  }
-
-  const handleSelectWorkspace = (workspaceId) => {
-    setCurrentWorkspace(workspaceId)
-    setWorkspaceSidebarOpen(false)
-  }
-
-  // Conversation handlers
+  // Conversation handlers (SIMPLIFIED - No workspaces)
   const handleNewChat = async () => {
-    if (currentWorkspaceId && user) {
-      await createConversation(currentWorkspaceId, user.id, 'Nouvelle conversation')
+    if (user) {
+      await createConversation(user.id, 'Nouvelle conversation')
       setMessage('')
       setResponse('')
       setTokens([])
@@ -302,8 +280,7 @@ export default function MainLayout() {
     }, 500)
   }
 
-  // Get current workspace for header display
-  const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId)
+  // No more workspaces needed
 
   // Auto-expand Visual Brain when sidebar closes (unless user is dragging)
   useEffect(() => {
@@ -511,43 +488,7 @@ export default function MainLayout() {
         onSidebarToggle={handleToggleSidebar}
       />
 
-      {/* Workspace Sidebar (toggle with overlay) */}
-      {workspaceSidebarOpen && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 999
-            }}
-            onClick={() => setWorkspaceSidebarOpen(false)}
-          />
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            height: '100vh',
-            width: '280px',
-            background: 'white',
-            zIndex: 1000,
-            boxShadow: '2px 0 12px rgba(0, 0, 0, 0.15)'
-          }}>
-            <WorkspaceSidebar
-              workspaces={workspaces}
-              currentWorkspaceId={currentWorkspaceId}
-              onSelectWorkspace={handleSelectWorkspace}
-              onCreateWorkspace={handleCreateWorkspace}
-              onUpdateWorkspace={updateWorkspace}
-              onDeleteWorkspace={deleteWorkspace}
-              onClose={() => setWorkspaceSidebarOpen(false)}
-            />
-          </div>
-        </>
-      )}
+      {/* Workspace Sidebar removed - Simplified architecture */}
 
       {/* MAIN CONTENT - 3 COLUMNS (responsive) */}
       <div className="main-content-wrapper" style={{
