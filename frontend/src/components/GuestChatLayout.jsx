@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { useStreamingZyronChat } from '../hooks/useZyronChat'
+import { useStreamingZyronChat } from '../hooks/useStreamingZyronChat'
 import VisualBrain from './VisualBrain'
 import './GuestChatLayout.css'
 import { createLogger } from '../utils/logger'
@@ -20,7 +20,7 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     messages,
     isLoading,
     sendMessage
-  } = useZyronChat()
+  } = useStreamingZyronChat()
 
   // Placeholder for sign-up (no Clerk in test mode)
   const openSignUp = () => {
