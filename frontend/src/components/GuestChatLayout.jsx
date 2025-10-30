@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { useClerk } from '@clerk/clerk-react'
 import { useStreamingZyronChat } from '../hooks/useStreamingZyronChat'
 import VisualBrain from './VisualBrain'
 import './GuestChatLayout.css'
@@ -12,6 +13,7 @@ const logger = createLogger('GuestChat')
  * Uses streaming for compatibility with simple backend
  */
 export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
+  const clerk = useClerk()
   const [inputValue, setInputValue] = useState('')
   const visualBrainRef = useRef(null)
 
@@ -22,9 +24,9 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     sendMessage
   } = useStreamingZyronChat()
 
-  // Placeholder for sign-up (no Clerk in test mode)
+  // Open Clerk sign-up modal
   const openSignUp = () => {
-    alert('Sign-up disabled in test mode. Using test-user-123.')
+    clerk.openSignUp()
   }
 
   // Mock nodes/edges for Visual Brain
