@@ -637,40 +637,43 @@ const VisualBrain = forwardRef((props, ref) => {
 
   // Expose activation method to parent
   useImperativeHandle(ref, () => ({
-    // Method for streaming tokens - Popcorn effect
+    // Method for streaming tokens - Popcorn effect with 15-second gradual deployment
     addToken: (token) => {
-      console.log('🍿 Popcorn activation:', token.substring(0, 30));
+      console.log('🎬 Gradual 15-second deployment starting:', token.substring(0, 30));
 
       if (nodeObjectsRef.current.length === 0) return;
 
-      // Activate 25% of nodes (slightly less for cleaner effect)
-      const numToActivate = Math.floor(nodeObjectsRef.current.length * 0.25);
+      // Activate 15% of nodes (cleaner, more cinematic)
+      const numToActivate = Math.floor(nodeObjectsRef.current.length * 0.15);
       const activatedIndices = new Set();
 
       while (activatedIndices.size < numToActivate) {
         activatedIndices.add(Math.floor(Math.random() * nodeObjectsRef.current.length));
       }
 
-      // Sort by distance from center (wave from center outward)
+      // Sort by distance from center (wave from inside out - like stars appearing)
       const activatedNodes = Array.from(activatedIndices).map(idx => ({
         index: idx,
         node: nodeObjectsRef.current[idx]
       }));
 
       activatedNodes.sort((a, b) => {
-        const distA = a.node.position.length();
-        const distB = b.node.position.length();
-        return distA - distB;
+        return a.node.position.length() - b.node.position.length();
       });
 
-      // Stagger with 80ms delay (slower, more orchestral)
+      // CRITICAL: Spread deployment over 15 SECONDS (matches fade out duration)
+      // Creates perfect symmetry: 15s up → 10s hold → 15s down
+      const totalDeploymentTime = 15000; // 15 SECONDS
+      const staggerDelay = totalDeploymentTime / numToActivate;
+
+      console.log(`✨ Will deploy ${numToActivate} nodes over ${totalDeploymentTime / 1000}s (${Math.round(staggerDelay)}ms between each)`);
+
       activatedNodes.forEach((item, arrayIndex) => {
         setTimeout(() => {
           popNode(item.node);
-        }, arrayIndex * 80); // 80ms stagger for dramatic effect
+          console.log(`🍿 Node ${arrayIndex + 1}/${numToActivate} popped at ${Math.round(arrayIndex * staggerDelay)}ms`);
+        }, arrayIndex * staggerDelay);
       });
-
-      console.log('✨ Popping', numToActivate, 'nodes with 80ms orchestral timing');
     },
 
     // Method for manual activations (uses same internal function)
