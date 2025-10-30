@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useMemo, forwardRef, useImperativeHandle, useState } from 'react';
 import {
   Scene,
   PerspectiveCamera,

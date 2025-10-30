@@ -1,0 +1,25 @@
+services:
+  # Backend API Service (FastAPI)
+  - type: web
+    name: zyron-ai-mvp
+    runtime: python
+    region: frankfurt  # EU region for better latency
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: SUPABASE_URL
+        sync: false  # Will be set manually
+      - key: SUPABASE_SERVICE_KEY
+        sync: false  # Will be set manually
+      - key: ANTHROPIC_API_KEY
+        sync: false  # Will be set manually
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ALLOWED_ORIGINS
+        value: https://frontend-pkp6y9445-zyron-ai.vercel.app,https://zyron.com,http://localhost:5173
+    healthCheckPath: /health
