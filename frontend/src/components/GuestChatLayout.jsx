@@ -1,36 +1,37 @@
-import { useState, useRef, useCallback, Suspense, lazy } from 'react'
-import { useStreamingChat } from '../hooks/useStreamingChat'
+import { useState, useRef, useCallback } from 'react'
+import { useZyronChat } from '../hooks/useZyronChat'
 import { useClerk } from '@clerk/clerk-react'
-import MessageContent from './MessageContent'
+import VisualBrain from './VisualBrain'
+import './GuestChatLayout.css'
+import './GuestChatLayout.css'
 
-const VisualBrain = lazy(() => import('./VisualBrain'))
-
-// Use Vercel Serverless Function in production, local backend in development
-const API_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8001')
-
-// DEBUG: Log API URL being used
-console.log('🔧 API_URL configured:', API_URL)
-console.log('🔧 VITE_BACKEND_URL env:', import.meta.env.VITE_BACKEND_URL)
-console.log('🔧 Is production?', import.meta.env.PROD)
+// Import for responsive design
+const originalImport = "import VisualBrain from './VisualBrain'
 
 /**
  * Guest chat layout with message limit
  * Simple 2-column layout: Chat + Visual Brain
+ * Now with Supabase persistence!
  */
 export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
-  const [messages, setMessages] = useState([])
-  const [tokens, setTokens] = useState([])
   const [inputValue, setInputValue] = useState('')
   const visualBrainRef = useRef(null)
   const { openSignUp } = useClerk()
 
-  const { isLoading, error, sendMessage, abort } = useStreamingChat(API_URL)
+  // Use new persistence hook
+  const {
+    messages,
+    nodes,
+    edges,
+    isLoading,
+    sendMessage
+  } = useZyronChat()
 
   const showWarning = remainingMessages !== null && remainingMessages <= 3
   const showWelcome = messages.length === 0 && !isLoading
 
   /**
-   * Handle send message (with limit check)
+   * Handle send message (with limit check and persistence)
    */
   const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return
@@ -41,52 +42,18 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
 
     const userMessage = inputValue.trim()
     setInputValue('')
-    setTokens([])
 
-    // Add user message immediately
-    const userMsg = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: userMessage,
-      created_at: new Date().toISOString(),
+    try {
+      // Send message - hook handles messages state automatically
+      await sendMessage(userMessage)
+      console.log('✅ Message sent with persistence')
+    } catch (error) {
+      console.error('❌ Error sending message:', error)
     }
-    setMessages((prev) => [...prev, userMsg])
-
-    // Stream response from backend
-    await sendMessage(
-      userMessage,
-      // onChunk: track tokens for visual brain
-      (token) => {
-        console.log('🎯 TOKEN RECEIVED:', token.substring(0, 50))
-        console.log('🧠 visualBrainRef.current exists?', !!visualBrainRef.current)
-        console.log('🧠 addToken method exists?', !!visualBrainRef.current?.addToken)
-        setTokens((prev) => [...prev, token])
-        if (visualBrainRef.current) {
-          console.log('✅ Calling addToken on Visual Brain')
-          visualBrainRef.current.addToken(token)
-        } else {
-          console.log('❌ Visual Brain ref is null!')
-        }
-      },
-      // onComplete: add assistant message
-      (fullContent) => {
-        const assistantMsg = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: fullContent,
-          created_at: new Date().toISOString(),
-        }
-        setMessages((prev) => [...prev, assistantMsg])
-      },
-      // onError: handle errors
-      (err) => {
-        console.error('Streaming error:', err)
-      }
-    )
   }, [inputValue, isLoading, onBeforeSend, sendMessage])
 
   /**
-   * Handle suggestion click
+   * Handle suggestion click (with limit check and persistence)
    */
   const handleSuggestionClick = useCallback(async (suggestion) => {
     if (isLoading) return
@@ -95,45 +62,13 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     const canSend = onBeforeSend()
     if (!canSend) return // Blocked by limit
 
-    setInputValue('')
-    setTokens([])
-
-    // Add user message
-    const userMsg = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: suggestion,
-      created_at: new Date().toISOString(),
+    try {
+      // Send suggestion - hook handles messages state automatically
+      await sendMessage(suggestion)
+      console.log('✅ Suggestion sent with persistence')
+    } catch (error) {
+    <div className="guest-chat-layout">
     }
-    setMessages((prev) => [...prev, userMsg])
-
-    // Stream response
-    await sendMessage(
-      suggestion,
-      (token) => {
-        console.log('🎯 [RETRY] TOKEN RECEIVED:', token.substring(0, 50))
-        console.log('🧠 [RETRY] visualBrainRef.current exists?', !!visualBrainRef.current)
-        setTokens((prev) => [...prev, token])
-        if (visualBrainRef.current) {
-          console.log('✅ [RETRY] Calling addToken on Visual Brain')
-          visualBrainRef.current.addToken(token)
-        } else {
-          console.log('❌ [RETRY] Visual Brain ref is null!')
-        }
-      },
-      (fullContent) => {
-        const assistantMsg = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: fullContent,
-          created_at: new Date().toISOString(),
-        }
-        setMessages((prev) => [...prev, assistantMsg])
-      },
-      (err) => {
-        console.error('Streaming error:', err)
-      }
-    )
   }, [isLoading, onBeforeSend, sendMessage])
 
   return (
@@ -361,19 +296,6 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
               );
             })}
 
-            {/* Error message */}
-            {error && (
-              <div style={{
-                padding: '12px 16px',
-                marginBottom: '12px',
-                borderRadius: '8px',
-                background: '#FEE2E2',
-                color: '#991B1B'
-              }}>
-                <strong>Error:</strong> {error}
-              </div>
-            )}
-
             {/* Loading indicator */}
             {isLoading && (
               <div style={{
@@ -421,24 +343,7 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
                   fontFamily: 'inherit'
                 }}
               />
-              {isLoading ? (
-                <button
-                  onClick={abort}
-                  style={{
-                    padding: '12px 20px',
-                    background: '#EF4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500'
-                  }}
-                >
-                  ⏹
-                </button>
-              ) : (
-                <button
+              <button
                   onClick={handleSend}
                   disabled={!inputValue.trim()}
                   style={{
@@ -473,14 +378,13 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
 
         {/* Visual Brain - 60% */}
         <div style={{ flex: 1, background: '#F7F7F7' }}>
-          <Suspense fallback={<div style={{ height: '100%', width: '100%', background: '#F7F7F7' }} />}>
-            <VisualBrain
-              ref={visualBrainRef}
-              isThinking={isLoading}
-              tokens={tokens}
-              onNodeClick={(node) => console.log('Node clicked:', node)}
-            />
-          </Suspense>
+          <VisualBrain
+            ref={visualBrainRef}
+            nodes={nodes}
+            edges={edges}
+            isThinking={isLoading}
+            onNodeClick={(node) => console.log('Node clicked:', node)}
+          />
         </div>
       </div>
     </div>
