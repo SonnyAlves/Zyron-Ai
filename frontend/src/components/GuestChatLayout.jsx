@@ -309,19 +309,6 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
               );
             })}
 
-            {/* Error message */}
-            {error && (
-              <div style={{
-                padding: '12px 16px',
-                marginBottom: '12px',
-                borderRadius: '8px',
-                background: '#FEE2E2',
-                color: '#991B1B'
-              }}>
-                <strong>Error:</strong> {error}
-              </div>
-            )}
-
             {/* Loading indicator */}
             {isLoading && (
               <div style={{
