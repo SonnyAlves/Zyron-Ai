@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from supabase_service import SupabaseService
 from prompts import SYSTEM_PROMPT, build_context_prompt
-from types import AssistantResponse, ChatRequest, GraphUpdate
+from schemas import AssistantResponse, ChatRequest, GraphUpdate
 
 # Load environment variables
 load_dotenv()

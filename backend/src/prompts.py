@@ -1,3 +1,5 @@
+from typing import List
+
 SYSTEM_PROMPT = """Tu es Zyron, un assistant IA qui pense visuellement. Tu construis un "Visual Brain" — un graphe cognitif représentant la pensée de l'utilisateur.
 
 ## 5 TYPES DE NODES
