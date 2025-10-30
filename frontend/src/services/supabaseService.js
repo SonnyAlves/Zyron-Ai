@@ -7,6 +7,48 @@ import { supabase } from '../lib/supabase.js';
  */
 
 // ============================================
+// PROFILES
+// ============================================
+
+export const profilesService = {
+  // Check if profile exists
+  async exists(userId) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = no rows returned (expected for non-existent profile)
+      throw error;
+    }
+
+    return !!data;
+  },
+
+  // Create or update profile (upsert)
+  async upsert(userId, profileData) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        email: profileData.email || '',
+        full_name: profileData.full_name || profileData.fullName || '',
+        avatar_url: profileData.avatar_url || profileData.imageUrl || '',
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'id'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+};
+
+// ============================================
 // CONVERSATIONS
 // ============================================
 

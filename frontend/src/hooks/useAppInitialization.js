@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { useStore } from '../store/useStore';
+import { profilesService } from '../services/supabaseService';
 
 /**
  * SIMPLIFIED APP INITIALIZATION
@@ -18,15 +19,38 @@ export const useAppInitialization = () => {
 
   const currentConversationId = useStore(state => state.currentConversationId);
 
-  // Step 1: Load conversations directly when user is ready
+  // Step 1: Ensure profile exists in Supabase, then load conversations
   useEffect(() => {
-    if (isLoaded && user) {
-      console.log('🔄 Loading conversations for user:', user.id);
-      loadConversations(user.id);
-      // Mark as initialized immediately after starting to load
-      console.log('✅ App initialized - loading conversations');
-      setIsInitialized(true);
-    }
+    const initializeUser = async () => {
+      if (isLoaded && user) {
+        console.log('🔄 Initializing user:', user.id);
+
+        try {
+          // Ensure profile exists in Supabase (create if doesn't exist)
+          console.log('👤 Checking if profile exists in Supabase...');
+          await profilesService.upsert(user.id, {
+            email: user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || '',
+            full_name: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+            avatar_url: user.imageUrl || '',
+          });
+          console.log('✅ Profile ensured in Supabase');
+
+          // Now load conversations
+          console.log('🔄 Loading conversations for user:', user.id);
+          await loadConversations(user.id);
+          console.log('✅ Conversations loaded');
+
+          // Mark as initialized
+          setIsInitialized(true);
+        } catch (error) {
+          console.error('❌ Error initializing user:', error);
+          // Still mark as initialized to show UI (with local fallback)
+          setIsInitialized(true);
+        }
+      }
+    };
+
+    initializeUser();
   }, [isLoaded, user, loadConversations]);
 
   // Step 2: Load messages when conversation is selected
