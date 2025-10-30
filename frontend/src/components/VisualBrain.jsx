@@ -624,7 +624,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
 
     // PHASE 2: STAY BRIGHT (Popped state) - 10 SECONDS
     const stayBright = () => {
-      console.log('🍿 Node POPPED - staying bright for 10s');
+      // Removed log
 
       // Lock at peak brightness
       const poppedScale = originalScale * 1.3;
@@ -647,7 +647,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
 
     // PHASE 3: DEFLATE (Gentle fade back) - 15 SECONDS
     const deflate = () => {
-      console.log('🌙 Starting 15-second gentle fade');
+      // Removed log
 
       let deflateProgress = 0;
       const deflateDuration = 15000; // 15 SECONDS (orchestral fade)
@@ -696,7 +696,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
           node.userData.isPopping = false;
           node.userData.isFlashing = false;
 
-          console.log('✅ Node returned to normal after 25s orchestral fade');
+          // Removed log
         }
       };
 
@@ -743,7 +743,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
       activatedNodes.forEach((item, arrayIndex) => {
         setTimeout(() => {
           popNode(item.node);
-          console.log(`🍿 Node ${arrayIndex + 1}/${numToActivate} popped at ${Math.round(arrayIndex * staggerDelay)}ms`);
+          // Removed log
         }, arrayIndex * staggerDelay);
       });
     },

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { useZyronChat } from '../hooks/useZyronChat'
+import { useStreamingZyronChat } from '../hooks/useZyronChat'
 import VisualBrain from './VisualBrain'
 import './GuestChatLayout.css'
 import { createLogger } from '../utils/logger'
@@ -9,23 +9,25 @@ const logger = createLogger('GuestChat')
 /**
  * Guest chat layout with message limit
  * Simple 2-column layout: Chat + Visual Brain
- * Now with Supabase persistence via useZyronChat!
+ * Uses streaming for compatibility with simple backend
  */
 export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
   const [inputValue, setInputValue] = useState('')
   const visualBrainRef = useRef(null)
 
-  // Use persistence hook (no Clerk needed - uses test user_id)
+  // Use streaming hook (compatible with simple backend)
   const {
     messages,
-    nodes,
-    edges,
     isLoading,
     sendMessage
   } = useZyronChat()
 
   // Placeholder for sign-up (no Clerk in test mode)
   const openSignUp = () => {
+
+  // Mock nodes/edges for Visual Brain
+  const nodes = []
+  const edges = []
     alert('Sign-up disabled in test mode. Using test-user-123.')
   }
 
