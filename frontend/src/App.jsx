@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage'
 import MainLayout from './components/MainLayout'
 import GuestChatLayout from './components/GuestChatLayout'
 import SignupModal from './components/SignupModal'
+import { displayVersionInfo } from './utils/logger'
 
 /**
  * Single unified App that works for both guests and authenticated users
@@ -22,6 +23,11 @@ export default function App() {
     return parseInt(localStorage.getItem('guestMessageCount') || '0')
   })
   const [showSignupPopup, setShowSignupPopup] = useState(false)
+
+  // Display version info on startup
+  useEffect(() => {
+    displayVersionInfo()
+  }, [])
 
   // Save message count for guests
   useEffect(() => {

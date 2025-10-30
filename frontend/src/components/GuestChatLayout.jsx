@@ -309,6 +309,19 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
               );
             })}
 
+            {/* Error message */}
+            {error && (
+              <div style={{
+                padding: '12px 16px',
+                marginBottom: '12px',
+                borderRadius: '8px',
+                background: '#FEE2E2',
+                color: '#991B1B'
+              }}>
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
             {/* Loading indicator */}
             {isLoading && (
               <div style={{
@@ -356,22 +369,40 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
                   fontFamily: 'inherit'
                 }}
               />
-              <button
-                onClick={handleSend}
-                disabled={!inputValue.trim() || isLoading}
-                style={{
-                  padding: '12px 20px',
-                  background: (inputValue.trim() && !isLoading) ? '#3B82F6' : '#d0d0d0',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: (inputValue.trim() && !isLoading) ? 'pointer' : 'not-allowed',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                {isLoading ? '...' : '↑'}
-              </button>
+              {isLoading ? (
+                <button
+                  onClick={abort}
+                  style={{
+                    padding: '12px 20px',
+                    background: '#EF4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  ⏹
+                </button>
+              ) : (
+                <button
+                  onClick={handleSend}
+                  disabled={!inputValue.trim()}
+                  style={{
+                    padding: '12px 20px',
+                    background: inputValue.trim() ? '#3B82F6' : '#d0d0d0',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  ↑
+                </button>
+              )}
             </div>
 
             {/* Message counter */}
