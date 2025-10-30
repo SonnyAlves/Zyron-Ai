@@ -288,6 +288,54 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  /**
+   * Add message to local state only (no Supabase persistence)
+   * Used when backend handles persistence (authenticated users with streaming)
+   */
+  addMessageLocal: (conversationId, role, content) => {
+    const newMessage = {
+      id: `local-msg-${Date.now()}-${Math.random()}`,
+      conversation_id: conversationId,
+      role: role,
+      content: content,
+      created_at: new Date().toISOString(),
+    };
+
+    set(prevState => ({
+      messages: [...prevState.messages, newMessage],
+    }));
+
+    // Auto-update conversation title for first user message
+    const state = get();
+    const isFirstUserMessage = state.messages.filter(m => m.role === 'user').length === 1 && role === 'user';
+    if (isFirstUserMessage) {
+      const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+      set(prevState => ({
+        conversations: prevState.conversations.map(c =>
+          c.id === conversationId ? { ...c, title } : c
+        ),
+      }));
+    }
+
+    return newMessage;
+  },
+
+  /**
+   * Update the last message in the state (for streaming updates)
+   */
+  updateLastMessage: (content) => {
+    set(prevState => {
+      const messages = [...prevState.messages];
+      if (messages.length > 0) {
+        messages[messages.length - 1] = {
+          ...messages[messages.length - 1],
+          content: content,
+        };
+      }
+      return { messages };
+    });
+  },
+
   // ============================================
   // GRAPH ACTIONS
   // ============================================

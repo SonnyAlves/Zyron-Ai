@@ -1,16 +1,15 @@
 /**
  * Streaming version of useZyronChat
- * For backends that return SSE streaming instead of JSON
+ * For GUEST mode (no authentication)
+ * Does NOT send user_id, so backend won't persist to Supabase
  */
 import { useState, useCallback } from 'react';
 import { apiService } from '../services/apiService';
 import { createLogger } from '../utils/logger';
 
-const TEMP_USER = { id: 'test-user-123' };
-const logger = createLogger('StreamingChat');
+const logger = createLogger('GuestStreamingChat');
 
 export const useStreamingZyronChat = () => {
-  const user = TEMP_USER;
   const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,12 +19,15 @@ export const useStreamingZyronChat = () => {
     // Add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
+    // GUEST MODE: No user_id, no conversation_id
+    // Backend will stream but won't persist to Supabase
     const payload = {
       message: userMessage,
-      user_id: user.id,
+      // user_id: undefined → guest mode, no persistence
+      // conversation_id: undefined → no context
     };
 
-    logger.debug('Sending streaming message');
+    logger.debug('Sending guest streaming message (no persistence)');
 
     try {
       const response = await apiService.sendChatMessageStream(payload);
@@ -98,7 +100,7 @@ export const useStreamingZyronChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, []); // No dependencies - guest mode doesn't need user context
 
   return {
     messages,

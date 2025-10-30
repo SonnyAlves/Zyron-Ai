@@ -14,11 +14,11 @@ const IS_DEV = import.meta.env.DEV;
 const IS_PROD = import.meta.env.PROD;
 
 // Code name for this version
-const CODE_NAME = 'Marla';
+const CODE_NAME = 'Leverage';
 
 // Version info (will be injected at build time)
 const VERSION_INFO = {
-  version: import.meta.env.VITE_APP_VERSION || '1.2.0',
+  version: import.meta.env.VITE_APP_VERSION || '1.3.0',
   codeName: CODE_NAME,
   commit: import.meta.env.VITE_GIT_COMMIT_SHA || 'unknown',
   branch: import.meta.env.VITE_GIT_BRANCH || 'unknown',

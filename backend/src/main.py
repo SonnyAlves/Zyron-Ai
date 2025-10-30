@@ -4,6 +4,7 @@ Backend with Visual Brain integration
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from anthropic import Anthropic
 import os
 import json
@@ -29,10 +30,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware - Allow all localhost ports for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,75 +57,92 @@ async def health_check():
 
 
 @app.post("/chat")
-async def chat(request: ChatRequest):
-    """Main chat endpoint with Visual Brain integration."""
+async def chat_stream(request: ChatRequest):
+    """
+    Main chat endpoint with streaming support and optional persistence.
+
+    - Streams Claude's response in real-time (SSE format)
+    - If user_id provided: saves to Supabase after streaming completes
+    - If user_id is None: guest mode, no persistence
+
+    This single endpoint serves both authenticated and guest users.
+    """
+    print(f"🔍 BACKEND - Received streaming request:")
+    print(f"  - message: {request.message}")
+    print(f"  - user_id: {request.user_id}")
+    print(f"  - conversation_id: {request.conversation_id}")
+
+    # Determine if we need to persist (user is authenticated)
+    should_persist = request.user_id is not None
+    conversation_id = request.conversation_id
+
     try:
-        # Get or create conversation
-        conversation = db.get_or_create_conversation(request.user_id, request.conversation_id)
-        conversation_id = conversation["id"]
+        # If authenticated, get or create conversation for context
+        if should_persist:
+            conversation = db.get_or_create_conversation(request.user_id, conversation_id)
+            conversation_id = conversation["id"]
+            print(f"✅ Using conversation: {conversation_id}")
+        else:
+            print("👤 Guest mode - no persistence")
 
-        # Load existing nodes for context
-        existing_nodes = db.get_conversation_nodes(conversation_id)
-        context = build_context_prompt(existing_nodes)
-        system_prompt = SYSTEM_PROMPT.replace("{current_graph}", context)
+        # Build system prompt (with context if authenticated)
+        if should_persist and conversation_id:
+            existing_nodes = db.get_conversation_nodes(conversation_id)
+            context = build_context_prompt(existing_nodes)
+            system_prompt = SYSTEM_PROMPT.replace("{current_graph}", context)
+        else:
+            system_prompt = SYSTEM_PROMPT.replace("{current_graph}", "No previous context.")
 
-        # Call Claude
-        response = claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=2000,
-            system=system_prompt,
-            messages=[{"role": "user", "content": request.message}]
+        # Streaming generator
+        async def generate_stream():
+            full_response = ""
+
+            try:
+                # Stream from Claude
+                with claude.messages.stream(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=2000,
+                    system=system_prompt,
+                    messages=[{"role": "user", "content": request.message}]
+                ) as stream:
+                    for text in stream.text_stream:
+                        # Send each chunk as SSE (Server-Sent Events)
+                        # Use JSON.stringify format for consistency with frontend
+                        escaped_text = json.dumps(text)
+                        yield f"data: {escaped_text}\n\n"
+                        full_response += text
+
+                print(f"✅ Streaming complete. Total length: {len(full_response)}")
+
+                # PERSISTENCE: Save to Supabase if user is authenticated
+                if should_persist and conversation_id:
+                    print("💾 Saving to Supabase...")
+
+                    # Save user message
+                    db.save_message(conversation_id, "user", request.message)
+
+                    # Save assistant message
+                    db.save_message(conversation_id, "assistant", full_response)
+
+                    print("✅ Messages saved to Supabase")
+
+            except Exception as e:
+                error_msg = f"Error during streaming: {str(e)}"
+                print(f"❌ {error_msg}")
+                yield f"data: {json.dumps(error_msg)}\n\n"
+
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"  # Disable buffering for Nginx
+            }
         )
 
-        response_text = response.content[0].text
-
-        # Try to parse as JSON
-        try:
-            parsed = json.loads(response_text)
-            assistant_response = AssistantResponse(**parsed)
-        except json.JSONDecodeError:
-            # Fallback if Claude doesn't return JSON
-            assistant_response = AssistantResponse(
-                text=response_text,
-                graph_update=GraphUpdate()
-            )
-
-        # Save user message
-        db.save_message(conversation_id, "user", request.message)
-
-        # Save assistant message
-        assistant_message = db.save_message(conversation_id, "assistant", assistant_response.text)
-        message_id = assistant_message["id"]
-
-        # Create new nodes
-        created_nodes = []
-        for node in assistant_response.graph_update.new_nodes:
-            created_node = db.create_node(conversation_id, message_id, node.dict())
-            created_nodes.append(created_node)
-
-        # Activate existing nodes
-        for node_id in assistant_response.graph_update.activate_nodes:
-            db.activate_node(node_id)
-
-        # Create edges
-        created_edges = []
-        for edge in assistant_response.graph_update.new_edges:
-            created_edge = db.create_edge(edge.from_node, edge.to_node, edge.strength)
-            if created_edge:
-                created_edges.append(created_edge)
-
-        return {
-            "conversation_id": conversation_id,
-            "text": assistant_response.text,
-            "graph_update": {
-                "new_nodes": created_nodes,
-                "activate_nodes": assistant_response.graph_update.activate_nodes,
-                "new_edges": created_edges
-            }
-        }
-
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

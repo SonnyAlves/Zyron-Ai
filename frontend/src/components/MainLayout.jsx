@@ -38,7 +38,8 @@ export default function MainLayout() {
     createConversation,
     setCurrentConversation,
     deleteConversation,
-    addMessage,
+    addMessageLocal,
+    updateLastMessage,
     loadMessages,
   } = useStore()
 
@@ -93,12 +94,16 @@ export default function MainLayout() {
       setResponse('')
       setTokens([])
 
-      // 1. Add user message to store IMMEDIATELY
-      console.log('📝 Adding user message to store...')
-      await addMessage(finalConversationId, 'user', messageText)
-      console.log('✅ User message added to store')
+      // 1. Add user message to LOCAL store immediately (optimistic UI)
+      // Backend will handle Supabase persistence
+      console.log('📝 Adding user message to local state...')
+      addMessageLocal(finalConversationId, 'user', messageText)
+      console.log('✅ User message added to local state')
 
-      // 2. Call API and stream response (with user_id and conversation_id for persistence)
+      // 2. Add empty assistant message to state (will be updated during streaming)
+      addMessageLocal(finalConversationId, 'assistant', '')
+
+      // 3. Call API and stream response (backend handles Supabase persistence)
       const payload = {
         message: messageText,
         user_id: user?.id,
@@ -129,42 +134,74 @@ export default function MainLayout() {
         for (let i = 0; i < lines.length - 1; i++) {
           const line = lines[i]
           if (line.startsWith('data: ')) {
-            const text = line.slice(6)
-            if (text) {
-              fullResponse += text
-              setResponse((prev) => prev + text)
-              setTokens((prev) => [...prev, text])
-              // Activate Visual Brain nodes for each token
-              console.log('🔵 About to call addToken with:', text)
-              console.log('🔵 visualBrainRef.current exists?', !!visualBrainRef.current)
-              console.log('🔵 visualBrainRef.current.addToken exists?', !!visualBrainRef.current?.addToken)
-              visualBrainRef.current?.addToken(text)
+            // Parse JSON to properly decode text
+            const jsonStr = line.slice(6)
+            try {
+              const text = JSON.parse(jsonStr)
+              if (text) {
+                fullResponse += text
+                setResponse((prev) => prev + text)
+                setTokens((prev) => [...prev, text])
+
+                // Update last message (assistant) in real-time
+                updateLastMessage(fullResponse)
+
+                // Activate Visual Brain nodes for each token
+                visualBrainRef.current?.addToken(text)
+              }
+            } catch (e) {
+              // Fallback for non-JSON data
+              const text = jsonStr
+              if (text) {
+                fullResponse += text
+                setResponse((prev) => prev + text)
+                setTokens((prev) => [...prev, text])
+                updateLastMessage(fullResponse)
+                visualBrainRef.current?.addToken(text)
+              }
             }
           }
         }
       }
 
+      // Process remaining buffer
       if (buffer.startsWith('data: ')) {
-        const text = buffer.slice(6)
-        if (text) {
-          fullResponse += text
-          setResponse((prev) => prev + text)
-          setTokens((prev) => [...prev, text])
-          // Activate Visual Brain nodes for remaining buffer
-          visualBrainRef.current?.addToken(text)
+        const jsonStr = buffer.slice(6)
+        try {
+          const text = JSON.parse(jsonStr)
+          if (text) {
+            fullResponse += text
+            setResponse((prev) => prev + text)
+            setTokens((prev) => [...prev, text])
+            updateLastMessage(fullResponse)
+            visualBrainRef.current?.addToken(text)
+          }
+        } catch (e) {
+          const text = jsonStr
+          if (text) {
+            fullResponse += text
+            setResponse((prev) => prev + text)
+            setTokens((prev) => [...prev, text])
+            updateLastMessage(fullResponse)
+            visualBrainRef.current?.addToken(text)
+          }
         }
       }
 
-      // 3. Add assistant response to store
-      console.log('📝 Adding assistant response to store...')
-      await addMessage(finalConversationId, 'assistant', fullResponse)
-      console.log('✅ Assistant response added to store')
+      console.log('✅ Streaming complete')
+      console.log('💾 Backend has saved messages to Supabase')
+
+      // 4. Reload messages from Supabase to get the persisted data with proper IDs
+      console.log('🔄 Reloading messages from Supabase...')
+      await loadMessages(finalConversationId)
+      console.log('✅ Messages reloaded from Supabase')
 
     } catch (error) {
       console.error('❌ Error:', error)
-      setResponse(`Error: ${error.message}`)
-      // Add error message to store
-      await addMessage(finalConversationId, 'assistant', `Error: ${error.message}`)
+      const errorMsg = `Error: ${error.message}`
+      setResponse(errorMsg)
+      // Update last message with error
+      updateLastMessage(errorMsg)
     } finally {
       setIsThinking(false)
     }
