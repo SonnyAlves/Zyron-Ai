@@ -7,14 +7,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from anthropic import Anthropic
 import os
 import json
+from pathlib import Path
 from dotenv import load_dotenv
 
 from supabase_service import SupabaseService
 from prompts import SYSTEM_PROMPT, build_context_prompt
 from schemas import AssistantResponse, ChatRequest, GraphUpdate
 
-# Load environment variables
-load_dotenv()
+# Load .env from backend/ (parent directory)
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Verify env vars are loaded
+print(f"✅ SUPABASE_URL: {os.getenv('SUPABASE_URL')[:30]}..." if os.getenv('SUPABASE_URL') else "❌ SUPABASE_URL not found")
+print(f"✅ ANTHROPIC_API_KEY: {os.getenv('ANTHROPIC_API_KEY')[:20]}..." if os.getenv('ANTHROPIC_API_KEY') else "❌ ANTHROPIC_API_KEY not found")
 
 # Initialize FastAPI
 app = FastAPI(
