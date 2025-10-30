@@ -505,7 +505,7 @@ const VisualBrain = forwardRef((props, ref) => {
     console.log('✅ Applied activations to', activations.length, 'nodes');
   };
 
-  // 🍿 POPCORN EFFECT: Build → Stay Bright (3.5s) → Deflate
+  // 🍿 POPCORN EFFECT: Build (400ms) → Stay Bright (10s) → Deflate (15s)
   const popNode = (node) => {
     if (!node || node.userData.isPopping) return; // Prevent double-pop
 
@@ -550,9 +550,9 @@ const VisualBrain = forwardRef((props, ref) => {
       }
     };
 
-    // PHASE 2: STAY BRIGHT (Popped state) - 3500ms
+    // PHASE 2: STAY BRIGHT (Popped state) - 10 SECONDS
     const stayBright = () => {
-      console.log('🍿 Node POPPED - staying bright for 3.5s');
+      console.log('🍿 Node POPPED - staying bright for 10s');
 
       // Lock at peak brightness
       const poppedScale = originalScale * 1.3;
@@ -567,18 +567,18 @@ const VisualBrain = forwardRef((props, ref) => {
 
       node.material.needsUpdate = true;
 
-      // STAY in this state for 3.5 seconds
+      // STAY in this state for 10 seconds (orchestral timing)
       setTimeout(() => {
         deflate();
-      }, 3500); // CRITICAL: Stay bright for 3.5 seconds!
+      }, 10000); // CRITICAL: Stay bright for 10 seconds!
     };
 
-    // PHASE 3: DEFLATE (Gentle fade back) - 800ms
+    // PHASE 3: DEFLATE (Gentle fade back) - 15 SECONDS
     const deflate = () => {
-      console.log('🌙 Node deflating over 800ms');
+      console.log('🌙 Starting 15-second gentle fade');
 
       let deflateProgress = 0;
-      const deflateDuration = 800;
+      const deflateDuration = 15000; // 15 SECONDS (orchestral fade)
       const deflateStart = Date.now();
       const poppedScale = originalScale * 1.3;
 
@@ -624,7 +624,7 @@ const VisualBrain = forwardRef((props, ref) => {
           node.userData.isPopping = false;
           node.userData.isFlashing = false;
 
-          console.log('✅ Popcorn complete - node returned to normal');
+          console.log('✅ Node returned to normal after 25s orchestral fade');
         }
       };
 
