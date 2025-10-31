@@ -11,9 +11,9 @@ import json
 from pathlib import Path
 from dotenv import load_dotenv
 
-from supabase_service import SupabaseService
-from prompts import SYSTEM_PROMPT, build_context_prompt
-from schemas import AssistantResponse, ChatRequest, GraphUpdate
+from .supabase_service import SupabaseService
+from .prompts import SYSTEM_PROMPT, build_context_prompt
+from .schemas import AssistantResponse, ChatRequest, GraphUpdate
 
 # Load .env from backend/ (parent directory)
 env_path = Path(__file__).parent.parent / '.env'
