@@ -43,8 +43,15 @@ if [[ -n $(git status -s) ]]; then
             COMMIT_MSG="deploy: backend update"
         fi
 
-        # Add and commit
-        git add backend/
+        # Add backend files (excluding sensitive files)
+        echo -e "${BLUE}📝 Ajout des fichiers backend...${NC}"
+        git add backend/ --all
+        
+        # Remove any .env files that might have been added
+        git reset HEAD backend/.env.save 2>/dev/null || true
+        git reset HEAD backend/.env 2>/dev/null || true
+        git reset HEAD .env.production 2>/dev/null || true
+        
         git commit -m "$COMMIT_MSG"
         echo -e "${GREEN}✅ Changements committés${NC}"
         echo ""
