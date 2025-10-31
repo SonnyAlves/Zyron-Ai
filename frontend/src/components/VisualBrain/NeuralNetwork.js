@@ -454,6 +454,141 @@ export class NeuralNetwork {
     this.createBezierConnections();
   }
 
+  // Cinematic token-triggered animation system
+  addToken(token) {
+    console.log('🎬 Gradual 15-second deployment starting');
+
+    if (!this.nodesMesh || this.nodes.length === 0) return;
+
+    // Calculate number of nodes to activate (15% of total)
+    const numToActivate = Math.floor(this.nodes.length * 0.15);
+    const activatedIndices = new Set();
+
+    // Randomly select nodes to activate
+    while (activatedIndices.size < numToActivate) {
+      activatedIndices.add(Math.floor(Math.random() * this.nodes.length));
+    }
+
+    const activatedNodes = Array.from(activatedIndices).map(idx => ({
+      index: idx,
+      node: this.nodes[idx]
+    }));
+
+    // Sort by distance from center (wave from inside out)
+    activatedNodes.sort((a, b) => {
+      return a.node.position.length() - b.node.position.length();
+    });
+
+    // CINEMATIC TIMING: Spread over 15 SECONDS
+    const totalDeploymentTime = 15000; // 15 SECONDS
+    const staggerDelay = totalDeploymentTime / numToActivate;
+
+    console.log(`✨ Will deploy ${numToActivate} nodes over ${totalDeploymentTime / 1000}s (${Math.round(staggerDelay)}ms between each)`);
+
+    activatedNodes.forEach((item, arrayIndex) => {
+      setTimeout(() => {
+        this.popNode(item.index);
+        console.log(`🍿 Node ${arrayIndex + 1}/${numToActivate} popped at ${arrayIndex * staggerDelay}ms`);
+      }, arrayIndex * staggerDelay);
+    });
+  }
+
+  popNode(nodeIndex) {
+    if (nodeIndex >= this.nodes.length) return;
+
+    const node = this.nodes[nodeIndex];
+    if (node.userData?.isPopping) return;
+
+    // Mark as popping
+    if (!node.userData) node.userData = {};
+    node.userData.isPopping = true;
+    node.userData.isFlashing = true;
+
+    // Store original values
+    const originalScale = node.baseSize;
+    node.userData.originalScale = originalScale;
+
+    // REDUCED GROWTH: 7.5% to 12.5% (half of previous 15-25%)
+    const growthFactor = 0.075 + (Math.random() * 0.05);
+    const targetScale = originalScale * (1 + growthFactor);
+
+    console.log(`💥 Node ${nodeIndex} popping with ${(growthFactor * 100).toFixed(1)}% growth`);
+
+    // PHASE 1: Quick pop-up (500ms)
+    let popProgress = 0;
+    const popDuration = 500;
+    const popStart = Date.now();
+
+    const popAnim = () => {
+      const elapsed = Date.now() - popStart;
+      popProgress = Math.min(elapsed / popDuration, 1);
+
+      if (popProgress < 1) {
+        // Elastic ease-out for pop
+        const eased = 1 - Math.pow(1 - popProgress, 3);
+        node.baseSize = originalScale + ((targetScale - originalScale) * eased);
+        requestAnimationFrame(popAnim);
+      } else {
+        // Pop complete, move to static phase
+        node.baseSize = targetScale;
+        this.stayBright(node, nodeIndex, originalScale, targetScale, growthFactor);
+      }
+    };
+
+    requestAnimationFrame(popAnim);
+  }
+
+  stayBright(node, nodeIndex, originalScale, targetScale, growthFactor) {
+    console.log(`🌟 Node ${nodeIndex} staying bright for 10s`);
+
+    // FIXED: 10 seconds (no randomization)
+    setTimeout(() => {
+      this.deflateNode(node, nodeIndex, originalScale, targetScale, growthFactor);
+    }, 10000); // Exactly 10 seconds
+  }
+
+  deflateNode(node, nodeIndex, originalScale, targetScale, growthFactor) {
+    console.log(`🌙 Node ${nodeIndex} starting 15-second gentle fade`);
+
+    let deflateProgress = 0;
+    const deflateDuration = 15000; // 15 SECONDS (was 10s)
+    const deflateStart = Date.now();
+
+    const deflateAnim = () => {
+      const elapsed = Date.now() - deflateStart;
+      deflateProgress = Math.min(elapsed / deflateDuration, 1);
+
+      if (deflateProgress < 1) {
+        // Ultra-smooth sine ease for gentle fade
+        const eased = Math.sin(deflateProgress * Math.PI / 2);
+
+        // Gradually return to original size
+        const currentScale = targetScale - ((targetScale - originalScale) * eased);
+        node.baseSize = currentScale;
+
+        requestAnimationFrame(deflateAnim);
+      } else {
+        // FULLY DEFLATED
+        node.baseSize = originalScale;
+
+        if (node.userData) {
+          node.userData.isPopping = false;
+          node.userData.isFlashing = false;
+        }
+
+        console.log(`✅ Node ${nodeIndex} returned to normal after 15s fade`);
+      }
+    };
+
+    requestAnimationFrame(deflateAnim);
+  }
+
+  // Trigger pulse for general activity
+  triggerPulse() {
+    // Use addToken for cinematic effect
+    this.addToken('pulse');
+  }
+
   togglePause() {
     this.config.paused = !this.config.paused;
     this.controls.autoRotate = !this.config.paused;
