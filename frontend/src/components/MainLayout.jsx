@@ -238,10 +238,10 @@ export default function MainLayout() {
     // Get current conversation title
     const currentConv = conversations.find(c => c.id === conversationId)
     const currentTitle = currentConv?.title || ''
-    
+
     // Prompt for new title
     const newTitle = prompt('Rename conversation:', currentTitle)
-    
+
     if (newTitle && newTitle.trim() && newTitle !== currentTitle) {
       console.log('🔄 Renaming conversation:', conversationId, 'to:', newTitle)
       await updateConversation(conversationId, { title: newTitle.trim() })

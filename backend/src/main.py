@@ -43,17 +43,36 @@ app.add_middleware(
 db = SupabaseService()
 claude = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
+# Backend version info
+BACKEND_VERSION = "1.0.0"
+BACKEND_CODENAME = "Money"  # Power move - capitaliste style 💰
+
 
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"status": "Zyron AI Backend is running", "version": "1.0.0"}
+    return {
+        "status": "Zyron AI Backend is running",
+        "version": BACKEND_VERSION,
+        "codename": BACKEND_CODENAME
+    }
 
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok"}
+
+
+@app.get("/version")
+async def version():
+    """Version endpoint for frontend console display"""
+    return {
+        "version": BACKEND_VERSION,
+        "codename": BACKEND_CODENAME,
+        "status": "operational",
+        "api": "Render"
+    }
 
 
 @app.post("/chat")
