@@ -710,9 +710,9 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
 
   // Expose activation method to parent
   useImperativeHandle(ref, () => ({
-    // Method for streaming tokens - Popcorn effect with 15-second gradual deployment
-    addToken: (token) => {
-      console.log('🎬 Gradual 15-second deployment starting:', token.substring(0, 30));
+    // Method for streaming tokens - Popcorn effect with 7-second gradual deployment
+    addToken: (_token) => {
+      console.log('🎬 Gradual 7-second deployment starting');
 
       if (nodeObjectsRef.current.length === 0) return;
 
@@ -734,9 +734,9 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
         return a.node.position.length() - b.node.position.length();
       });
 
-      // CRITICAL: Spread deployment over 15 SECONDS (matches fade out duration)
-      // Creates perfect symmetry: 15s up → 10s hold → 15s down
-      const totalDeploymentTime = 15000; // 15 SECONDS
+      // FASTER: Spread deployment over 7 SECONDS
+      // Perfect pace: 7s up → 10s hold → 15s down
+      const totalDeploymentTime = 7000; // 7 SECONDS (was 15s)
       const staggerDelay = totalDeploymentTime / numToActivate;
 
       console.log(`✨ Will deploy ${numToActivate} nodes over ${totalDeploymentTime / 1000}s (${Math.round(staggerDelay)}ms between each)`);
