@@ -20,7 +20,7 @@
    - **Branch** : `feature/persistence-mvp`
    - **Root Directory** : `backend`
    - **Runtime** : Python 3
-   - **Build Command** : 
+   - **Build Command** :
      ```bash
      pip install -r requirements.txt
      ```
@@ -43,7 +43,7 @@ SUPABASE_KEY = eyJhb... (votre clé Supabase)
 **Comment trouver vos clés ?**
 
 - **ANTHROPIC_API_KEY** : [console.anthropic.com](https://console.anthropic.com)
-- **SUPABASE_URL** & **SUPABASE_KEY** : 
+- **SUPABASE_URL** & **SUPABASE_KEY** :
   1. Allez sur [supabase.com](https://supabase.com)
   2. Ouvrez votre projet
   3. Settings → API
@@ -57,7 +57,7 @@ SUPABASE_KEY = eyJhb... (votre clé Supabase)
 
 ### Étape 5 : Récupérer l'URL
 
-Une fois déployé, copiez l'URL : 
+Une fois déployé, copiez l'URL :
 ```
 https://zyron-ai-backend.onrender.com
 ```

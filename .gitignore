@@ -7,6 +7,10 @@ backend/.venv/
 *.env
 .env.local
 .env.*.local
+.env.production
+.env.save
+backend/.env.save
+*.env.save
 
 # IDE & Editor
 .vscode/.history

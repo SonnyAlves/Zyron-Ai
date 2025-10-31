@@ -147,7 +147,7 @@ export const displayVersionInfo = async () => {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (response.ok) {
         const backendInfo = await response.json();
         console.warn(`%c🚀 Backend v${backendInfo.version} (${backendInfo.codename}) - ${backendInfo.status}`, successStyles);
@@ -162,7 +162,7 @@ export const displayVersionInfo = async () => {
     console.error('%c⚠️ WARNING: VITE_API_URL is not configured!', errorStyles);
     console.error('   Backend not deployed - messages will not be saved!');
   }
-  
+
   console.warn('');
 };
 

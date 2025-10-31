@@ -21,7 +21,7 @@ backend-deploy:
 	@echo "🚀 Déploiement du backend sur Render..."
 	@./render-deploy.sh
 
-# Déploie le frontend sur Vercel  
+# Déploie le frontend sur Vercel
 frontend-deploy:
 	@echo "🚀 Déploiement du frontend sur Vercel..."
 	@cd frontend && npm run build && vercel --prod
