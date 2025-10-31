@@ -139,7 +139,7 @@ class ApiService {
    * Load a conversation graph by ID
    */
   async loadConversationGraph(conversationId: string): Promise<ConversationGraph> {
-    const url = `${this.baseUrl}/conversation/${conversationId}/graph`;
+    const url = `${this.baseUrl}/conversations/graph/${conversationId}`;
 
     logger.debug('Loading conversation graph:', conversationId);
 

@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import type { Node, Edge, Message, GraphUpdate } from '../types/nodes';
+import { apiService } from '../services/apiService';
+import { createLogger } from '../utils/logger';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const logger = createLogger('useZyronChat');
 
 export const useZyronChat = () => {
   const { user } = useUser();
@@ -14,7 +16,7 @@ export const useZyronChat = () => {
 
   const sendMessage = useCallback(async (userMessage: string) => {
     if (!user) {
-      console.error('User not authenticated');
+      logger.error('User not authenticated');
       return;
     }
 
@@ -23,22 +25,16 @@ export const useZyronChat = () => {
     // Optimistically add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
+    const payload = {
+      message: userMessage,
+      user_id: user.id,
+      conversation_id: conversationId,
+    };
+
+    logger.debug('Sending message with Clerk auth', payload);
+
     try {
-      const response = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          user_id: user.id,
-          conversation_id: conversationId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await apiService.sendChatMessage(payload);
 
       // Update conversation ID
       setConversationId(data.conversation_id);
@@ -69,7 +65,7 @@ export const useZyronChat = () => {
       }
 
     } catch (error) {
-      console.error('Chat error:', error);
+      logger.error('Chat error:', error);
       // Remove optimistic message on error
       setMessages(prev => prev.slice(0, -1));
       alert('Erreur de connexion au serveur');
@@ -80,16 +76,14 @@ export const useZyronChat = () => {
 
   const loadConversation = useCallback(async (convId: string) => {
     try {
-      const graphRes = await fetch(`${API_URL}/conversation/${convId}/graph`);
-      if (!graphRes.ok) throw new Error('Failed to load graph');
-
-      const graphData = await graphRes.json();
+      const graphData = await apiService.loadConversationGraph(convId);
 
       setNodes(graphData.nodes || []);
       setEdges(graphData.edges || []);
       setConversationId(convId);
+      logger.success('Conversation loaded');
     } catch (error) {
-      console.error('Failed to load conversation:', error);
+      logger.error('Failed to load conversation:', error);
     }
   }, []);
 
