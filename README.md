@@ -1,181 +1,150 @@
 # Zyron AI
 
-A modern full-stack AI application with FastAPI backend and React frontend.
+> AI assistant moderne avec Visual Brain et streaming Claude AI
 
-## Quick Start
-
-### Option 1: Universal Dev Script (Recommended)
-```bash
-./dev              # Start both servers
-./dev help         # Show all commands
-```
-
-### Option 2: Make Commands
-```bash
-make dev           # Start both servers
-make logs          # Follow logs
-make status        # Check status
-make help          # Show all commands
-```
-
-### Option 3: Individual Servers
-
-**Backend**
-```bash
-cd backend
-python manage_server.py start  # Starts on port 8000 with automatic port management
-```
-
-**Frontend**
-```bash
-cd frontend
-npm run dev  # Starts on port 5173 or next available
-```
-
-## Project Structure
-
-```
-Zyron-Ai/
-├── backend/              # FastAPI application
-│   ├── server.py         # Main app file
-│   ├── manage_server.py  # Advanced server manager
-│   ├── start_server.sh   # Bash startup script
-│   └── .venv/            # Virtual environment
-├── frontend/             # React + Vite application
-│   ├── src/              # React components
-│   └── package.json      # Dependencies & scripts
-├── Makefile              # Development commands
-├── ./dev                 # Universal dev script
-└── logs/                 # Server logs
-```
-
-## Server URLs
-
-- **Backend API**: http://127.0.0.1:8000
-- **API Documentation**: http://127.0.0.1:8000/docs
-- **Frontend**: http://localhost:5173
-
-## Documentation
-
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Full development guide
-- **[SERVER_MANAGEMENT.md](SERVER_MANAGEMENT.md)** - Port management & troubleshooting
-- **[PORT_SOLUTION_SUMMARY.md](PORT_SOLUTION_SUMMARY.md)** - Complete system overview
-
-## Features
-
-### Automatic Port Management
-- ✅ Detects port conflicts
-- ✅ Graceful shutdown with fallback to force kill
-- ✅ Alternative port selection
-- ✅ Comprehensive logging
-- ✅ Status tracking
-
-### Development Tools
-- ✅ Hot reload for both frontend and backend
-- ✅ FastAPI interactive documentation
-- ✅ Vite dev server
-- ✅ Make commands for common tasks
-- ✅ Real-time log following
-
-## Installation
-
-### Requirements
-- Python 3.8+
-- Node.js 16+
-- Make (optional, but recommended)
-
-### Setup
-
-```bash
-# Option 1: Complete setup
-make setup
-
-# Option 2: Manual setup
-make install        # Install dependencies
-./dev setup        # Initialize git
-```
-
-## Common Commands
-
-| Command | Purpose |
-|---------|---------|
-| `./dev` or `make dev` | Start both servers |
-| `make backend` | Start backend only |
-| `make frontend` | Start frontend only |
-| `make logs` | Follow backend logs |
-| `make status` | Show server status |
-| `make health` | Health check all servers |
-| `make stop` | Stop all servers |
-| `make clean` | Clean temporary files |
-
-## Troubleshooting
-
-### Port Already in Use?
-```bash
-make backend-force     # Automatically handles port conflicts
-# or
-./dev backend
-```
-
-### Check Logs
-```bash
-make logs             # Follow real-time logs
-make logs-errors      # Show only errors
-```
-
-### Health Check
-```bash
-make health          # Check if servers are responding
-curl http://127.0.0.1:8000/health  # Backend health
-```
-
-### Full Troubleshooting Guide
-See [SERVER_MANAGEMENT.md](SERVER_MANAGEMENT.md) for detailed solutions.
-
-## Development Workflow
-
-### Daily Development
-```bash
-# Terminal 1: Start servers
-make dev
-
-# Terminal 2: Monitor logs (optional)
-make logs
-
-# Terminal 3: Use app
-# http://localhost:5173
-```
-
-### When Done
-```bash
-make stop         # Stop servers gracefully
-make clean        # Clean temporary files
-```
-
-## Stack
-
-### Backend
-- **FastAPI** - Modern Python web framework
-- **Uvicorn** - ASGI server
-- **Python 3.11+**
-
-### Frontend
-- **React 19** - UI framework
-- **Vite** - Build tool & dev server
-- **Tailwind CSS** - Styling
-- **Node.js**
-
-## License
-
-See LICENSE file for details.
-
-## Contributing
-
-1. Create a feature branch (`git checkout -b feature/amazing-feature`)
-2. Commit changes (`git commit -m 'Add amazing feature'`)
-3. Push to branch (`git push origin feature/amazing-feature`)
-4. Open a Pull Request
+Une application full-stack avec backend JavaScript sur Vercel et frontend React.
 
 ---
 
-For more information, see [DEVELOPMENT.md](DEVELOPMENT.md) and [SERVER_MANAGEMENT.md](SERVER_MANAGEMENT.md).
+## 🚀 Quick Start
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Ouvrir http://localhost:3000
+
+---
+
+## 📂 Structure
+
+```
+Zyron-Ai/
+└── frontend/
+    ├── api/              # Backend (Vercel Functions)
+    │   ├── chat.js      # Streaming avec Claude AI
+    │   └── ...          # Autres endpoints
+    ├── lib/              # Utilitaires partagés
+    │   ├── prompts.js
+    │   └── supabase-service.js
+    ├── src/              # Frontend React
+    ├── public/           # Assets statiques
+    ├── .env.local        # Variables d'environnement (à créer)
+    ├── package.json
+    ├── vercel.json       # Configuration Vercel
+    └── vite.config.js
+```
+
+---
+
+## 🔐 Configuration
+
+Créer `frontend/.env.local` :
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-api03-xxx
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-service-role-key
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx
+```
+
+---
+
+## 🔌 API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/health` | Health check |
+| `POST /api/chat` | Streaming chat avec Claude |
+| `GET /api/conversations/[id]` | Récupérer une conversation |
+| Plus... | Voir `frontend/api/README.md` |
+
+---
+
+## 🚢 Déploiement
+
+### Vercel (automatique)
+
+```bash
+git push origin main
+# → Déploiement automatique sur Vercel
+```
+
+### Configuration Vercel
+
+1. Aller sur Vercel Dashboard
+2. Ajouter les variables d'environnement
+3. Déployer
+
+---
+
+## 🛠️ Développement
+
+```bash
+# Développement
+npm run dev
+
+# Build
+npm run build
+
+# Preview
+npm run preview
+```
+
+---
+
+## 📚 Features
+
+- ✅ Chat streaming avec Claude AI (Anthropic)
+- ✅ Visual Brain (graphe de pensée interactif)
+- ✅ Persistence avec Supabase
+- ✅ Authentification Clerk
+- ✅ Mode invité et authentifié
+- ✅ Déploiement serverless sur Vercel
+
+---
+
+## 🧪 Tests
+
+```bash
+# Health check
+curl http://localhost:3000/api/health
+
+# Chat
+curl -X POST http://localhost:3000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hello!"}'
+```
+
+---
+
+## 📖 Documentation
+
+- **API Documentation:** `frontend/api/README.md`
+- **Development Guide:** `DEVELOPMENT.md`
+- **Visual Brain Guide:** `VISUAL_BRAIN_GUIDE.md`
+
+---
+
+## 🔧 Tech Stack
+
+- **Frontend:** React 19 + Vite
+- **Backend:** Vercel Functions (Node.js)
+- **AI:** Claude AI (Anthropic SDK)
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Clerk
+- **3D:** Three.js + React Three Fiber
+
+---
+
+## 📝 License
+
+MIT
+
+---
+
+**Questions ?** Consulter la documentation dans le dossier `frontend/api/`

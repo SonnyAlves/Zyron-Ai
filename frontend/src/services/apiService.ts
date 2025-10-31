@@ -21,18 +21,25 @@ const logger = createLogger('ApiService');
 
 /**
  * Get the API URL from environment variables
- * Falls back to localhost:8000 in development
+ * Falls back to /api in production (Vercel) or localhost:3000 in development
  */
 const getApiUrl = (): string => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // If no API URL is set, use localhost in development
-  if (!apiUrl) {
-    logger.warn('VITE_API_URL not set, falling back to http://localhost:8000');
-    return 'http://localhost:8000';
+  // If API URL is explicitly set, use it
+  if (apiUrl) {
+    return apiUrl;
   }
 
-  return apiUrl;
+  // In production (Vercel), use relative /api path (same domain)
+  if (import.meta.env.PROD) {
+    logger.info('Production mode: using relative /api path');
+    return '/api';
+  }
+
+  // In development, use localhost
+  logger.warn('Development mode: falling back to http://localhost:3000/api');
+  return 'http://localhost:3000/api';
 };
 
 const API_URL = getApiUrl();

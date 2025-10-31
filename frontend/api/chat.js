@@ -1,87 +1,124 @@
-// Vercel Serverless Function for streaming chat
-import Anthropic from '@anthropic-ai/sdk';
+/**
+ * Zyron AI - Chat API Endpoint
+ * Main endpoint for streaming chat with Claude AI
+ * Supports both authenticated and guest modes
+ */
 
+import Anthropic from '@anthropic-ai/sdk';
+import { SYSTEM_PROMPT, buildContextPrompt } from '../lib/prompts.js';
+import {
+  getOrCreateConversation,
+  saveMessage,
+  getConversationNodes
+} from '../lib/supabase-service.js';
+
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// Configure for streaming
 export const config = {
-  runtime: 'edge', // Use Edge Runtime for streaming
+  runtime: 'nodejs',
+  maxDuration: 60, // 60 seconds for streaming responses
 };
 
-export default async function handler(req) {
-  // CORS headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+/**
+ * Main chat handler
+ */
+export default async function handler(req, res) {
+  // Only accept POST requests
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', {
-      status: 405,
-      headers: corsHeaders,
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const { message, user_id, conversation_id } = req.body;
+
+  console.log('🔍 BACKEND - Received streaming request:');
+  console.log(`  - message: ${message}`);
+  console.log(`  - user_id: ${user_id}`);
+  console.log(`  - conversation_id: ${conversation_id}`);
+
+  // Validate required fields
+  if (!message) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+
+  // Determine if we need to persist (user is authenticated)
+  const shouldPersist = !!user_id;
+  let convId = conversation_id;
 
   try {
-    const { message } = await req.json();
-
-    if (!message) {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // If authenticated, get or create conversation for context
+    if (shouldPersist) {
+      const conversation = await getOrCreateConversation(user_id, conversation_id);
+      convId = conversation.id;
+      console.log(`✅ Using conversation: ${convId}`);
+    } else {
+      console.log('👤 Guest mode - no persistence');
     }
 
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    // Build system prompt (with context if authenticated)
+    let systemPrompt = SYSTEM_PROMPT;
+    if (shouldPersist && convId) {
+      const existingNodes = await getConversationNodes(convId);
+      const context = buildContextPrompt(existingNodes);
+      systemPrompt = systemPrompt.replace('{current_graph}', context);
+    } else {
+      systemPrompt = systemPrompt.replace('{current_graph}', 'No previous context.');
+    }
 
-    // Create streaming response
-    const stream = await anthropic.messages.stream({
+    // Setup SSE (Server-Sent Events) headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering for Nginx
+
+    let fullResponse = '';
+
+    // Stream from Claude
+    const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      max_tokens: 2000,
+      system: systemPrompt,
       messages: [{ role: 'user', content: message }],
+      stream: true,
     });
 
-    // Convert Anthropic stream to SSE format
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream) {
-            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-              const text = chunk.delta.text;
-              // CRITICAL FIX: Use JSON to properly escape newlines, quotes, and special characters
-              // This ensures consistent formatting with the backend
-              const escapedText = JSON.stringify(text);
-              controller.enqueue(encoder.encode(`data: ${escapedText}\n\n`));
-            }
-          }
-          controller.close();
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.enqueue(encoder.encode(`data: Error: ${error.message}\n\n`));
-          controller.close();
-        }
-      },
-    });
+    // Process stream chunks
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
+        const text = chunk.delta.text;
+        fullResponse += text;
 
-    return new Response(readable, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+        // Send chunk as SSE format (same as Python backend)
+        res.write(`data: ${JSON.stringify(text)}\n\n`);
+      }
+    }
+
+    console.log(`✅ Streaming complete. Total length: ${fullResponse.length}`);
+
+    // PERSISTENCE: Save to Supabase if user is authenticated
+    if (shouldPersist && convId) {
+      console.log('💾 Saving to Supabase...');
+
+      // Save user message
+      await saveMessage(convId, 'user', message);
+
+      // Save assistant message
+      await saveMessage(convId, 'assistant', fullResponse);
+
+      console.log('✅ Messages saved to Supabase');
+    }
+
+    // End the stream
+    res.end();
+
   } catch (error) {
-    console.error('Chat API error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('❌ Error during streaming:', error);
+
+    // Send error to client
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 }
