@@ -279,7 +279,10 @@ export default function MainLayout() {
     }
   }
 
-  const handleSelectConversation = async (conversationId) => {
+  const handleSelectConversation = async (conversation) => {
+    // Extract ID from conversation object (support both object and string for backwards compatibility)
+    const conversationId = typeof conversation === 'string' ? conversation : conversation.id
+    
     console.log('🔄 Selecting conversation:', conversationId)
     setCurrentConversation(conversationId)
     setMessage('')

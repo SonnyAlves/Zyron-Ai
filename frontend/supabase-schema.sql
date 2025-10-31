@@ -1,25 +1,26 @@
 -- ============================================
 -- ZYRON AI - SCHEMA SUPABASE SIMPLIFIÉ
 -- ============================================
--- Version: 1.0 - Optimisé pour conversations utilisateurs connectés
+-- Version: 1.1 - Compatible avec Clerk Authentication
 -- Date: 2025-10-31
 --
 -- Tables:
--- 1. profiles - Profils utilisateurs (lié à auth.users)
+-- 1. profiles - Profils utilisateurs (compatible Clerk, IDs TEXT)
 -- 2. conversations - Conversations des utilisateurs
 -- 3. messages - Messages dans les conversations
 --
 -- ⚠️ IMPORTANT: À exécuter dans l'éditeur SQL de Supabase
+-- Note: Ce schéma utilise Clerk pour l'auth, pas Supabase Auth
 -- ============================================
 
 -- ============================================
 -- 1. PROFILES
 -- ============================================
 -- Stocke les informations de profil des utilisateurs
--- Lié à auth.users via trigger automatique
+-- Compatible avec Clerk authentication (IDs au format "user_xxxxx")
 
 CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY,
     email TEXT,
     full_name TEXT,
     avatar_url TEXT,
@@ -30,39 +31,16 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Index pour performances
 CREATE INDEX IF NOT EXISTS profiles_id_idx ON profiles(id);
 
--- RLS (Row Level Security) - L'utilisateur ne peut voir que son propre profil
+-- RLS (Row Level Security) - Désactivé pour Clerk (géré côté application)
+-- Note: Avec Clerk, l'authentification est gérée côté client/API
+-- Pour activer RLS avec Clerk, utiliser un JWT custom claim
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view their own profile"
-    ON profiles FOR SELECT
-    USING (auth.uid() = id);
-
-CREATE POLICY "Users can update their own profile"
-    ON profiles FOR UPDATE
-    USING (auth.uid() = id);
-
--- Trigger automatique pour créer un profil quand un utilisateur s'inscrit
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.profiles (id, email, full_name)
-    VALUES (
-        NEW.id,
-        NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
-    );
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Supprimer le trigger s'il existe déjà
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-
--- Créer le trigger
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_new_user();
+-- Policy permissive pour développement (À RESTREINDRE EN PRODUCTION)
+CREATE POLICY "Allow all operations on profiles"
+    ON profiles FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- ============================================
 -- 2. CONVERSATIONS
@@ -71,7 +49,7 @@ CREATE TRIGGER on_auth_user_created
 
 CREATE TABLE IF NOT EXISTS conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     title TEXT NOT NULL DEFAULT 'Nouvelle conversation',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -81,24 +59,14 @@ CREATE TABLE IF NOT EXISTS conversations (
 CREATE INDEX IF NOT EXISTS conversations_user_id_idx ON conversations(user_id);
 CREATE INDEX IF NOT EXISTS conversations_updated_at_idx ON conversations(updated_at DESC);
 
--- RLS - L'utilisateur ne peut voir que ses propres conversations
+-- RLS - Désactivé pour Clerk (géré côté application)
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view their own conversations"
-    ON conversations FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can create their own conversations"
-    ON conversations FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own conversations"
-    ON conversations FOR UPDATE
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own conversations"
-    ON conversations FOR DELETE
-    USING (auth.uid() = user_id);
+-- Policy permissive pour développement (À RESTREINDRE EN PRODUCTION)
+CREATE POLICY "Allow all operations on conversations"
+    ON conversations FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- ============================================
 -- 3. MESSAGES
@@ -117,38 +85,14 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX IF NOT EXISTS messages_conversation_id_idx ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS messages_created_at_idx ON messages(created_at);
 
--- RLS - L'utilisateur ne peut voir que les messages de ses conversations
+-- RLS - Désactivé pour Clerk (géré côté application)
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view messages from their conversations"
-    ON messages FOR SELECT
-    USING (
-        EXISTS (
-            SELECT 1 FROM conversations
-            WHERE conversations.id = messages.conversation_id
-            AND conversations.user_id = auth.uid()
-        )
-    );
-
-CREATE POLICY "Users can create messages in their conversations"
-    ON messages FOR INSERT
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM conversations
-            WHERE conversations.id = messages.conversation_id
-            AND conversations.user_id = auth.uid()
-        )
-    );
-
-CREATE POLICY "Users can delete messages from their conversations"
-    ON messages FOR DELETE
-    USING (
-        EXISTS (
-            SELECT 1 FROM conversations
-            WHERE conversations.id = messages.conversation_id
-            AND conversations.user_id = auth.uid()
-        )
-    );
+-- Policy permissive pour développement (À RESTREINDRE EN PRODUCTION)
+CREATE POLICY "Allow all operations on messages"
+    ON messages FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- ============================================
 -- TRIGGERS & FUNCTIONS
@@ -191,11 +135,12 @@ GROUP BY c.id, c.user_id, c.title, c.created_at, c.updated_at;
 -- ============================================
 
 -- Décommentez pour créer des données de test
+-- Exemple avec un ID Clerk format
 -- INSERT INTO profiles (id, email, full_name) VALUES 
--- ('00000000-0000-0000-0000-000000000001', 'test@example.com', 'Test User');
+-- ('user_2abc123def456', 'test@example.com', 'Test User');
 
 -- INSERT INTO conversations (id, user_id, title) VALUES
--- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000001', 'Ma première conversation');
+-- ('11111111-1111-1111-1111-111111111111', 'user_2abc123def456', 'Ma première conversation');
 
 -- INSERT INTO messages (conversation_id, role, content) VALUES
 -- ('11111111-1111-1111-1111-111111111111', 'user', 'Bonjour Zyron!'),
