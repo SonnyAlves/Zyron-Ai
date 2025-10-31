@@ -5,6 +5,9 @@ import { buildInfoPlugin } from './scripts/build-info.js'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), buildInfoPlugin()],
+
+
+
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
   },

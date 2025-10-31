@@ -43,12 +43,12 @@ class Node {
     return this.connections.some(conn => conn.node === node);
   }
 
-  // Breathing animation: 6-second cycle
+  // Breathing animation: 8-second cycle (slower and gentler)
   updateBreathing(elapsedTime) {
-    const breatheSpeed = 1.0 / 6.0; // 6 seconds per cycle
+    const breatheSpeed = 1.0 / 8.0; // 8 seconds per cycle (slower)
     this.breathingPhase = (elapsedTime * breatheSpeed * Math.PI * 2) % (Math.PI * 2);
-    // Subtle size variation: 0.9 to 1.1 of base size
-    const breatheFactor = 0.95 + 0.05 * Math.sin(this.breathingPhase);
+    // Even more subtle size variation: 0.97 to 1.03 of base size
+    const breatheFactor = 0.97 + 0.03 * Math.sin(this.breathingPhase);
     this.currentSize = this.baseSize * breatheFactor;
     return this.currentSize;
   }
@@ -116,33 +116,40 @@ export class NeuralNetwork {
     );
     this.camera.position.set(0, 8, 35);
 
-    // Renderer - optimized for organic aesthetic
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    // Renderer - optimized for organic aesthetic and performance
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+      alpha: false,
+      stencil: false,
+      depth: true
+    });
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Limit pixel ratio to 1.5 for better performance
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.setClearColor(0xf0f9ff);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.container.appendChild(this.renderer.domElement);
 
-    // Controls - gentle interaction
+    // Controls - ultra gentle and smooth interaction
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.08;
-    this.controls.rotateSpeed = 0.35;
+    this.controls.dampingFactor = 0.12; // Increased for smoother deceleration
+    this.controls.rotateSpeed = 0.25; // Reduced for gentler rotation
     this.controls.minDistance = 10;
     this.controls.maxDistance = 150;
     this.controls.autoRotate = true;
-    this.controls.autoRotateSpeed = 0.15; // Slow, smooth rotation
+    this.controls.autoRotateSpeed = 0.1; // Even slower for ultra-smooth rotation
     this.controls.enablePan = false;
 
-    // Post processing - soft bloom for halos
+    // Post processing - soft bloom for halos (optimized)
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(this.container.clientWidth, this.container.clientHeight),
-      0.8,  // strength - softer for pastel halos
-      0.5,  // radius
-      0.85  // threshold
+      0.6,  // strength - reduced for smoother performance
+      0.4,  // radius - reduced for better performance
+      0.88  // threshold - slightly higher for less aggressive bloom
     );
     this.composer.addPass(bloomPass);
     this.composer.addPass(new OutputPass());
@@ -352,8 +359,8 @@ export class NeuralNetwork {
         const perpendicular = new THREE.Vector3(-dir.z, 0, dir.x).normalize();
         const controlPoint = midpoint.clone().add(perpendicular.multiplyScalar(2));
 
-        // Sample Bezier curve
-        const segments = 20;
+        // Sample Bezier curve - reduced segments for better performance
+        const segments = 10;
         const curvePoints = [];
         for (let i = 0; i <= segments; i++) {
           const t = i / segments;
@@ -438,20 +445,129 @@ export class NeuralNetwork {
       newNode.addConnection(nearestNode, 0.8);
     }
 
-    // Regenerate geometries
-    this.scene.remove(this.nodesMesh);
-    if (this.haloMesh) this.scene.remove(this.haloMesh);
+    // Update geometries efficiently instead of full regeneration
+    this.updateNodeGeometry();
+    this.updateHaloGeometry();
+    this.updateConnectionsForNewNode(newNode);
+  }
 
-    // Remove old connection lines
-    if (this.connectionLines) {
-      for (const line of this.connectionLines) {
-        this.scene.remove(line);
-      }
+  // Efficient geometry update methods
+  updateNodeGeometry() {
+    if (!this.nodesMesh || !this.nodesMesh.geometry) return;
+
+    const positions = this.nodesMesh.geometry.getAttribute('position');
+    const sizes = this.nodesMesh.geometry.getAttribute('size');
+    const colors = this.nodesMesh.geometry.getAttribute('nodeColor');
+
+    // Resize arrays if needed
+    if (positions.count !== this.nodes.length) {
+      this.scene.remove(this.nodesMesh);
+      this.createNodesGeometry();
+      return;
     }
 
-    this.createNodesGeometry();
-    this.createHaloGeometry();
-    this.createBezierConnections();
+    // Update existing attributes
+    for (let i = 0; i < this.nodes.length; i++) {
+      const node = this.nodes[i];
+      positions.setXYZ(i, node.position.x, node.position.y, node.position.z);
+      sizes.setX(i, node.baseSize * 2.5);
+
+      const color = this.getCategoryColor(node.category);
+      colors.setXYZ(i, color.r, color.g, color.b);
+    }
+
+    positions.needsUpdate = true;
+    sizes.needsUpdate = true;
+    colors.needsUpdate = true;
+  }
+
+  updateHaloGeometry() {
+    if (!this.haloMesh || !this.haloMesh.geometry) return;
+
+    const positions = this.haloMesh.geometry.getAttribute('position');
+    const sizes = this.haloMesh.geometry.getAttribute('size');
+    const colors = this.haloMesh.geometry.getAttribute('nodeColor');
+
+    // Resize arrays if needed
+    if (positions.count !== this.nodes.length) {
+      this.scene.remove(this.haloMesh);
+      this.createHaloGeometry();
+      return;
+    }
+
+    // Update existing attributes
+    for (let i = 0; i < this.nodes.length; i++) {
+      const node = this.nodes[i];
+      positions.setXYZ(i, node.position.x, node.position.y, node.position.z);
+      sizes.setX(i, node.haloSize * 2.5);
+
+      const color = this.getCategoryColor(node.category);
+      colors.setXYZ(i, color.r * 0.9, color.g * 0.9, color.b * 0.9);
+    }
+
+    positions.needsUpdate = true;
+    sizes.needsUpdate = true;
+    colors.needsUpdate = true;
+  }
+
+  updateConnectionsForNewNode(newNode) {
+    // Only add connections for the new node, don't regenerate everything
+    if (!newNode || newNode.connections.length === 0) return;
+
+    if (!this.connectionLines) this.connectionLines = [];
+
+    for (const conn of newNode.connections) {
+      // Check if this connection already exists
+      const alreadyExists = this.connectionLines.some(line => {
+        return line.userData &&
+          ((line.userData.node1 === newNode && line.userData.node2 === conn.node) ||
+            (line.userData.node1 === conn.node && line.userData.node2 === newNode));
+      });
+
+      if (alreadyExists) continue;
+
+      // Create Bezier curve for new connection
+      const startPos = newNode.position;
+      const endPos = conn.node.position;
+
+      const midpoint = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
+      const dir = new THREE.Vector3().subVectors(endPos, startPos);
+      const perpendicular = new THREE.Vector3(-dir.z, 0, dir.x).normalize();
+      const controlPoint = midpoint.clone().add(perpendicular.multiplyScalar(2));
+
+      const segments = 10;
+      const curvePoints = [];
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const p0 = new THREE.Vector3().copy(startPos).multiplyScalar(Math.pow(1 - t, 2));
+        const p1 = new THREE.Vector3().copy(controlPoint).multiplyScalar(2 * (1 - t) * t);
+        const p2 = new THREE.Vector3().copy(endPos).multiplyScalar(t * t);
+        const point = new THREE.Vector3().addVectors(p0, p1).add(p2);
+        curvePoints.push(point);
+      }
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+
+      const color1 = this.getCategoryColor(newNode.category);
+      const color2 = this.getCategoryColor(conn.node.category);
+      const avgColor = new THREE.Color(
+        (color1.r + color2.r) * 0.5,
+        (color1.g + color2.g) * 0.5,
+        (color1.b + color2.b) * 0.5
+      );
+
+      const lineMat = new THREE.LineBasicMaterial({
+        color: avgColor,
+        transparent: true,
+        opacity: conn.strength * 0.6,
+        linewidth: 1.5
+      });
+
+      const line = new THREE.Line(lineGeo, lineMat);
+      line.userData = { node1: newNode, node2: conn.node };
+      this.scene.add(line);
+      this.connectionLines.push(line);
+    }
   }
 
   // Cinematic token-triggered animation system
@@ -508,79 +624,21 @@ export class NeuralNetwork {
     const originalScale = node.baseSize;
     node.userData.originalScale = originalScale;
 
-    // REDUCED GROWTH: 7.5% to 12.5% (half of previous 15-25%)
-    const growthFactor = 0.075 + (Math.random() * 0.05);
+    // REDUCED GROWTH: 5% to 8% (even more subtle for smoothness)
+    const growthFactor = 0.05 + (Math.random() * 0.03);
     const targetScale = originalScale * (1 + growthFactor);
 
-    console.log(`💥 Node ${nodeIndex} popping with ${(growthFactor * 100).toFixed(1)}% growth`);
+    node.userData.targetScale = targetScale;
+    node.userData.growthFactor = growthFactor;
 
-    // PHASE 1: Quick pop-up (500ms)
-    let popProgress = 0;
-    const popDuration = 500;
-    const popStart = Date.now();
+    // Animation phases controlled by timestamps
+    node.userData.popStartTime = Date.now();
+    node.userData.popDuration = 500; // 500ms pop
+    node.userData.stayDuration = 10000; // 10s stay bright
+    node.userData.deflateDuration = 15000; // 15s fade
+    node.userData.animationPhase = 'popping'; // popping -> staying -> deflating -> complete
 
-    const popAnim = () => {
-      const elapsed = Date.now() - popStart;
-      popProgress = Math.min(elapsed / popDuration, 1);
-
-      if (popProgress < 1) {
-        // Elastic ease-out for pop
-        const eased = 1 - Math.pow(1 - popProgress, 3);
-        node.baseSize = originalScale + ((targetScale - originalScale) * eased);
-        requestAnimationFrame(popAnim);
-      } else {
-        // Pop complete, move to static phase
-        node.baseSize = targetScale;
-        this.stayBright(node, nodeIndex, originalScale, targetScale, growthFactor);
-      }
-    };
-
-    requestAnimationFrame(popAnim);
-  }
-
-  stayBright(node, nodeIndex, originalScale, targetScale, growthFactor) {
-    console.log(`🌟 Node ${nodeIndex} staying bright for 10s`);
-
-    // FIXED: 10 seconds (no randomization)
-    setTimeout(() => {
-      this.deflateNode(node, nodeIndex, originalScale, targetScale, growthFactor);
-    }, 10000); // Exactly 10 seconds
-  }
-
-  deflateNode(node, nodeIndex, originalScale, targetScale, growthFactor) {
-    console.log(`🌙 Node ${nodeIndex} starting 15-second gentle fade`);
-
-    let deflateProgress = 0;
-    const deflateDuration = 15000; // 15 SECONDS (was 10s)
-    const deflateStart = Date.now();
-
-    const deflateAnim = () => {
-      const elapsed = Date.now() - deflateStart;
-      deflateProgress = Math.min(elapsed / deflateDuration, 1);
-
-      if (deflateProgress < 1) {
-        // Ultra-smooth sine ease for gentle fade
-        const eased = Math.sin(deflateProgress * Math.PI / 2);
-
-        // Gradually return to original size
-        const currentScale = targetScale - ((targetScale - originalScale) * eased);
-        node.baseSize = currentScale;
-
-        requestAnimationFrame(deflateAnim);
-      } else {
-        // FULLY DEFLATED
-        node.baseSize = originalScale;
-
-        if (node.userData) {
-          node.userData.isPopping = false;
-          node.userData.isFlashing = false;
-        }
-
-        console.log(`✅ Node ${nodeIndex} returned to normal after 15s fade`);
-      }
-    };
-
-    requestAnimationFrame(deflateAnim);
+    console.log(`💥 Node ${nodeIndex} starting smooth animation with ${(growthFactor * 100).toFixed(1)}% growth`);
   }
 
   // Trigger pulse for general activity
@@ -597,9 +655,9 @@ export class NeuralNetwork {
   setThinkingState(isThinking) {
     this.config.isThinking = isThinking;
     if (isThinking) {
-      this.controls.autoRotateSpeed = 0.25; // Slightly faster during thinking
+      this.controls.autoRotateSpeed = 0.15; // Slightly faster during thinking (smoother)
     } else {
-      this.controls.autoRotateSpeed = 0.15; // Normal speed
+      this.controls.autoRotateSpeed = 0.1; // Normal speed (smoother)
     }
   }
 
@@ -628,12 +686,87 @@ export class NeuralNetwork {
     const deltaTime = this.clock.getDelta();
 
     this.pulseUniforms.uTime.value = time;
-    this.pulseUniforms.uBreathing.value = Math.sin(time * Math.PI / 3); // 6-second breathing cycle
+    this.pulseUniforms.uBreathing.value = Math.sin(time * Math.PI / 4); // 8-second breathing cycle (smoother)
 
-    // Update breathing animation and activation for all nodes
+    let needsGeometryUpdate = false;
+
+    // Update breathing animation, activation, and pop animations for all nodes
     for (const node of this.nodes) {
       node.updateBreathing(time);
       node.updateActivation(deltaTime);
+
+      // Handle centralized pop animation
+      if (node.userData?.animationPhase) {
+        const now = Date.now();
+        const elapsed = now - node.userData.popStartTime;
+
+        switch (node.userData.animationPhase) {
+          case 'popping':
+            // Phase 1: Pop up (500ms)
+            if (elapsed < node.userData.popDuration) {
+              const progress = elapsed / node.userData.popDuration;
+              // Smooth ease-out cubic
+              const eased = 1 - Math.pow(1 - progress, 3);
+              node.baseSize = node.userData.originalScale +
+                ((node.userData.targetScale - node.userData.originalScale) * eased);
+              needsGeometryUpdate = true;
+            } else {
+              // Move to staying phase
+              node.baseSize = node.userData.targetScale;
+              node.userData.animationPhase = 'staying';
+              node.userData.stayStartTime = now;
+              needsGeometryUpdate = true;
+            }
+            break;
+
+          case 'staying':
+            // Phase 2: Stay bright (10s)
+            const stayElapsed = now - node.userData.stayStartTime;
+            if (stayElapsed >= node.userData.stayDuration) {
+              node.userData.animationPhase = 'deflating';
+              node.userData.deflateStartTime = now;
+            }
+            break;
+
+          case 'deflating':
+            // Phase 3: Gentle fade (15s)
+            const deflateElapsed = now - node.userData.deflateStartTime;
+            if (deflateElapsed < node.userData.deflateDuration) {
+              const progress = deflateElapsed / node.userData.deflateDuration;
+              // Ultra-smooth sine ease
+              const eased = Math.sin(progress * Math.PI / 2);
+              node.baseSize = node.userData.targetScale -
+                ((node.userData.targetScale - node.userData.originalScale) * eased);
+              needsGeometryUpdate = true;
+            } else {
+              // Animation complete
+              node.baseSize = node.userData.originalScale;
+              node.userData.isPopping = false;
+              node.userData.isFlashing = false;
+              node.userData.animationPhase = null;
+              needsGeometryUpdate = true;
+            }
+            break;
+        }
+      }
+    }
+
+    // Only update geometry if needed
+    if (needsGeometryUpdate && this.nodesMesh) {
+      const sizes = this.nodesMesh.geometry.getAttribute('size');
+      for (let i = 0; i < this.nodes.length; i++) {
+        sizes.setX(i, this.nodes[i].baseSize * 2.5);
+      }
+      sizes.needsUpdate = true;
+
+      // Also update halo
+      if (this.haloMesh) {
+        const haloSizes = this.haloMesh.geometry.getAttribute('size');
+        for (let i = 0; i < this.nodes.length; i++) {
+          haloSizes.setX(i, this.nodes[i].haloSize * 2.5);
+        }
+        haloSizes.needsUpdate = true;
+      }
     }
 
     this.composer.render();
