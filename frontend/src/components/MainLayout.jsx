@@ -340,8 +340,8 @@ export default function MainLayout() {
     // Calculate new width based on mouse position from right edge
     const newWidth = window.innerWidth - e.clientX
 
-    // Clamp between min (300px) and max (900px)
-    const clampedWidth = Math.max(300, Math.min(900, newWidth))
+    // Clamp between min (300px) and max (1200px) - extended max for more flexibility
+    const clampedWidth = Math.max(300, Math.min(1200, newWidth))
     setVisualBrainWidth(clampedWidth)
   }
 
@@ -611,37 +611,83 @@ export default function MainLayout() {
           />
         </div>
 
-        {/* RESIZE HANDLE - Hidden on mobile */}
+        {/* RESIZE HANDLE - Draggable divider between Chat and Graph */}
         {!isMobile && (
           <div
             onMouseDown={handleMouseDown}
             style={{
-              width: '4px',
+              width: '8px',
               cursor: 'col-resize',
-              background: isResizing ? '#667eea' : '#e5e5e5',
+              background: isResizing ? '#667eea' : 'transparent',
               transition: isResizing ? 'none' : 'background 0.2s',
               flexShrink: 0,
               position: 'relative',
               zIndex: 10,
-              userSelect: 'none'
+              userSelect: 'none',
+              borderLeft: '1px solid #e5e5e5',
+              borderRight: '1px solid #e5e5e5'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#667eea'}
-            onMouseLeave={(e) => !isResizing && (e.currentTarget.style.background = '#e5e5e5')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(102, 126, 234, 0.1)'
+              e.currentTarget.querySelector('.drag-indicator').style.opacity = '1'
+            }}
+            onMouseLeave={(e) => {
+              if (!isResizing) {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.querySelector('.drag-indicator').style.opacity = '0'
+              }
+            }}
           >
-            {/* Drag indicator (subtle hint) */}
+            {/* Drag indicator - visible on hover */}
+            <div
+              className="drag-indicator"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '3px',
+                height: '60px',
+                background: '#667eea',
+                borderRadius: '2px',
+                pointerEvents: 'none',
+                opacity: isResizing ? 1 : 0,
+                transition: 'opacity 0.2s'
+              }}
+            />
+            {/* Three dots indicator */}
             <div style={{
               position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '20px',
-              height: '40px',
-              background: 'rgba(102, 126, 234, 0.2)',
-              borderRadius: '4px',
-              pointerEvents: 'none',
-              opacity: isResizing ? 1 : 0,
-              transition: 'opacity 0.2s'
-            }} />
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: '#999',
+                transition: 'background 0.2s'
+              }} />
+              <div style={{
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: '#999',
+                transition: 'background 0.2s'
+              }} />
+              <div style={{
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: '#999',
+                transition: 'background 0.2s'
+              }} />
+            </div>
           </div>
         )}
 

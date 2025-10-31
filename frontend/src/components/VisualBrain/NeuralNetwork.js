@@ -26,10 +26,14 @@ class Node {
 
     // Organic node sizing: 15-30px with variation
     this.baseSize = THREE.MathUtils.randFloat(2.0, 4.0);
+    this.targetSize = this.baseSize; // Target size for smooth transitions
+    this.currentDisplaySize = 0; // Start at 0 for smooth fade-in
     this.haloSize = this.baseSize * 1.8; // Halo is larger
     this.breathingPhase = Math.random() * Math.PI * 2; // For breathing animation
     this.activationLevel = 0; // 0-1 for visual response
     this.distanceFromRoot = 0;
+    this.birthTime = null; // Will be set when node is added to scene
+    this.fadeInDuration = 1.5; // 1.5 seconds fade-in (smooth and gentle)
   }
 
   addConnection(node, strength = 1.0) {
@@ -51,6 +55,22 @@ class Node {
     const breatheFactor = 0.97 + 0.03 * Math.sin(this.breathingPhase);
     this.currentSize = this.baseSize * breatheFactor;
     return this.currentSize;
+  }
+
+  // Smooth fade-in animation for new nodes
+  updateFadeIn(currentTime) {
+    if (!this.birthTime) return 1.0; // Already faded in
+
+    const elapsed = (currentTime - this.birthTime) / 1000; // Convert to seconds
+
+    if (elapsed >= this.fadeInDuration) {
+      this.birthTime = null; // Fade-in complete
+      return 1.0;
+    }
+
+    // Smooth ease-out cubic for fade-in
+    const progress = elapsed / this.fadeInDuration;
+    return 1 - Math.pow(1 - progress, 3);
   }
 
   // Activation triggers when tokens are received
@@ -178,6 +198,14 @@ export class NeuralNetwork {
     for (let catIdx = 0; catIdx < this.config.numClusters; catIdx++) {
       this.createCategoryCluster(catIdx);
     }
+
+    // Set staggered birth times for smooth initial fade-in
+    const now = Date.now();
+    const staggerDelay = 100; // 100ms between each node (smooth cascade)
+
+    this.nodes.forEach((node, index) => {
+      node.birthTime = now + (index * staggerDelay);
+    });
 
     // Create node geometry
     this.createNodesGeometry();
@@ -435,6 +463,7 @@ export class NeuralNetwork {
     const newNode = new Node(newPos, randomCategory, randomCategory);
     newNode.activate(1.0); // 1 second activation pulse
     newNode.distanceFromRoot = cluster.center.length();
+    newNode.birthTime = Date.now(); // Smooth fade-in for new node
 
     this.nodes.push(newNode);
     cluster.nodes.push(newNode);
@@ -624,8 +653,8 @@ export class NeuralNetwork {
     const originalScale = node.baseSize;
     node.userData.originalScale = originalScale;
 
-    // REDUCED GROWTH: 5% to 8% (even more subtle for smoothness)
-    const growthFactor = 0.05 + (Math.random() * 0.03);
+    // REDUCED GROWTH: 7.5% to 12.5% (half the original size)
+    const growthFactor = 0.075 + (Math.random() * 0.05);
     const targetScale = originalScale * (1 + growthFactor);
 
     node.userData.targetScale = targetScale;
@@ -689,15 +718,26 @@ export class NeuralNetwork {
     this.pulseUniforms.uBreathing.value = Math.sin(time * Math.PI / 4); // 8-second breathing cycle (smoother)
 
     let needsGeometryUpdate = false;
+    const now = Date.now();
 
-    // Update breathing animation, activation, and pop animations for all nodes
+    // Update breathing animation, activation, fade-in, and pop animations for all nodes
     for (const node of this.nodes) {
       node.updateBreathing(time);
       node.updateActivation(deltaTime);
 
-      // Handle centralized pop animation
-      if (node.userData?.animationPhase) {
-        const now = Date.now();
+      // Handle smooth fade-in
+      const fadeInProgress = node.updateFadeIn(now);
+      if (fadeInProgress < 1.0) {
+        // Apply fade-in to node size
+        node.currentDisplaySize = node.baseSize * fadeInProgress;
+        needsGeometryUpdate = true;
+      } else if (node.currentDisplaySize !== node.baseSize) {
+        node.currentDisplaySize = node.baseSize;
+        needsGeometryUpdate = true;
+      }
+
+      // Handle centralized pop animation (only if fade-in is complete)
+      if (node.userData?.animationPhase && !node.birthTime) {
         const elapsed = now - node.userData.popStartTime;
 
         switch (node.userData.animationPhase) {
@@ -707,12 +747,13 @@ export class NeuralNetwork {
               const progress = elapsed / node.userData.popDuration;
               // Smooth ease-out cubic
               const eased = 1 - Math.pow(1 - progress, 3);
-              node.baseSize = node.userData.originalScale +
+              node.currentDisplaySize = node.userData.originalScale +
                 ((node.userData.targetScale - node.userData.originalScale) * eased);
               needsGeometryUpdate = true;
             } else {
               // Move to staying phase
-              node.baseSize = node.userData.targetScale;
+              console.log('🌟 Node staying bright for 10s');
+              node.currentDisplaySize = node.userData.targetScale;
               node.userData.animationPhase = 'staying';
               node.userData.stayStartTime = now;
               needsGeometryUpdate = true;
@@ -723,6 +764,7 @@ export class NeuralNetwork {
             // Phase 2: Stay bright (10s)
             const stayElapsed = now - node.userData.stayStartTime;
             if (stayElapsed >= node.userData.stayDuration) {
+              console.log('🌙 Starting 15-second gentle fade');
               node.userData.animationPhase = 'deflating';
               node.userData.deflateStartTime = now;
             }
@@ -735,11 +777,13 @@ export class NeuralNetwork {
               const progress = deflateElapsed / node.userData.deflateDuration;
               // Ultra-smooth sine ease
               const eased = Math.sin(progress * Math.PI / 2);
-              node.baseSize = node.userData.targetScale -
+              node.currentDisplaySize = node.userData.targetScale -
                 ((node.userData.targetScale - node.userData.originalScale) * eased);
               needsGeometryUpdate = true;
             } else {
               // Animation complete
+              console.log('✅ Node returned to normal after 15s fade');
+              node.currentDisplaySize = node.userData.originalScale;
               node.baseSize = node.userData.originalScale;
               node.userData.isPopping = false;
               node.userData.isFlashing = false;
@@ -755,7 +799,9 @@ export class NeuralNetwork {
     if (needsGeometryUpdate && this.nodesMesh) {
       const sizes = this.nodesMesh.geometry.getAttribute('size');
       for (let i = 0; i < this.nodes.length; i++) {
-        sizes.setX(i, this.nodes[i].baseSize * 2.5);
+        // Use currentDisplaySize for fade-in effect, or baseSize if fade-in complete
+        const displaySize = this.nodes[i].currentDisplaySize || this.nodes[i].baseSize;
+        sizes.setX(i, displaySize * 2.5);
       }
       sizes.needsUpdate = true;
 
@@ -763,7 +809,9 @@ export class NeuralNetwork {
       if (this.haloMesh) {
         const haloSizes = this.haloMesh.geometry.getAttribute('size');
         for (let i = 0; i < this.nodes.length; i++) {
-          haloSizes.setX(i, this.nodes[i].haloSize * 2.5);
+          const displaySize = this.nodes[i].currentDisplaySize || this.nodes[i].baseSize;
+          const haloDisplaySize = (displaySize / this.nodes[i].baseSize) * this.nodes[i].haloSize;
+          haloSizes.setX(i, haloDisplaySize * 2.5);
         }
         haloSizes.needsUpdate = true;
       }
