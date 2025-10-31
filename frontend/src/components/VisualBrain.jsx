@@ -55,7 +55,7 @@ const INITIAL_BRAIN_NODES = [
   { id: 'g6', text: 'Product Excellence', category: 'Goal', energy: 0.31, weight: 0.65 },
   { id: 'g7', text: 'Customer Success', category: 'Goal', energy: 0.3, weight: 0.6 },
   { id: 'g8', text: 'Innovation Focus', category: 'Goal', energy: 0.28, weight: 0.55 },
-  
+
   // Ideas (blue) - 12 nodes (REDUCED from 14 - balanced cluster)
   { id: 'i1', text: 'New Feature Concept', category: 'Idea', energy: 0.3, weight: 0.6 },
   { id: 'i2', text: 'Market Opportunity', category: 'Idea', energy: 0.32, weight: 0.65 },
@@ -287,7 +287,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
     // Particles (2400 particles - 20% increase for richer spatial effect)
     const particlesGeom = new BufferGeometry();
     const particlePositions = new Float32Array(2400 * 3);
-    for(let i = 0; i < 2400 * 3; i++) {
+    for (let i = 0; i < 2400 * 3; i++) {
       particlePositions[i] = (seededRandom(i * 50) - 0.5) * 100;
     }
     particlesGeom.setAttribute('position', new BufferAttribute(particlePositions, 3));
@@ -349,7 +349,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
           nodeObj.userData.halo.material.opacity = 0.1 + (emissivePhase * 0.05);
         }
       });
-      
+
       controls.update();
       renderer.render(scene, camera);
     };
@@ -433,7 +433,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
     const pos = nodePositions[node.id];
     const position = new Vector3(pos.x, pos.y, pos.z);
     const color = COLORS[node.category];
-    
+
     const size = (0.6 + node.weight * 0.3) * 0.8; // Smaller for low energy
     const geometry = new SphereGeometry(size, 32, 32);
     const material = new MeshPhongMaterial({
@@ -444,7 +444,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
       emissiveIntensity: 0.2,
       shininess: 100
     });
-    
+
     const sphere = new Mesh(geometry, material);
     sphere.position.copy(position);
     sphere.userData = {
@@ -452,7 +452,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
       originalEnergy: node.energy,
       phaseOffset: Math.random() * Math.PI * 2 // Random breathing phase
     };
-    
+
     const haloGeom = new SphereGeometry(size * 1.8, 32, 32);
     const haloMat = new MeshBasicMaterial({
       color: color,
@@ -463,7 +463,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
     const halo = new Mesh(haloGeom, haloMat);
     halo.position.copy(position);
     sphere.userData.halo = halo;
-    
+
     scene.add(sphere);
     scene.add(halo);
     nodeObjectsRef.current.push(sphere);
@@ -472,9 +472,9 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
   const createEdge = (conn, scene) => {
     const fromNode = nodeObjectsRef.current.find(n => n.userData.id === conn.from);
     const toNode = nodeObjectsRef.current.find(n => n.userData.id === conn.to);
-    
+
     if (!fromNode || !toNode) return;
-    
+
     const points = [fromNode.position, toNode.position];
     const geometry = new BufferGeometry().setFromPoints(points);
     const material = new LineBasicMaterial({
@@ -483,7 +483,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
       opacity: 0.2,
       linewidth: 1
     });
-    
+
     const line = new Line(geometry, material);
     scene.add(line);
     edgeObjectsRef.current.push(line);

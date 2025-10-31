@@ -30,6 +30,7 @@ export default function MainLayout() {
     createConversation,
     setCurrentConversation,
     deleteConversation,
+    updateConversation,
     addMessageLocal,
     updateLastMessage,
     loadMessages,
@@ -234,13 +235,17 @@ export default function MainLayout() {
   }
 
   const handleRenameConversation = async (conversationId) => {
-    // For now, trigger a simple prompt
-    // In future: use a modal component
-    const newTitle = prompt('Rename conversation:', '')
-    if (newTitle && newTitle.trim()) {
-      // Update the conversation in store (would need updateConversation method)
-      // For now, conversations are read-only after creation
-      console.log('Rename conversation:', conversationId, 'to:', newTitle)
+    // Get current conversation title
+    const currentConv = conversations.find(c => c.id === conversationId)
+    const currentTitle = currentConv?.title || ''
+    
+    // Prompt for new title
+    const newTitle = prompt('Rename conversation:', currentTitle)
+    
+    if (newTitle && newTitle.trim() && newTitle !== currentTitle) {
+      console.log('🔄 Renaming conversation:', conversationId, 'to:', newTitle)
+      await updateConversation(conversationId, { title: newTitle.trim() })
+      console.log('✅ Conversation renamed successfully')
     }
   }
 
