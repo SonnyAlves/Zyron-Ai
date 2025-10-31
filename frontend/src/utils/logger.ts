@@ -14,11 +14,11 @@ const IS_DEV = import.meta.env.DEV;
 const IS_PROD = import.meta.env.PROD;
 
 // Code name for this version
-const CODE_NAME = 'Leverage';
+const CODE_NAME = 'Influence';
 
 // Version info (will be injected at build time)
 const VERSION_INFO = {
-  version: import.meta.env.VITE_APP_VERSION || '1.3.4',
+  version: import.meta.env.VITE_APP_VERSION || '1.3.5',
   codeName: CODE_NAME,
   commit: import.meta.env.VITE_GIT_COMMIT_SHA || 'unknown',
   branch: import.meta.env.VITE_GIT_BRANCH || 'unknown',
