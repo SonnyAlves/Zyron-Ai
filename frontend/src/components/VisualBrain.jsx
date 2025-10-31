@@ -744,7 +744,7 @@ const VisualBrain = forwardRef(({ nodes = [], edges = [], isThinking, onNodeClic
       activatedNodes.forEach((item, arrayIndex) => {
         setTimeout(() => {
           popNode(item.node);
-          // Removed log
+          console.log(`🍿 Node ${arrayIndex + 1}/${numToActivate} popped at ${Math.round(arrayIndex * staggerDelay)}ms`);
         }, arrayIndex * staggerDelay);
       });
     },

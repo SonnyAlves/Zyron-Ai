@@ -21,6 +21,7 @@ export default function MainLayout() {
   const isDragging = useRef(false) // Track if user is dragging (ref to avoid re-renders)
   const dragTimeout = useRef(null) // Timeout to re-enable auto-resize after drag
   const visualBrainRef = useRef(null)
+  const lastTokenTriggerTime = useRef(0) // Throttle addToken calls
 
   // Zustand store (SIMPLIFIED - No workspaces)
   const {
@@ -152,20 +153,18 @@ export default function MainLayout() {
                 // Update last message (assistant) in real-time
                 updateLastMessage(fullResponse)
 
-                // Activate Visual Brain nodes for each token
-                visualBrainRef.current?.addToken(text)
+                // Activate Visual Brain nodes (throttled to every 2 seconds)
+                const now = Date.now()
+                if (now - lastTokenTriggerTime.current > 2000) {
+                  visualBrainRef.current?.addToken(text)
+                  lastTokenTriggerTime.current = now
+                }
               }
-              
+
               // Handle graph updates (animate nodes)
               if (graphUpdate && visualBrainRef.current) {
-                // Activate nodes based on graph_update
-                if (graphUpdate.activate_nodes && Array.isArray(graphUpdate.activate_nodes)) {
-                  const activations = graphUpdate.activate_nodes.map(nodeId => ({
-                    nodeId: nodeId,
-                    energyDelta: 0.2
-                  }))
-                  visualBrainRef.current.applyActivations(activations)
-                }
+                // NOTE: Removed applyActivations to avoid conflicts with popcorn effect
+                // The addToken method above already handles node activation
                 
                 // Add new nodes if needed
                 if (graphUpdate.new_nodes && Array.isArray(graphUpdate.new_nodes)) {
@@ -182,7 +181,13 @@ export default function MainLayout() {
                 setResponse((prev) => prev + text)
                 setTokens((prev) => [...prev, text])
                 updateLastMessage(fullResponse)
-                visualBrainRef.current?.addToken(text)
+
+                // Activate Visual Brain nodes (throttled to every 2 seconds)
+                const now = Date.now()
+                if (now - lastTokenTriggerTime.current > 2000) {
+                  visualBrainRef.current?.addToken(text)
+                  lastTokenTriggerTime.current = now
+                }
               }
             }
           }
@@ -198,7 +203,7 @@ export default function MainLayout() {
           // Check if it's a structured response with text, clarification, graph_update
           let text = ''
           let graphUpdate = null
-          
+
           if (typeof parsed === 'object' && parsed !== null) {
             // Structured response from backend
             text = parsed.text || ''
@@ -207,13 +212,19 @@ export default function MainLayout() {
             // Simple string response
             text = parsed
           }
-          
+
           if (text) {
             fullResponse += text
             setResponse((prev) => prev + text)
             setTokens((prev) => [...prev, text])
             updateLastMessage(fullResponse)
-            visualBrainRef.current?.addToken(text)
+
+            // Activate Visual Brain nodes (throttled to every 2 seconds)
+            const now = Date.now()
+            if (now - lastTokenTriggerTime.current > 2000) {
+              visualBrainRef.current?.addToken(text)
+              lastTokenTriggerTime.current = now
+            }
           }
           
           // Handle graph updates (animate nodes)
@@ -241,7 +252,13 @@ export default function MainLayout() {
             setResponse((prev) => prev + text)
             setTokens((prev) => [...prev, text])
             updateLastMessage(fullResponse)
-            visualBrainRef.current?.addToken(text)
+
+            // Activate Visual Brain nodes (throttled to every 2 seconds)
+            const now = Date.now()
+            if (now - lastTokenTriggerTime.current > 2000) {
+              visualBrainRef.current?.addToken(text)
+              lastTokenTriggerTime.current = now
+            }
           }
         }
       }
@@ -578,7 +595,8 @@ export default function MainLayout() {
             height: '100%',
             flexShrink: 0,
             overflow: 'auto',
-            borderRight: '1px solid #e5e5e5',
+            border: 'none',
+            borderRight: 'none',
             background: 'white'
           }}>
             <Sidebar
@@ -601,7 +619,9 @@ export default function MainLayout() {
           minWidth: 0,
           overflow: 'auto',
           background: 'white',
-          width: isMobile ? '100%' : 'auto'
+          width: isMobile ? '100%' : 'auto',
+          border: 'none',
+          borderRight: 'none'
         }}>
           <ChatPanelContent
             message={message}
@@ -611,84 +631,20 @@ export default function MainLayout() {
           />
         </div>
 
-        {/* RESIZE HANDLE - Draggable divider between Chat and Graph */}
+        {/* RESIZE HANDLE - Invisible draggable divider between Chat and Graph */}
         {!isMobile && (
           <div
             onMouseDown={handleMouseDown}
             style={{
               width: '8px',
               cursor: 'col-resize',
-              background: isResizing ? '#667eea' : 'transparent',
-              transition: isResizing ? 'none' : 'background 0.2s',
+              background: 'white',
               flexShrink: 0,
               position: 'relative',
               zIndex: 10,
-              userSelect: 'none',
-              borderLeft: '1px solid #e5e5e5',
-              borderRight: '1px solid #e5e5e5'
+              userSelect: 'none'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(102, 126, 234, 0.1)'
-              e.currentTarget.querySelector('.drag-indicator').style.opacity = '1'
-            }}
-            onMouseLeave={(e) => {
-              if (!isResizing) {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.querySelector('.drag-indicator').style.opacity = '0'
-              }
-            }}
-          >
-            {/* Drag indicator - visible on hover */}
-            <div
-              className="drag-indicator"
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '3px',
-                height: '60px',
-                background: '#667eea',
-                borderRadius: '2px',
-                pointerEvents: 'none',
-                opacity: isResizing ? 1 : 0,
-                transition: 'opacity 0.2s'
-              }}
-            />
-            {/* Three dots indicator */}
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-              pointerEvents: 'none'
-            }}>
-              <div style={{
-                width: '4px',
-                height: '4px',
-                borderRadius: '50%',
-                background: '#999',
-                transition: 'background 0.2s'
-              }} />
-              <div style={{
-                width: '4px',
-                height: '4px',
-                borderRadius: '50%',
-                background: '#999',
-                transition: 'background 0.2s'
-              }} />
-              <div style={{
-                width: '4px',
-                height: '4px',
-                borderRadius: '50%',
-                background: '#999',
-                transition: 'background 0.2s'
-              }} />
-            </div>
-          </div>
+          />
         )}
 
         {/* Column 3: Visual Brain - Hidden on mobile */}
@@ -699,7 +655,9 @@ export default function MainLayout() {
             flexShrink: 0,
             overflow: 'hidden',
             background: '#F7F7F7',
-            transition: isResizing ? 'none' : 'width 0.3s ease'
+            transition: isResizing ? 'none' : 'width 0.3s ease',
+            border: 'none',
+            borderLeft: 'none'
           }}>
             <VisualBrain
               ref={visualBrainRef}

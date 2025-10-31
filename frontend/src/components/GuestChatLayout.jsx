@@ -16,6 +16,7 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
   const clerk = useClerk()
   const [inputValue, setInputValue] = useState('')
   const visualBrainRef = useRef(null)
+  const [visualBrainWidth] = useState(60) // Fixed at 60%
 
   // Use streaming hook (backend returns SSE stream)
   const {
@@ -177,13 +178,14 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
 
       {/* Main content - 2 columns */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Chat panel - 40% */}
+        {/* Chat panel - Fixed width */}
         <div style={{
-          width: '40%',
+          width: `${100 - visualBrainWidth}%`,
           display: 'flex',
           flexDirection: 'column',
           background: 'white',
-          borderRight: '1px solid #e5e5e5'
+          border: 'none',
+          borderRight: 'none'
         }}>
           {/* Messages area */}
           <div style={{
@@ -413,8 +415,13 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
           </div>
         </div>
 
-        {/* Visual Brain - 60% */}
-        <div style={{ flex: 1, background: '#F7F7F7' }}>
+        {/* Visual Brain - Fixed width */}
+        <div style={{
+          width: `${visualBrainWidth}%`,
+          background: '#F7F7F7',
+          border: 'none',
+          borderLeft: 'none'
+        }}>
           <VisualBrain
             ref={visualBrainRef}
             nodes={nodes}
