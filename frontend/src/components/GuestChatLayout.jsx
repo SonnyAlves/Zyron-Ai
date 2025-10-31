@@ -50,16 +50,16 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
     const userMessage = inputValue.trim()
     setInputValue('')
 
+    // Immediately trigger Visual Brain animation (zero latency!)
+    if (visualBrainRef.current) {
+      logger.debug('Visual Brain triggered IMMEDIATELY')
+      visualBrainRef.current.addToken('_initial_activation_')
+    }
+
     try {
       logger.debug('Sending message')
       await sendMessage(userMessage)
       logger.success('Message sent')
-
-      // Trigger Visual Brain animation
-      if (visualBrainRef.current) {
-        logger.debug('Visual Brain triggered')
-        visualBrainRef.current.addToken(userMessage)
-      }
     } catch (error) {
       logger.error('Send message failed', error)
     }
@@ -77,16 +77,16 @@ export default function GuestChatLayout({ onBeforeSend, remainingMessages }) {
 
     setInputValue('')
 
+    // Immediately trigger Visual Brain animation (zero latency!)
+    if (visualBrainRef.current) {
+      logger.debug('Visual Brain triggered IMMEDIATELY')
+      visualBrainRef.current.addToken('_initial_activation_')
+    }
+
     try {
       logger.debug('Sending suggestion')
       await sendMessage(suggestion)
       logger.success('Suggestion sent')
-
-      // Trigger Visual Brain animation
-      if (visualBrainRef.current) {
-        logger.debug('Visual Brain triggered')
-        visualBrainRef.current.addToken(suggestion)
-      }
     } catch (error) {
       logger.error('Send suggestion failed', error)
     }

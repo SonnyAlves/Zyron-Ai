@@ -82,6 +82,12 @@ export default function MainLayout() {
     console.log('🚀 Sending message to conversation:', finalConversationId)
     setMessage(messageText)
 
+    // Immediately trigger Visual Brain animation (zero latency!)
+    if (visualBrainRef.current) {
+      console.log('🎬 Visual Brain triggered IMMEDIATELY')
+      visualBrainRef.current.addToken('_initial_activation_')
+    }
+
     try {
       setIsThinking(true)
       setResponse('')
