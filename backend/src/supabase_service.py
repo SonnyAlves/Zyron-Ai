@@ -7,7 +7,7 @@ class SupabaseService:
     def __init__(self):
         self.client: Client = create_client(
             os.getenv("SUPABASE_URL"),
-            os.getenv("SUPABASE_SERVICE_KEY")
+            os.getenv("SUPABASE_KEY")
         )
 
     def get_or_create_conversation(self, user_id: str, conversation_id: Optional[str] = None) -> dict:
