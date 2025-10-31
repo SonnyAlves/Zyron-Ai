@@ -1,12 +1,7 @@
 /**
  * Zyron AI - Graph API Endpoint
- * Get only the graph (nodes + edges) for a conversation
+ * DÉSACTIVÉ - Retourne un graph vide (compatibilité)
  */
-
-import {
-  getConversationNodes,
-  getConversationEdges
-} from '../../../lib/supabase-service.js';
 
 export const config = {
   runtime: 'nodejs',
@@ -14,6 +9,7 @@ export const config = {
 
 /**
  * GET /api/conversations/graph/[id] - Get graph for a conversation
+ * Retourne toujours un graph vide (nodes/edges désactivés)
  */
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -23,21 +19,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    try {
-      const nodes = await getConversationNodes(id);
-      const edges = await getConversationEdges(id);
-
-      return res.status(200).json({
-        nodes: nodes,
-        edges: edges
-      });
-    } catch (error) {
-      console.error('❌ Error fetching graph:', error);
-      return res.status(500).json({
-        error: 'Failed to fetch graph',
-        details: error.message
-      });
-    }
+    // Visual Brain désactivé - Retourne un graph vide
+    return res.status(200).json({
+      nodes: [],
+      edges: []
+    });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

@@ -1,13 +1,10 @@
 /**
  * Zyron AI - Conversation API Endpoint
- * Get messages and graph data for a specific conversation
+ * Get messages for a specific conversation
+ * SIMPLIFIÉ - Graph (nodes/edges) désactivé
  */
 
-import {
-  getConversationMessages,
-  getConversationNodes,
-  getConversationEdges
-} from '../../lib/supabase-service.js';
+import { getConversationMessages } from '../../lib/supabase-service.js';
 
 export const config = {
   runtime: 'nodejs',
@@ -15,7 +12,7 @@ export const config = {
 
 /**
  * Handler for conversation operations
- * GET /api/conversations/[id] - Get all messages and graph for a conversation
+ * GET /api/conversations/[id] - Get all messages (+ empty graph for compatibility)
  */
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -29,16 +26,13 @@ export default async function handler(req, res) {
       // Get messages
       const messages = await getConversationMessages(id);
 
-      // Get graph data (nodes + edges)
-      const nodes = await getConversationNodes(id);
-      const edges = await getConversationEdges(id);
-
       return res.status(200).json({
         conversation_id: id,
         messages: messages,
+        // Graph désactivé (compatibilité avec ancien code)
         graph: {
-          nodes: nodes,
-          edges: edges
+          nodes: [],
+          edges: []
         }
       });
     } catch (error) {

@@ -129,7 +129,21 @@ export default function MainLayout() {
             // Parse JSON to properly decode text
             const jsonStr = line.slice(6)
             try {
-              const text = JSON.parse(jsonStr)
+              const parsed = JSON.parse(jsonStr)
+              
+              // Check if it's a structured response with text, clarification, graph_update
+              let text = ''
+              let graphUpdate = null
+              
+              if (typeof parsed === 'object' && parsed !== null) {
+                // Structured response from backend
+                text = parsed.text || ''
+                graphUpdate = parsed.graph_update || null
+              } else {
+                // Simple string response
+                text = parsed
+              }
+              
               if (text) {
                 fullResponse += text
                 setResponse((prev) => prev + text)
@@ -140,6 +154,25 @@ export default function MainLayout() {
 
                 // Activate Visual Brain nodes for each token
                 visualBrainRef.current?.addToken(text)
+              }
+              
+              // Handle graph updates (animate nodes)
+              if (graphUpdate && visualBrainRef.current) {
+                // Activate nodes based on graph_update
+                if (graphUpdate.activate_nodes && Array.isArray(graphUpdate.activate_nodes)) {
+                  const activations = graphUpdate.activate_nodes.map(nodeId => ({
+                    nodeId: nodeId,
+                    energyDelta: 0.2
+                  }))
+                  visualBrainRef.current.applyActivations(activations)
+                }
+                
+                // Add new nodes if needed
+                if (graphUpdate.new_nodes && Array.isArray(graphUpdate.new_nodes)) {
+                  graphUpdate.new_nodes.forEach(node => {
+                    console.log('📊 New node from backend:', node)
+                  })
+                }
               }
             } catch (e) {
               // Fallback for non-JSON data
@@ -160,13 +193,46 @@ export default function MainLayout() {
       if (buffer.startsWith('data: ')) {
         const jsonStr = buffer.slice(6)
         try {
-          const text = JSON.parse(jsonStr)
+          const parsed = JSON.parse(jsonStr)
+          
+          // Check if it's a structured response with text, clarification, graph_update
+          let text = ''
+          let graphUpdate = null
+          
+          if (typeof parsed === 'object' && parsed !== null) {
+            // Structured response from backend
+            text = parsed.text || ''
+            graphUpdate = parsed.graph_update || null
+          } else {
+            // Simple string response
+            text = parsed
+          }
+          
           if (text) {
             fullResponse += text
             setResponse((prev) => prev + text)
             setTokens((prev) => [...prev, text])
             updateLastMessage(fullResponse)
             visualBrainRef.current?.addToken(text)
+          }
+          
+          // Handle graph updates (animate nodes)
+          if (graphUpdate && visualBrainRef.current) {
+            // Activate nodes based on graph_update
+            if (graphUpdate.activate_nodes && Array.isArray(graphUpdate.activate_nodes)) {
+              const activations = graphUpdate.activate_nodes.map(nodeId => ({
+                nodeId: nodeId,
+                energyDelta: 0.2
+              }))
+              visualBrainRef.current.applyActivations(activations)
+            }
+            
+            // Add new nodes if needed
+            if (graphUpdate.new_nodes && Array.isArray(graphUpdate.new_nodes)) {
+              graphUpdate.new_nodes.forEach(node => {
+                console.log('📊 New node from backend:', node)
+              })
+            }
           }
         } catch (e) {
           const text = jsonStr

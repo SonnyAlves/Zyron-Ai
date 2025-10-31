@@ -91,17 +91,39 @@ export function useStreamingChat(apiUrl = 'http://localhost:8001', maxRetries = 
                   // Parse JSON to get the properly decoded text
                   const jsonStr = line.slice(6)
                   try {
-                    const text = JSON.parse(jsonStr)
-                    // DEBUG: Log SSE parsing details
-                    if (text && i < 3) { // Only log first 3 chunks to avoid spam
-                      console.log(`🔍 SSE Chunk ${i}:`, {
-                        rawJsonStr: jsonStr.substring(0, 100),
-                        parsedText: text.substring(0, 100),
-                        hasLiteralBackslashN: text.includes('\\n'),
-                        hasRealNewline: text.includes('\n'),
-                        hasLiteralBackslashU: text.includes('\\u'),
-                      })
+                    const parsed = JSON.parse(jsonStr)
+                    
+                    // Check if it's a structured response with text, clarification, graph_update
+                    let text = ''
+                    
+                    if (typeof parsed === 'object' && parsed !== null) {
+                      // Structured response from backend (extract text only)
+                      text = parsed.text || ''
+                      
+                      // DEBUG: Log SSE parsing details
+                      if (text && i < 3) {
+                        console.log(`🔍 SSE Chunk ${i}:`, {
+                          structuredResponse: true,
+                          textLength: text.length,
+                          hasGraphUpdate: !!parsed.graph_update,
+                        })
+                      }
+                    } else {
+                      // Simple string response
+                      text = parsed
+                      
+                      // DEBUG: Log SSE parsing details
+                      if (text && i < 3) {
+                        console.log(`🔍 SSE Chunk ${i}:`, {
+                          rawJsonStr: jsonStr.substring(0, 100),
+                          parsedText: text.substring(0, 100),
+                          hasLiteralBackslashN: text.includes('\\n'),
+                          hasRealNewline: text.includes('\n'),
+                          hasLiteralBackslashU: text.includes('\\u'),
+                        })
+                      }
                     }
+                    
                     if (text) {
                       fullContent += text
                       onChunk?.(text)
@@ -125,7 +147,19 @@ export function useStreamingChat(apiUrl = 'http://localhost:8001', maxRetries = 
               // Parse JSON to get the properly decoded text
               const jsonStr = buffer.slice(6)
               try {
-                const text = JSON.parse(jsonStr)
+                const parsed = JSON.parse(jsonStr)
+                
+                // Check if it's a structured response with text, clarification, graph_update
+                let text = ''
+                
+                if (typeof parsed === 'object' && parsed !== null) {
+                  // Structured response from backend (extract text only)
+                  text = parsed.text || ''
+                } else {
+                  // Simple string response
+                  text = parsed
+                }
+                
                 if (text) {
                   fullContent += text
                   onChunk?.(text)
@@ -260,7 +294,19 @@ export function useSimpleStreaming(apiUrl = 'http://localhost:8001') {
               // Parse JSON to get the properly decoded text
               const jsonStr = lines[i].slice(6)
               try {
-                const text = JSON.parse(jsonStr)
+                const parsed = JSON.parse(jsonStr)
+                
+                // Check if it's a structured response with text, clarification, graph_update
+                let text = ''
+                
+                if (typeof parsed === 'object' && parsed !== null) {
+                  // Structured response from backend (extract text only)
+                  text = parsed.text || ''
+                } else {
+                  // Simple string response
+                  text = parsed
+                }
+                
                 if (text) {
                   content += text
                   onChunk?.(text)
@@ -281,7 +327,19 @@ export function useSimpleStreaming(apiUrl = 'http://localhost:8001') {
           // Parse JSON to get the properly decoded text
           const jsonStr = buffer.slice(6)
           try {
-            const text = JSON.parse(jsonStr)
+            const parsed = JSON.parse(jsonStr)
+            
+            // Check if it's a structured response with text, clarification, graph_update
+            let text = ''
+            
+            if (typeof parsed === 'object' && parsed !== null) {
+              // Structured response from backend (extract text only)
+              text = parsed.text || ''
+            } else {
+              // Simple string response
+              text = parsed
+            }
+            
             if (text) {
               content += text
               onChunk?.(text)

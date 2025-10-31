@@ -16,14 +16,11 @@ const IS_PROD = import.meta.env.PROD;
 // Code name for this version
 const CODE_NAME = 'Influence';
 
-// Version info (will be injected at build time)
+// Version info
 const VERSION_INFO = {
   version: import.meta.env.VITE_APP_VERSION || '1.3.5',
   codeName: CODE_NAME,
-  commit: import.meta.env.VITE_GIT_COMMIT_SHA || 'unknown',
-  branch: import.meta.env.VITE_GIT_BRANCH || 'unknown',
-  buildTime: import.meta.env.VITE_BUILD_TIME || 'unknown',
-  apiUrl: import.meta.env.VITE_API_URL || 'not configured',
+  buildTime: import.meta.env.VITE_BUILD_TIME || new Date().toISOString(),
 };
 
 /**
@@ -98,7 +95,7 @@ export const logger = new Logger('Zyron');
 /**
  * Display version info on app startup
  */
-export const displayVersionInfo = async () => {
+export const displayVersionInfo = () => {
   const styles = [
     'color: #667eea',
     'font-size: 14px',
@@ -115,54 +112,8 @@ export const displayVersionInfo = async () => {
     'padding: 4px',
   ].join(';');
 
-  const errorStyles = [
-    'color: #ef4444',
-    'font-size: 12px',
-    'padding: 4px',
-    'font-weight: bold',
-  ].join(';');
-
-  const successStyles = [
-    'color: #10b981',
-    'font-size: 12px',
-    'padding: 4px',
-    'font-weight: bold',
-  ].join(';');
-
-  // Use console.warn to bypass disableLogs.ts in production
   console.warn(`%c🧠 Zyron AI - ${VERSION_INFO.codeName}`, styles);
-  console.warn('%cFrontend Version:', infoStyles);
-  console.warn(`  📦 Version: ${VERSION_INFO.version} (${VERSION_INFO.codeName})`);
-  console.warn(`  🔀 Branch: ${VERSION_INFO.branch}`);
-  console.warn(`  📝 Commit: ${VERSION_INFO.commit.substring(0, 8)}`);
-  console.warn(`  🕐 Build: ${VERSION_INFO.buildTime}`);
-  console.warn(`  🌐 API: ${VERSION_INFO.apiUrl}`);
-  console.warn(`  🏗️ Mode: ${IS_DEV ? '🔧 Development' : '🚀 Production'}`);
-  console.warn('');
-
-  // Check backend version
-  if (VERSION_INFO.apiUrl && VERSION_INFO.apiUrl !== 'not configured') {
-    try {
-      const response = await fetch(`${VERSION_INFO.apiUrl}/version`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (response.ok) {
-        const backendInfo = await response.json();
-        console.warn(`%c🚀 Backend v${backendInfo.version} (${backendInfo.codename}) - ${backendInfo.status}`, successStyles);
-        console.warn(`  💰 API: ${backendInfo.api}`);
-      } else {
-        console.warn('%c⚠️ Backend: Unable to fetch version', errorStyles);
-      }
-    } catch (error) {
-      console.warn('%c❌ Backend: Not reachable', errorStyles);
-    }
-  } else {
-    console.error('%c⚠️ WARNING: VITE_API_URL is not configured!', errorStyles);
-    console.error('   Backend not deployed - messages will not be saved!');
-  }
-
+  console.warn(`%c📦 v${VERSION_INFO.version} | 🏗️ ${IS_DEV ? 'Development' : 'Production'} | 🕐 ${VERSION_INFO.buildTime}`, infoStyles);
   console.warn('');
 };
 

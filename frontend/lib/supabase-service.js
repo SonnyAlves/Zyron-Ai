@@ -1,6 +1,7 @@
 /**
- * Zyron AI - Supabase Service
- * Database operations for conversations, messages, nodes, and edges
+ * Zyron AI - Supabase Service (Backend API)
+ * SIMPLIFIÉ - Database operations pour conversations et messages uniquement
+ * Utilisé par les API Vercel Functions (/api/chat.js, etc.)
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -19,6 +20,10 @@ export function getSupabaseClient() {
     return createClient(supabaseUrl, supabaseKey);
 }
 
+// ============================================
+// CONVERSATIONS
+// ============================================
+
 /**
  * Get existing conversation or create new one
  * @param {string} userId - User ID
@@ -34,6 +39,7 @@ export async function getOrCreateConversation(userId, conversationId = null) {
             .from('conversations')
             .select('*')
             .eq('id', conversationId)
+            .eq('user_id', userId) // Vérifier que la conversation appartient à l'utilisateur
             .single();
 
         if (!error && data) {
@@ -68,6 +74,71 @@ export async function getOrCreateConversation(userId, conversationId = null) {
 }
 
 /**
+ * Get all conversations for a user
+ * @param {string} userId - User ID
+ * @returns {Promise<Array>} Array of conversations
+ */
+export async function getUserConversations(userId) {
+    const supabase = getSupabaseClient();
+
+    const { data, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false });
+
+    if (error) {
+        throw new Error(`Failed to get conversations: ${error.message}`);
+    }
+
+    return data || [];
+}
+
+/**
+ * Update conversation
+ * @param {string} conversationId - Conversation ID
+ * @param {Object} updates - Fields to update (e.g., { title: 'New title' })
+ * @returns {Promise<Object>} Updated conversation
+ */
+export async function updateConversation(conversationId, updates) {
+    const supabase = getSupabaseClient();
+
+    const { data, error } = await supabase
+        .from('conversations')
+        .update(updates)
+        .eq('id', conversationId)
+        .select()
+        .single();
+
+    if (error) {
+        throw new Error(`Failed to update conversation: ${error.message}`);
+    }
+
+    return data;
+}
+
+/**
+ * Delete conversation
+ * @param {string} conversationId - Conversation ID
+ */
+export async function deleteConversation(conversationId) {
+    const supabase = getSupabaseClient();
+
+    const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+
+    if (error) {
+        throw new Error(`Failed to delete conversation: ${error.message}`);
+    }
+}
+
+// ============================================
+// MESSAGES
+// ============================================
+
+/**
  * Save a message (user or assistant)
  * @param {string} conversationId - Conversation ID
  * @param {string} role - 'user' or 'assistant'
@@ -95,137 +166,6 @@ export async function saveMessage(conversationId, role, content) {
 }
 
 /**
- * Create a new node
- * @param {string} conversationId - Conversation ID
- * @param {string} messageId - Message ID
- * @param {Object} nodeData - Node data (id, type, label, energy)
- * @returns {Promise<Object>} Created node
- */
-export async function createNode(conversationId, messageId, nodeData) {
-    const supabase = getSupabaseClient();
-
-    const { data, error } = await supabase
-        .from('nodes')
-        .insert({
-            conversation_id: conversationId,
-            message_id: messageId,
-            id: nodeData.id,
-            type: nodeData.type,
-            label: nodeData.label,
-            energy: nodeData.energy || 0.8
-        })
-        .select()
-        .single();
-
-    if (error) {
-        throw new Error(`Failed to create node: ${error.message}`);
-    }
-
-    return data;
-}
-
-/**
- * Activate a node (increase energy)
- * @param {string} nodeId - Node ID
- * @param {number} energy - Energy level (0-1)
- */
-export async function activateNode(nodeId, energy = 0.9) {
-    const supabase = getSupabaseClient();
-
-    const { error } = await supabase
-        .from('nodes')
-        .update({ energy: energy })
-        .eq('id', nodeId);
-
-    if (error) {
-        throw new Error(`Failed to activate node: ${error.message}`);
-    }
-}
-
-/**
- * Get all nodes in a conversation
- * @param {string} conversationId - Conversation ID
- * @returns {Promise<Array>} Array of nodes
- */
-export async function getConversationNodes(conversationId) {
-    const supabase = getSupabaseClient();
-
-    const { data, error } = await supabase
-        .from('nodes')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at');
-
-    if (error) {
-        throw new Error(`Failed to get nodes: ${error.message}`);
-    }
-
-    return data || [];
-}
-
-/**
- * Create an edge between two nodes
- * @param {string} fromNodeId - Source node ID
- * @param {string} toNodeId - Target node ID
- * @param {number} strength - Edge strength (0-1)
- * @returns {Promise<Object|null>} Created edge or null if exists
- */
-export async function createEdge(fromNodeId, toNodeId, strength) {
-    const supabase = getSupabaseClient();
-
-    try {
-        const { data, error } = await supabase
-            .from('edges')
-            .insert({
-                from_node_id: fromNodeId,
-                to_node_id: toNodeId,
-                strength: strength
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.log('Edge exists or error:', error.message);
-            return null;
-        }
-
-        return data;
-    } catch (e) {
-        console.log('Edge creation error:', e);
-        return null;
-    }
-}
-
-/**
- * Get all edges for nodes in a conversation
- * @param {string} conversationId - Conversation ID
- * @returns {Promise<Array>} Array of edges
- */
-export async function getConversationEdges(conversationId) {
-    const supabase = getSupabaseClient();
-
-    // First get all node IDs in the conversation
-    const nodes = await getConversationNodes(conversationId);
-    const nodeIds = nodes.map((n) => n.id);
-
-    if (nodeIds.length === 0) {
-        return [];
-    }
-
-    // Get edges where from_node_id is in the conversation
-    const { data, error } = await supabase
-        .from('edges')
-        .select('*')
-        .in('from_node_id', nodeIds);
-
-    if (error) {
-        throw new Error(`Failed to get edges: ${error.message}`);
-    }
-
-    return data || [];
-}
-
-/**
  * Get all messages in a conversation
  * @param {string} conversationId - Conversation ID
  * @returns {Promise<Array>} Array of messages
@@ -237,7 +177,7 @@ export async function getConversationMessages(conversationId) {
         .from('messages')
         .select('*')
         .eq('conversation_id', conversationId)
-        .order('created_at');
+        .order('created_at', { ascending: true });
 
     if (error) {
         throw new Error(`Failed to get messages: ${error.message}`);
@@ -247,23 +187,53 @@ export async function getConversationMessages(conversationId) {
 }
 
 /**
- * Get all conversations for a user
- * @param {string} userId - User ID
- * @returns {Promise<Array>} Array of conversations
+ * Delete all messages in a conversation
+ * @param {string} conversationId - Conversation ID
  */
-export async function getUserConversations(userId) {
+export async function deleteConversationMessages(conversationId) {
+    const supabase = getSupabaseClient();
+
+    const { error } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+
+    if (error) {
+        throw new Error(`Failed to delete messages: ${error.message}`);
+    }
+}
+
+// ============================================
+// PROFILES (OPTIONNEL)
+// ============================================
+
+/**
+ * Upsert user profile
+ * @param {string} userId - User ID
+ * @param {Object} profileData - Profile data
+ * @returns {Promise<Object>} Profile object
+ */
+export async function upsertProfile(userId, profileData) {
     const supabase = getSupabaseClient();
 
     const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
+        .from('profiles')
+        .upsert({
+            id: userId,
+            email: profileData.email || '',
+            full_name: profileData.full_name || profileData.fullName || '',
+            avatar_url: profileData.avatar_url || profileData.imageUrl || '',
+            updated_at: new Date().toISOString(),
+        }, {
+            onConflict: 'id'
+        })
+        .select()
+        .single();
 
     if (error) {
-        throw new Error(`Failed to get conversations: ${error.message}`);
+        throw new Error(`Failed to upsert profile: ${error.message}`);
     }
 
-    return data || [];
+    return data;
 }
 

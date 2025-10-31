@@ -69,9 +69,30 @@ function ChatPanel() {
         for (let i = 0; i < lines.length - 1; i++) {
           const line = lines[i]
           if (line.startsWith('data: ')) {
-            const text = line.slice(6)
-            if (text) {
-              setResponse((prev) => prev + text)
+            const jsonStr = line.slice(6)
+            try {
+              const parsed = JSON.parse(jsonStr)
+              
+              // Check if it's a structured response with text, clarification, graph_update
+              let text = ''
+              
+              if (typeof parsed === 'object' && parsed !== null) {
+                // Structured response from backend (extract text only)
+                text = parsed.text || ''
+              } else {
+                // Simple string response
+                text = parsed
+              }
+              
+              if (text) {
+                setResponse((prev) => prev + text)
+              }
+            } catch (e) {
+              // Fallback for non-JSON data (old format)
+              const text = jsonStr
+              if (text) {
+                setResponse((prev) => prev + text)
+              }
             }
           }
         }
@@ -79,9 +100,30 @@ function ChatPanel() {
 
       // Process any remaining buffer
       if (buffer.startsWith('data: ')) {
-        const text = buffer.slice(6)
-        if (text) {
-          setResponse((prev) => prev + text)
+        const jsonStr = buffer.slice(6)
+        try {
+          const parsed = JSON.parse(jsonStr)
+          
+          // Check if it's a structured response with text, clarification, graph_update
+          let text = ''
+          
+          if (typeof parsed === 'object' && parsed !== null) {
+            // Structured response from backend (extract text only)
+            text = parsed.text || ''
+          } else {
+            // Simple string response
+            text = parsed
+          }
+          
+          if (text) {
+            setResponse((prev) => prev + text)
+          }
+        } catch (e) {
+          // Fallback for non-JSON data (old format)
+          const text = jsonStr
+          if (text) {
+            setResponse((prev) => prev + text)
+          }
         }
       }
     } catch (error) {

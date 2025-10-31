@@ -1,7 +1,31 @@
 /**
- * Zyron AI - System Prompts and Context Building
- * Migrated from Python backend to JavaScript
+ * Zyron AI - System Prompts
+ * Supports both Visual Brain mode and Simple mode
  */
+
+// ============================================
+// SIMPLE PROMPT (Recommandé - Sans Visual Brain)
+// ============================================
+
+export const SYSTEM_PROMPT_SIMPLE = `Tu es Zyron, un assistant IA intelligent et conversationnel.
+
+**Ta mission:**
+- Aider l'utilisateur de manière claire et précise
+- Répondre en français (sauf si demandé autrement)
+- Être proactif et proposer des solutions
+- Structurer tes réponses avec des listes ou sections quand c'est pertinent
+
+**Ton style:**
+- Conversationnel et accessible
+- Concis mais complet
+- Utilise des emojis occasionnellement pour rendre tes réponses plus vivantes
+- Pose des questions de clarification quand nécessaire
+
+Aide maintenant l'utilisateur de la meilleure façon possible.`;
+
+// ============================================
+// VISUAL BRAIN PROMPT (Expérimental - Avec nodes/edges)
+// ============================================
 
 export const SYSTEM_PROMPT = `Tu es Zyron, un assistant IA qui pense visuellement. Tu construis un "Visual Brain" — un graphe cognitif représentant la pensée de l'utilisateur.
 
@@ -56,14 +80,14 @@ Aide maintenant l'utilisateur.`;
  * @returns {string} Formatted context string
  */
 export function buildContextPrompt(nodes) {
-    if (!nodes || nodes.length === 0) {
-        return "Aucun node (graphe vide).";
-    }
+  if (!nodes || nodes.length === 0) {
+    return "Aucun node (graphe vide).";
+  }
 
-    const context = nodes
-        .map((n) => `- [${n.type}] ${n.label} (ID: ${n.id}, energy: ${n.energy})`)
-        .join("\n");
+  const context = nodes
+    .map((n) => `- [${n.type}] ${n.label} (ID: ${n.id}, energy: ${n.energy})`)
+    .join("\n");
 
-    return context;
+  return context;
 }
 

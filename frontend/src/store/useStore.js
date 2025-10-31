@@ -110,7 +110,7 @@ export const useStore = create((set, get) => ({
   deleteConversation: async (conversationId) => {
     try {
       // Check if it's a local conversation (starts with "local-")
-      if (conversationId.startsWith('local-')) {
+      if (conversationId && typeof conversationId === 'string' && conversationId.startsWith('local-')) {
         // Just remove from state, no API call
         console.log('🗑️ Deleting local conversation:', conversationId);
       } else {
@@ -148,6 +148,13 @@ export const useStore = create((set, get) => ({
    * Load messages for a conversation
    */
   loadMessages: async (conversationId) => {
+    // Validate conversationId
+    if (!conversationId || typeof conversationId !== 'string') {
+      console.warn('⚠️ Invalid conversationId:', conversationId);
+      set({ messages: [], loading: false });
+      return;
+    }
+
     // Check if it's a local conversation
     if (conversationId.startsWith('local-')) {
       console.log('📦 Local conversation - skipping load from Supabase');
@@ -174,7 +181,7 @@ export const useStore = create((set, get) => ({
    */
   addMessage: async (conversationId, role, content) => {
     // Check if it's a local conversation
-    if (conversationId.startsWith('local-')) {
+    if (conversationId && typeof conversationId === 'string' && conversationId.startsWith('local-')) {
       console.log('📦 Local conversation - adding message to local state only');
       const fallbackMessage = {
         id: `local-msg-${Date.now()}-${Math.random()}`,
