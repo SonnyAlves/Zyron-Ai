@@ -229,15 +229,9 @@ export default function MainLayout() {
           
           // Handle graph updates (animate nodes)
           if (graphUpdate && visualBrainRef.current) {
-            // Activate nodes based on graph_update
-            if (graphUpdate.activate_nodes && Array.isArray(graphUpdate.activate_nodes)) {
-              const activations = graphUpdate.activate_nodes.map(nodeId => ({
-                nodeId: nodeId,
-                energyDelta: 0.2
-              }))
-              visualBrainRef.current.applyActivations(activations)
-            }
-            
+            // NOTE: Removed applyActivations to avoid conflicts with popcorn effect
+            // The addToken method above already handles node activation
+
             // Add new nodes if needed
             if (graphUpdate.new_nodes && Array.isArray(graphUpdate.new_nodes)) {
               graphUpdate.new_nodes.forEach(node => {
@@ -388,33 +382,8 @@ export default function MainLayout() {
   }, [conversationSidebarOpen])
 
   // Trigger node activation when tokens arrive
-  useEffect(() => {
-    if (tokens.length > 0 && visualBrainRef.current) {
-      // Random node activation from brain nodes
-      const nodeIds = [
-        'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8',
-        'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i8', 'i9', 'i10', 'i11', 'i12', 'i13', 'i14',
-        't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9',
-        'e1', 'e2', 'e3', 'e4', 'e5',
-        'r1', 'r2', 'r3', 'r4', 'r5',
-        'in1', 'in2', 'in3',
-        's1', 's2', 's3'
-      ]
-
-      // Get a random subset of nodes to activate based on token count
-      const activationCount = Math.min(Math.floor(tokens.length / 10) + 1, 5)
-      const activatedNodes = []
-      for (let i = 0; i < activationCount; i++) {
-        const randomIdx = Math.floor(Math.random() * nodeIds.length)
-        activatedNodes.push({
-          nodeId: nodeIds[randomIdx],
-          energyDelta: 0.1 + Math.random() * 0.1
-        })
-      }
-
-      visualBrainRef.current.applyActivations(activatedNodes)
-    }
-  }, [tokens])
+  // NOTE: Removed useEffect that called applyActivations based on tokens
+  // The addToken method (called during streaming) already handles node activation with popcorn effect
 
   // Mouse event listeners for resizing
   useEffect(() => {
