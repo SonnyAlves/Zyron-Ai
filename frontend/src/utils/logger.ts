@@ -18,7 +18,7 @@ const CODE_NAME = 'Leverage';
 
 // Version info (will be injected at build time)
 const VERSION_INFO = {
-  version: import.meta.env.VITE_APP_VERSION || '1.3.1',
+  version: import.meta.env.VITE_APP_VERSION || '1.3.2',
   codeName: CODE_NAME,
   commit: import.meta.env.VITE_GIT_COMMIT_SHA || 'unknown',
   branch: import.meta.env.VITE_GIT_BRANCH || 'unknown',
@@ -115,15 +115,16 @@ export const displayVersionInfo = () => {
     'padding: 4px',
   ].join(';');
 
-  console.log(`%c🧠 Zyron AI - ${VERSION_INFO.codeName}`, styles);
-  console.log('%cVersion Info:', infoStyles);
-  console.log(`  📦 Version: ${VERSION_INFO.version} (${VERSION_INFO.codeName})`);
-  console.log(`  🔀 Branch: ${VERSION_INFO.branch}`);
-  console.log(`  📝 Commit: ${VERSION_INFO.commit.substring(0, 8)}`);
-  console.log(`  🕐 Build: ${VERSION_INFO.buildTime}`);
-  console.log(`  🌐 API: ${VERSION_INFO.apiUrl}`);
-  console.log(`  🏗️ Mode: ${IS_DEV ? '🔧 Development' : '🚀 Production'}`);
-  console.log('');
+  // Use console.warn to bypass disableLogs.ts in production
+  console.warn(`%c🧠 Zyron AI - ${VERSION_INFO.codeName}`, styles);
+  console.warn('%cVersion Info:', infoStyles);
+  console.warn(`  📦 Version: ${VERSION_INFO.version} (${VERSION_INFO.codeName})`);
+  console.warn(`  🔀 Branch: ${VERSION_INFO.branch}`);
+  console.warn(`  📝 Commit: ${VERSION_INFO.commit.substring(0, 8)}`);
+  console.warn(`  🕐 Build: ${VERSION_INFO.buildTime}`);
+  console.warn(`  🌐 API: ${VERSION_INFO.apiUrl}`);
+  console.warn(`  🏗️ Mode: ${IS_DEV ? '🔧 Development' : '🚀 Production'}`);
+  console.warn('');
 
   // Production warning if API is not configured
   if (IS_PROD && VERSION_INFO.apiUrl === 'not configured') {

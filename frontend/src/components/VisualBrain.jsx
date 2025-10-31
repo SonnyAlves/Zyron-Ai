@@ -112,15 +112,16 @@ const INITIAL_BRAIN_NODES = [
 ];
 
 // Sparse edge connections (15% density)
+// ⚠️ FIXED: Removed references to non-existent nodes (t8, i13)
 const INITIAL_CONNECTIONS = [
   // Key connections between clusters
   { from: 'g1', to: 'i2', strength: 0.3 },
   { from: 'g1', to: 'i5', strength: 0.25 },
   { from: 'g2', to: 't1', strength: 0.3 },
-  { from: 'g4', to: 't8', strength: 0.28 },
+  { from: 'g4', to: 't6', strength: 0.28 }, // ✅ FIXED: t8 → t6 (t8 doesn't exist)
   { from: 'i1', to: 't2', strength: 0.3 },
   { from: 'i7', to: 'g4', strength: 0.32 },
-  { from: 'i10', to: 'i13', strength: 0.25 },
+  { from: 'i10', to: 'i12', strength: 0.25 }, // ✅ FIXED: i13 → i12 (i13 doesn't exist)
   { from: 't3', to: 't5', strength: 0.3 },
   { from: 'e1', to: 'g1', strength: 0.3 },
   { from: 'e2', to: 'i5', strength: 0.28 },
